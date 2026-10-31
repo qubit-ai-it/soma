@@ -3,7 +3,7 @@ import type { SourceInfo } from "../../shared/source.ts";
 
 export type RadiationSample = {
   timestamp: string;
-  /** Unit is assumed to be µGy/h; RadLab does not state it explicitly. */
+  // unit assumed to be µGy/h; RadLab does not state it
   doseRate: number;
 };
 

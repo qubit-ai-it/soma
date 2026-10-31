@@ -1,4 +1,3 @@
-/** Where a port response came from. The UI always shows it. */
 export type SourceInfo = {
   provider: string;
   mode: "live" | "cache" | "mock";

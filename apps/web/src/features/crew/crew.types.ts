@@ -15,7 +15,6 @@ export type CrewFlag = { code: CrewFlagCode; label: string };
 
 export type Attention = "nominal" | "watch" | "review";
 
-/** What the UI receives: serializable, with derived fields already computed. */
 export type CrewCardDTO = {
   id: string;
   name: string;

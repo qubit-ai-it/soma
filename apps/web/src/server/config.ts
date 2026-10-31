@@ -40,7 +40,6 @@ function buildConfig(env: NodeJS.ProcessEnv) {
     throw new Error(`Invalid environment: ${z.prettifyError(parsed.error)}`);
   }
   const e = parsed.data;
-  // SOMA_OFFLINE wins over every individual provider switch.
   const offline = e.SOMA_OFFLINE;
   return {
     offline,
@@ -67,7 +66,6 @@ function buildConfig(env: NodeJS.ProcessEnv) {
 
 let cached: Config | undefined;
 
-/** The only place that reads process.env. */
 export function getConfig(): Config {
   return (cached ??= buildConfig(process.env));
 }

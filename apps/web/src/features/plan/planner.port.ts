@@ -8,9 +8,8 @@ export type PlanInput = {
 
 export type CarePlanDraft = {
   steps: string[];
-  /** What the model is unsure about. Always shown next to the plan. */
   uncertainty: string;
-  /** Literal `true`: a plan can never be typed as already validated. */
+  // literal true: a plan is never typed as validated
   requiresHumanValidation: true;
   source: SourceInfo;
 };

@@ -15,7 +15,6 @@ export type RiskAssessment = {
   probabilities: Record<RiskLevel, number>;
   confidence: number;
   rationale: string;
-  /** false when the provider is known to be uncalibrated (Laya, mock). The UI must say so. */
   calibrated: boolean;
   source: SourceInfo;
 };

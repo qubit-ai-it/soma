@@ -6,7 +6,6 @@ const STORE_NAME = "crew";
 
 export function createJsonCrewRepository(store: JsonStore): CrewRepository {
   async function load() {
-    // Validate on every read: the file is editable by hand during the demo.
     return crewFileSchema.parse(await store.read(STORE_NAME)).crew;
   }
 

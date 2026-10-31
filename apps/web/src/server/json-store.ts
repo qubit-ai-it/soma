@@ -18,7 +18,7 @@ const NAME_PATTERN = /^[a-z0-9-]+$/;
 const RETRYABLE = new Set(["EPERM", "EBUSY", "EACCES"]);
 const RENAME_ATTEMPTS = 5;
 
-// Lives on globalThis so dev-mode HMR module re-evaluation keeps the same locks.
+// globalThis keeps the locks across HMR reloads
 const globalWithLocks = globalThis as typeof globalThis & {
   __somaJsonLocks?: Map<string, Promise<unknown>>;
 };
@@ -84,8 +84,6 @@ export function createJsonStore({
   }
 
   return {
-    // Reads wait for pending writes of the same file, so they never see a torn state.
-    // Async so an invalid name rejects instead of throwing synchronously.
     read: async (name) => withLock(runtimePath(name), () => readUnlocked(name)),
     update: async (name, fn) =>
       withLock(runtimePath(name), async () => {

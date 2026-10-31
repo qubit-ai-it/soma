@@ -5,7 +5,6 @@ import path from "node:path";
 
 import type { z } from "zod";
 
-/** Reads data/fixtures/<name>.json at request time and validates it. */
 export async function readFixture<S extends z.ZodType>(
   name: string,
   schema: S,

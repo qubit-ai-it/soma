@@ -26,7 +26,6 @@ export type Services = {
 };
 
 function notImplemented(port: string, provider: string): never {
-  // Failing loudly beats silently serving mock data under a "live" label.
   throw new Error(
     `${port} provider "${provider}" has no adapter yet. Use "mock"/"fixture" or SOMA_OFFLINE=true.`,
   );
@@ -40,8 +39,6 @@ function build(): Services {
     runtimeDir: path.join(dataDir, "runtime"),
   });
 
-  // The only place that decides which adapter backs each port.
-  // Swapping persistence = one new adapter + changing the first line here.
   return {
     crew: createJsonCrewRepository(store),
     classifier:

@@ -5,7 +5,7 @@ import type {
   CrewMember,
 } from "./crew.types.ts";
 
-// Illustrative demo thresholds. NOT clinical guidance.
+// illustrative thresholds, NOT clinical guidance
 export const THRESHOLDS = {
   minSpo2Pct: 94,
   maxHeartRateBpm: 100,
