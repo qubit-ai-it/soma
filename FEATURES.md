@@ -43,7 +43,7 @@
 - **Fuera de alcance:** recalibrar Laya, entrenar modelos, usar el tipo `box`, guardar historial de clasificaciones.
 - **Riesgo conocido:** el JSON exacto de `laya-serve` no está verificado (ver `SERVICES.md`). La primera tarea es una llamada real o un test de contrato.
 
-## 3. Plan o tratamiento con MedGemma y respaldo · M · depende de 2
+## 3. ✅ Plan o tratamiento con MedGemma y respaldo · M · depende de 2
 
 - **Objetivo:** generar un borrador de rutina o tratamiento a partir del riesgo y las señales, con aviso obligatorio de validación humana.
 - **Archivos esperados:** `features/plan/{ollama.client,planner.schema}.ts`, `plan.actions.ts` o `plan.queries.ts`, `components/care-plan.tsx`, `data/fixtures/plan.json`, `app/reporte/[id]/plan/page.tsx` (pestaña "Plan").

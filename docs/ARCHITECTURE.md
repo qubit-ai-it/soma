@@ -21,7 +21,7 @@ apps/web/
     features/
       crew/      corte vertical de referencia (ver abajo)
       risk/      classifier.port.ts · classifier.mock.ts · risk.queries.ts · components/
-      plan/      planner.port.ts · planner.mock.ts
+      plan/      planner.port.ts · planner.mock.ts · ollama.client.ts · planner.chain.ts · planner.fixture.ts · components/
       space-weather/  space-weather.port.ts · radiation.port.ts · space-weather.fixture.ts
     server/
       config.ts      único lugar que lee process.env (validado con Zod)

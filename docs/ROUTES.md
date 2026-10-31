@@ -11,7 +11,7 @@
 | `/reporte/[id]/tendencias` | Historial y tendencias de cada señal | Hecha |
 | `/reporte/[id]/cuerpo` | Mapa corporal con las zonas y su detalle | Hecha |
 | `/reporte/[id]/riesgo` | Clasificador: probabilidades, confianza, origen (provider · mode), etiquetas "Simulado" / "respaldo local · sin calibrar" y aviso de validación humana | Hecha |
-| `/reporte/[id]/plan` | Plan o tratamiento | Pendiente |
+| `/reporte/[id]/plan` | Plan o tratamiento: botón "Generar borrador" (Server Action que recibe solo el id), borrador con "Borrador · requiere validación humana", incertidumbre y origen (provider · mode); no se guarda | Hecha |
 | `/clima` | Clima espacial y radiación | Pendiente |
 | `/sentry` | Check-in adaptativo | Pendiente |
 | `/xr` | Procedimientos AR/VR | Pendiente |

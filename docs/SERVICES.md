@@ -94,6 +94,8 @@ Modo global: `SOMA_OFFLINE=true` fuerza todos los proveedores a `mock` o `fixtur
   - El uso clínico requiere autorización regulatoria.
   - Según la model card, las salidas "should be considered preliminary and require independent verification".
 - **En la UI:** toda salida lleva **"Borrador · requiere validación humana"**.
+- **Cliente implementado (feature 3):** `features/plan/ollama.client.ts`. Envía `stream: false`, `format` (JSON schema generado desde el esquema Zod, sin la clave `$schema`), `options.temperature: 0` y el esquema también en el prompt; valida `message.content` con Zod. Timeout de 60 s (`AbortSignal.timeout`, valor supuesto). Cadena: Ollama → `data/fixtures/plan.json`. Sin variables nuevas. Con `SOMA_OFFLINE=true` o `PLANNER_PROVIDER=mock` no se abre ninguna conexión y se usa la simulación aleatoria.
+- **Verificado solo contra un servidor HTTP falso** (tests de contrato); no contra Ollama real.
 - **Fuentes:** https://huggingface.co/google/medgemma-1.5-4b-it · https://developers.google.com/health-ai-developer-foundations/terms · https://ollama.com/library/medgemma1.5 · https://docs.ollama.com/capabilities/structured-outputs
 
 ### NASA DONKI — verificado (cambio de URL confirmado)
@@ -183,7 +185,7 @@ RADLAB_BASE_URL=https://visualization.osdr.nasa.gov/radlab/api
 
 - **Jev:** si la clave todavía requiere lista de espera, y los números de rate limit.
 - **Laya:** el JSON exacto de la respuesta de `laya-serve`, y si devuelve `legend` y `usage` igual que Jev.
-- **MedGemma:** quién publica la etiqueta de Ollama y con qué cuantización; RAM real necesaria (se estima 6–8 GB).
+- **MedGemma:** que Ollama acepte el esquema generado por Zod tal cual (sin `$schema`), el cuerpo de error cuando falta el modelo (la doc de `/api/chat` no lo describe) y la latencia real frente al timeout de 60 s; quién publica la etiqueta de Ollama y con qué cuantización; RAM real necesaria (se estima 6–8 GB).
 - **DONKI y SWPC:**
   - Si `api.nasa.gov/DONKI` está retirado o solo caído.
   - Los términos de uso y rate limits de SWPC.
