@@ -111,6 +111,14 @@ export function zoneReadings(member: CrewMember): ZoneReading[] {
   });
 }
 
+export function primarySignal(zones: readonly ZoneReading[]): ZoneCause | null {
+  let main: ZoneCause | null = null;
+  for (const cause of zones.flatMap((zone) => zone.causes)) {
+    if (!main || SEVERITY_RANK[cause.severity] > SEVERITY_RANK[main.severity]) main = cause;
+  }
+  return main;
+}
+
 export function regionSeverities(zones: readonly ZoneReading[]): Record<string, Severity> {
   const result: Record<string, Severity> = {};
   for (const { zone, severity } of zones) {

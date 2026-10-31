@@ -58,3 +58,5 @@ export type MissionMemberDTO = CrewCardDTO & {
   zones: ZoneReading[];
   history: VitalSample[];
 };
+
+export type CrewSummaryDTO = CrewCardDTO & { primarySignal: ZoneCause | null };

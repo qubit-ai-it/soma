@@ -42,7 +42,7 @@ export function BodyPanel({
   }
 
   return (
-    <div className="mt-5 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+    <div>
       <BodyMap
         label={`Mapa corporal de ${memberName}`}
         regions={regions}

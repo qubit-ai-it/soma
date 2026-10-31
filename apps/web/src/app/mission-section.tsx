@@ -1,21 +1,25 @@
-import { getMissionCrew } from "@/features/crew/crew.queries";
-import { CrewSection } from "@/features/crew/components/crew-section";
+import { CrewSummaryList } from "@/features/crew/components/crew-summary-list";
+import { getCrewSummaries } from "@/features/crew/crew.queries";
 import { RiskBadge } from "@/features/risk/components/risk-badge";
 import { getRiskBadges } from "@/features/risk/risk.queries";
+import { toRiskInput } from "./risk-request";
 
 export async function MissionSection() {
-  const crew = await getMissionCrew();
-  const risks = await getRiskBadges(
-    crew.map((member) => ({
-      id: member.id,
-      heartRateBpm: member.vitals.heartRateBpm,
-      spo2Pct: member.vitals.spo2Pct,
-      sleepHours: member.vitals.sleepHours,
-      cumulativeDoseMsv: member.cumulativeDoseMsv,
-    })),
-  );
-  const badges = Object.fromEntries(
+  const crew = await getCrewSummaries();
+  const risks = await getRiskBadges(crew.map((member) => ({ id: member.id, ...toRiskInput(member) })));
+  const riskSlots = Object.fromEntries(
     crew.map((member) => [member.id, <RiskBadge key={member.id} risk={risks[member.id]} />]),
   );
-  return <CrewSection crew={crew} badges={badges} />;
+  return (
+    <>
+      <CrewSummaryList
+        crew={crew}
+        hrefFor={(id) => `/reporte/${id}`}
+        riskSlots={riskSlots}
+      />
+      <p className="mt-2 text-xs text-zinc-500">
+        La clasificación de riesgo requiere validación humana; no es un diagnóstico.
+      </p>
+    </>
+  );
 }

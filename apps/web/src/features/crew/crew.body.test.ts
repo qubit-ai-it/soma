@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  primarySignal,
   regionSeverities,
   signalSeverity,
   zoneReadings,
@@ -108,5 +109,30 @@ describe("regionSeverities", () => {
     const regions = regionSeverities(zoneReadings(member));
     for (const id of ZONE_REGION_IDS["thorax"]) assert.equal(regions[id], "risky");
     for (const id of ZONE_REGION_IDS["head"]) assert.equal(regions[id], "ok");
+  });
+});
+
+describe("primarySignal", () => {
+  it("returns null when every signal is ok", () => {
+    assert.equal(primarySignal(zoneReadings(nominal)), null);
+  });
+
+  it("picks the worst signal across zones", () => {
+    const member: CrewMember = {
+      ...nominal,
+      vitals: { heartRateBpm: 110, spo2Pct: 85, sleepHours: 5 },
+    };
+    const signal = primarySignal(zoneReadings(member));
+    assert.equal(signal?.signal, "spo2");
+    assert.equal(signal?.severity, "risky");
+  });
+
+  it("breaks severity ties by zone order", () => {
+    const member: CrewMember = {
+      ...nominal,
+      vitals: { heartRateBpm: 70, spo2Pct: 98, sleepHours: 5 },
+      cumulativeDoseMsv: 120,
+    };
+    assert.equal(primarySignal(zoneReadings(member))?.signal, "sleep");
   });
 });
