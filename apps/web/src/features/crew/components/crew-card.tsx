@@ -1,4 +1,5 @@
-import type { Attention, CrewCardDTO } from "../crew.types";
+import type { Attention, MissionMemberDTO, Trend } from "../crew.types";
+import { BodyPanel } from "./body-panel";
 
 const ATTENTION_STYLES: Record<Attention, { label: string; className: string }> = {
   nominal: {
@@ -15,10 +16,17 @@ const ATTENTION_STYLES: Record<Attention, { label: string; className: string }> 
   },
 };
 
-export function CrewCard({ member }: { member: CrewCardDTO }) {
+const TREND_META: Record<Trend, { symbol: string; label: string }> = {
+  rising: { symbol: "↑", label: "Subiendo" },
+  falling: { symbol: "↓", label: "Bajando" },
+  stable: { symbol: "→", label: "Estable" },
+  insufficient: { symbol: "–", label: "Datos insuficientes" },
+};
+
+export function CrewCard({ member }: { member: MissionMemberDTO }) {
   const attention = ATTENTION_STYLES[member.attention];
   return (
-    <article className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+    <article className="min-w-0 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
       <header className="flex items-start justify-between gap-3">
         <div>
           <h3 className="text-lg font-semibold">{member.name}</h3>
@@ -38,6 +46,17 @@ export function CrewCard({ member }: { member: CrewCardDTO }) {
         <Metric label="Dosis acumulada" value={`${member.cumulativeDoseMsv} mSv`} />
       </dl>
 
+      <section aria-label="Tendencias" className="mt-4 text-sm">
+        <h4 className="text-zinc-500">
+          Tendencia ({member.history.length} registros)
+        </h4>
+        <ul className="mt-1 space-y-0.5">
+          <TrendRow label="Frecuencia cardíaca" trend={member.trends.heartRate} />
+          <TrendRow label="SpO₂" trend={member.trends.spo2} />
+          <TrendRow label="Sueño" trend={member.trends.sleep} />
+        </ul>
+      </section>
+
       {member.flags.length > 0 && (
         <ul className="mt-4 flex flex-wrap gap-2">
           {member.flags.map((flag) => (
@@ -50,6 +69,8 @@ export function CrewCard({ member }: { member: CrewCardDTO }) {
           ))}
         </ul>
       )}
+
+      <BodyPanel memberName={member.name} zones={member.zones} />
     </article>
   );
 }
@@ -60,5 +81,18 @@ function Metric({ label, value }: { label: string; value: string }) {
       <dt className="text-zinc-500">{label}</dt>
       <dd className="font-medium">{value}</dd>
     </div>
+  );
+}
+
+function TrendRow({ label, trend }: { label: string; trend: Trend }) {
+  const meta = TREND_META[trend];
+  return (
+    <li className="flex items-center justify-between gap-2">
+      <span>{label}</span>
+      <span className="font-medium">
+        <span aria-hidden="true">{meta.symbol} </span>
+        {meta.label}
+      </span>
+    </li>
   );
 }

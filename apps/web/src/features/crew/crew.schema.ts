@@ -6,11 +6,16 @@ export const vitalsSchema = z.object({
   sleepHours: z.number().min(0).max(24),
 });
 
+export const vitalSampleSchema = vitalsSchema.extend({
+  at: z.iso.datetime(),
+});
+
 export const crewMemberSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   role: z.string().min(1),
   vitals: vitalsSchema,
+  history: z.array(vitalSampleSchema).optional(),
   cumulativeDoseMsv: z.number().min(0),
   lastCheckIn: z.iso.datetime(),
 });
