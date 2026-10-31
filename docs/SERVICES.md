@@ -3,6 +3,7 @@
 > Estado: **definitivo (Fase 0b)**. Verificado entre el 2026-10-30 y el 2026-10-31.
 > Regla: **todo servicio externo tiene un mock o fixture**. Con `SOMA_OFFLINE=true` el prototipo corre completo sin internet ni claves.
 > Implementado en Fase 0b: **solo los puertos, los mocks y los fixtures** (`classifier.mock.ts`, `planner.mock.ts`, `space-weather.fixture.ts`). Los adaptadores reales (Jev, Laya, Ollama, DONKI, SWPC, RadLab) se escriben en sus features; mientras tanto, `services.ts` lanza un error claro si se configura un proveedor sin adaptador.
+> **Simulaciones actuales:** sin clave de Jev ni MedGemma local, `CLASSIFIER_PROVIDER=mock` y `PLANNER_PROVIDER=mock` producen respuestas con **datos aleatorios** que imitan la forma de las reales (`source.provider` = `simulated-jev` y `simulated-medgemma`). Son aleatorias, no clínicas ni calibradas, y la UI debe rotularlas como simuladas. Los tests inyectan la fuente aleatoria para ser reproducibles.
 > Los fixtures de `data/fixtures/` son **sintéticos** (marcados como tal en sus resúmenes): no son datos reales de NASA ni de la ISS. La ventana real de 24 h de RadLab sigue pendiente de generarse con un script.
 
 ## Resumen
