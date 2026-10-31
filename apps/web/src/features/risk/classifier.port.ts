@@ -14,6 +14,7 @@ export type RiskAssessment = {
   level: RiskLevel;
   probabilities: Record<RiskLevel, number>;
   confidence: number;
+  lowConfidence: boolean;
   rationale: string;
   calibrated: boolean;
   source: SourceInfo;

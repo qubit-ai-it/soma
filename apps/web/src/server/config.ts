@@ -14,9 +14,11 @@ const envSchema = z.object({
   TYPESAFE_API_KEY: optionalString,
   JEV_BASE_URL: z.url().default("https://api.typesafe.ai"),
   JEV_MODEL: z.string().default("jev-latest"),
+  JEV_LOW_CONFIDENCE: z.coerce.number().min(0).max(1).default(0.6),
   LAYA_BASE_URL: z.url().default("http://localhost:8000"),
   LAYA_MODEL: z.string().default("typed-decisions"),
   LAYA_API_KEY: optionalString,
+  LAYA_LOW_CONFIDENCE: z.coerce.number().min(0).max(1).default(0.4),
 
   PLANNER_PROVIDER: z.enum(["ollama", "mock"]).default("mock"),
   OLLAMA_BASE_URL: z.url().default("http://localhost:11434"),
@@ -45,8 +47,18 @@ function buildConfig(env: NodeJS.ProcessEnv) {
     offline,
     classifier: {
       provider: offline ? ("mock" as const) : e.CLASSIFIER_PROVIDER,
-      jev: { baseUrl: e.JEV_BASE_URL, apiKey: e.TYPESAFE_API_KEY, model: e.JEV_MODEL },
-      laya: { baseUrl: e.LAYA_BASE_URL, apiKey: e.LAYA_API_KEY, model: e.LAYA_MODEL },
+      jev: {
+        baseUrl: e.JEV_BASE_URL,
+        apiKey: e.TYPESAFE_API_KEY,
+        model: e.JEV_MODEL,
+        lowConfidenceBelow: e.JEV_LOW_CONFIDENCE,
+      },
+      laya: {
+        baseUrl: e.LAYA_BASE_URL,
+        apiKey: e.LAYA_API_KEY,
+        model: e.LAYA_MODEL,
+        lowConfidenceBelow: e.LAYA_LOW_CONFIDENCE,
+      },
     },
     planner: {
       provider: offline ? ("mock" as const) : e.PLANNER_PROVIDER,

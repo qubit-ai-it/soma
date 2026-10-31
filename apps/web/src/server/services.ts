@@ -6,15 +6,17 @@ import { createJsonCrewRepository } from "../features/crew/crew.repository.json.
 import type { CrewRepository } from "../features/crew/crew.repository.ts";
 import type { CarePlanner } from "../features/plan/planner.port.ts";
 import { createMockPlanner } from "../features/plan/planner.mock.ts";
+import { createFallbackClassifier } from "../features/risk/classifier.chain.ts";
 import { createMockClassifier } from "../features/risk/classifier.mock.ts";
 import type { RiskClassifier } from "../features/risk/classifier.port.ts";
+import { createSystemOneClassifier } from "../features/risk/system-one.classifier.ts";
 import type { RadiationSource } from "../features/space-weather/radiation.port.ts";
 import {
   createFixtureRadiation,
   createFixtureSpaceWeather,
 } from "../features/space-weather/space-weather.fixture.ts";
 import type { SpaceWeatherSource } from "../features/space-weather/space-weather.port.ts";
-import { getConfig } from "./config.ts";
+import { getConfig, type Config } from "./config.ts";
 import { createJsonStore } from "./json-store.ts";
 
 export type Services = {
@@ -31,6 +33,38 @@ function notImplemented(port: string, provider: string): never {
   );
 }
 
+function buildClassifier(config: Config): RiskClassifier {
+  const { provider, jev, laya } = config.classifier;
+  const mock = createMockClassifier();
+  if (provider === "mock") return mock;
+
+  const layaClassifier = createSystemOneClassifier({
+    provider: "laya",
+    baseUrl: laya.baseUrl,
+    apiKey: laya.apiKey,
+    models: { risk: laya.model },
+    thresholds: { lowConfidenceBelow: laya.lowConfidenceBelow },
+    calibrated: false,
+    maxChoices: 100,
+  });
+  if (provider === "laya") return createFallbackClassifier([layaClassifier, mock]);
+
+  if (!jev.apiKey) {
+    console.warn("CLASSIFIER_PROVIDER=jev without TYPESAFE_API_KEY: using the simulated classifier.");
+    return mock;
+  }
+  const jevClassifier = createSystemOneClassifier({
+    provider: "jev",
+    baseUrl: jev.baseUrl,
+    apiKey: jev.apiKey,
+    models: { risk: jev.model },
+    thresholds: { lowConfidenceBelow: jev.lowConfidenceBelow },
+    calibrated: true,
+    maxChoices: 255,
+  });
+  return createFallbackClassifier([jevClassifier, layaClassifier, mock]);
+}
+
 function build(): Services {
   const config = getConfig();
   const dataDir = path.join(process.cwd(), "data");
@@ -41,10 +75,7 @@ function build(): Services {
 
   return {
     crew: createJsonCrewRepository(store),
-    classifier:
-      config.classifier.provider === "mock"
-        ? createMockClassifier()
-        : notImplemented("classifier", config.classifier.provider),
+    classifier: buildClassifier(config),
     planner:
       config.planner.provider === "mock"
         ? createMockPlanner()

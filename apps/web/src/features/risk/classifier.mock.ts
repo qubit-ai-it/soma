@@ -5,6 +5,7 @@ import type { RiskClassifier, RiskLevel } from "./classifier.port.ts";
 type Random = () => number;
 
 const LEVELS: RiskLevel[] = ["low", "moderate", "high"];
+const LOW_CONFIDENCE_BELOW = 0.2;
 
 const BASE: Record<0 | 1 | 2, Record<RiskLevel, number>> = {
   0: { low: 0.8, moderate: 0.15, high: 0.05 },
@@ -38,11 +39,13 @@ export function createMockClassifier({
         (sum, l) => sum + probabilities[l] * Math.log(probabilities[l]),
         0,
       );
+      const confidence = 1 - entropy / Math.log(LEVELS.length);
 
       return ok({
         level,
         probabilities,
-        confidence: 1 - entropy / Math.log(LEVELS.length),
+        confidence,
+        lowConfidence: confidence < LOW_CONFIDENCE_BELOW,
         rationale: `Simulated Jev (random data): ${signals} signal(s) out of range.`,
         calibrated: false,
         source: mockSource("simulated-jev"),
