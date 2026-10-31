@@ -13,17 +13,21 @@
 
 ---
 
-## 1. Web de misión: tripulación, riesgos y tendencias · M · sin dependencias
+## 1. ✅ Web de misión: tripulación, tendencias y mapa corporal · L · sin dependencias
 
-- **Objetivo:** que `/` sea el panel de la misión: tarjetas de tripulación, tendencias de signos vitales y un espacio visible para el riesgo.
-- **Archivos esperados:** `data/seed/crew.json` (con historial), `features/crew/crew.types.ts`, `crew.schema.ts`, `crew.logic.ts` (tendencias), `features/crew/components/{trend-chart,mission-header}.tsx`, `app/page.tsx`, `app/layout.tsx`.
+- **Objetivo:** que `/` sea el panel de la misión: tarjetas de tripulación, tendencias de signos vitales y, por cada miembro, un mapa del cuerpo con las zonas pintadas según su gravedad: **verde** = todo bien, **ámbar** = posible riesgo, **rojo** = riesgoso.
+- **Librería:** [OrganUI](https://organui.com/) (MIT), componente `BodyMap`. Verificado en su documentación: no es un paquete npm, se instala como **código fuente** con el CLI de shadcn (`shadcn add @organui/body-map`, o `https://organui.com/r/body-map.json`); requiere React 19 y Tailwind 4; trae las dependencias `@base-ui/react`, `class-variance-authority` y `cn`, y el componente `button` de shadcn. `BodyMap` es un **selector de regiones** (vistas frontal y posterior, teclado accesible): **no tiene prop de color ni de severidad**, su doc indica editar el código instalado para sombrear por gravedad.
+- **Archivos esperados:** `components.json`, `src/shared/ui/{body-map,button}.tsx` (+ `src/shared/lib/utils.ts` si shadcn lo pide), `data/seed/crew.json` (con historial), `features/crew/{crew.schema,crew.types,crew.logic}.ts` (tendencias y severidad por zona), `features/crew/components/{trend-chart,body-status,mission-header}.tsx`, `app/page.tsx`, `app/layout.tsx`.
 - **Criterios de aceptación:**
-  1. Cada tarjeta muestra la tendencia de al menos 3 señales (frecuencia cardíaca, SpO₂, sueño) a partir del historial del seed.
-  2. La función de tendencia es pura y tiene tests (subiendo, bajando, estable, datos insuficientes).
-  3. El historial se valida con Zod; un JSON malformado produce el error de `error.tsx`, no una pantalla rota.
-  4. La página usable en móvil y escritorio (sin scroll horizontal a 375 px).
-  5. Las gráficas tienen texto alternativo y no dependen solo del color.
-- **Fuera de alcance:** clasificación de riesgo (feature 2), escritura de datos, alertas, autenticación.
+  1. Cada tarjeta muestra la tendencia de al menos 3 señales (frecuencia cardíaca, SpO₂, sueño) a partir del historial del seed; la función de tendencia es pura y tiene tests (subiendo, bajando, estable, datos insuficientes).
+  2. Cada miembro tiene un mapa corporal (OrganUI `BodyMap`, frontal y posterior) con sus zonas en verde, ámbar o rojo, calculadas por una función pura con tests (por señal: `ok` / `posible riesgo` / `riesgoso`; por zona: la peor de las señales que la afectan).
+  3. Seleccionar una zona muestra qué señales y valores la pintaron, con el aviso "ilustrativo, no clínico". El color nunca es el único canal: cada zona y leyenda lleva texto (`Todo bien`, `Posible riesgo`, `Riesgoso`).
+  4. El historial se valida con Zod; un JSON malformado produce el error de `error.tsx`, no una pantalla rota. Sin scroll horizontal a 375 px.
+  5. OrganUI instalado como código fuente bajo `src/shared/ui` (alias de `components.json`), respetando `docs/ARCHITECTURE.md`; las dependencias nuevas listadas con su versión en el `REPORT.md`; `pnpm test`, `pnpm lint` y `pnpm build` en verde.
+- **Supuestos (a validar por el usuario):**
+  - Mapeo ilustrativo señal → zona: SpO₂ y frecuencia cardíaca → tórax; sueño → cabeza; dosis acumulada → abdomen y pelvis.
+  - Dos umbrales por señal (ámbar y rojo). Ámbar conserva los de hoy: SpO₂ < 94, FC > 100, sueño < 6 h, dosis > 100 mSv. Rojo: SpO₂ < 90, FC > 120, sueño < 4 h, dosis > 150 mSv. Ninguno es orientación clínica.
+- **Fuera de alcance:** clasificación de riesgo (feature 2), escritura de datos, alertas, autenticación, modelos 3D de órganos de OrganUI.
 
 ## 2. Clasificación de riesgo (Jev, Laya, mock) · M · depende de 1
 

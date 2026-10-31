@@ -28,7 +28,7 @@ apps/web/
       services.ts    composición: elige adaptador según config
       json-store.ts  lectura/escritura atómica + mutex
       fixtures.ts    lee y valida data/fixtures/*.json
-    shared/      result.ts · source.ts
+    shared/      result.ts · source.ts · ui/ (componentes de OrganUI y shadcn, instalados como código fuente)
 ```
 
 ## Reglas
