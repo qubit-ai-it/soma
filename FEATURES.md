@@ -9,6 +9,7 @@
 - **Feature 1:** las tarjetas de tripulación ya existen (corte vertical de la Fase 0b). Queda el historial, las tendencias y el diseño de la web de misión. El badge de riesgo se enchufa en la feature 2, no aquí.
 - **Feature 8** baja a **S**: `SOMA_OFFLINE`, los mocks y los fixtures ya existen. Falta la cadena de respaldo, el aviso en la UI y la verificación de extremo a extremo.
 - **Feature 6** se parte en dos pasos internos (motor de estados primero, vista inmersiva después). Sigue siendo una sola feature.
+- **Rutas (tarea 1b ✅):** la información se reparte por rutas según `docs/ROUTES.md`: `/` resume la misión y `/reporte/[id]/...` tiene una pestaña por tema. Las features 3 a 9 añaden su ruta siguiendo esa tabla.
 - **Orden sugerido:** 1 → 2 → 3 → 4 → 5 → 7 → 6 → 8 → 9. La 6 va tarde porque es la más grande y no bloquea a las demás.
 
 ---
@@ -45,7 +46,7 @@
 ## 3. Plan o tratamiento con MedGemma y respaldo · M · depende de 2
 
 - **Objetivo:** generar un borrador de rutina o tratamiento a partir del riesgo y las señales, con aviso obligatorio de validación humana.
-- **Archivos esperados:** `features/plan/{ollama.client,planner.schema}.ts`, `plan.actions.ts` o `plan.queries.ts`, `components/care-plan.tsx`, `data/fixtures/plan.json`.
+- **Archivos esperados:** `features/plan/{ollama.client,planner.schema}.ts`, `plan.actions.ts` o `plan.queries.ts`, `components/care-plan.tsx`, `data/fixtures/plan.json`, `app/reporte/[id]/plan/page.tsx` (pestaña "Plan").
 - **Criterios de aceptación:**
   1. La salida del modelo se pide con `format: <JSON schema>` y se valida con Zod antes de mostrarse.
   2. Todo plan muestra "Borrador · requiere validación humana" y el campo `uncertainty`; el tipo no admite `requiresHumanValidation: false`.

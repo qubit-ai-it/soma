@@ -17,10 +17,10 @@ apps/web/
     fixtures/    respuestas de ejemplo para mocks (versionado, sintéticas)
   scripts/db-reset.ts
   src/
-    app/         rutas finas: solo componen features (+ error.tsx, not-found.tsx)
+    app/         rutas finas: solo componen features (+ error.tsx, not-found.tsx); tabla en docs/ROUTES.md
     features/
       crew/      corte vertical de referencia (ver abajo)
-      risk/      classifier.port.ts · classifier.mock.ts
+      risk/      classifier.port.ts · classifier.mock.ts · risk.queries.ts · components/
       plan/      planner.port.ts · planner.mock.ts
       space-weather/  space-weather.port.ts · radiation.port.ts · space-weather.fixture.ts
     server/
@@ -36,7 +36,7 @@ apps/web/
 1. **Dominio = tipos planos + funciones puras.** Nada de clases; todo lo que cruza al cliente es serializable.
 2. **Interfaces solo en los bordes** (repositorios y clientes externos).
 3. **Una sola composición.** Cambiar de adaptador es una línea en `services.ts`.
-4. **Rutas finas.** `app/**/page.tsx` compone componentes; los datos dinámicos van dentro de `<Suspense>`.
+4. **Rutas finas.** `app/**/page.tsx` compone componentes; los datos dinámicos van dentro de `<Suspense>`. Cada pestaña de `/reporte/[id]` muestra una sola cosa; el layout aporta encabezado y pestañas. Las features no conocen las rutas: reciben los `href` por props.
 5. **Importaciones solo hacia abajo:** `app → features → server/shared`. Una feature no importa los internos de otra; pide lo que necesite por su `*.queries.ts`.
 6. **Los puertos devuelven `Result<T>`** (errores esperados como valor). Los bugs se lanzan y los atrapa `error.tsx`.
 7. **Toda respuesta de un puerto lleva `source: { provider, mode, fetchedAt }`** y la UI la muestra.
@@ -60,8 +60,8 @@ apps/web/
 | `crew.logic.ts` | Funciones puras: banderas y nivel de atención (umbrales ilustrativos, no clínicos) |
 | `crew.repository.ts` | Puerto |
 | `crew.repository.json.ts` | Adaptador sobre `json-store` |
-| `crew.queries.ts` | Lectura `server-only`; devuelve DTOs |
-| `components/` | `CrewSection` (async, servidor) y `CrewCard` |
+| `crew.queries.ts` | Lectura `server-only`: `getCrewSummaries()` (lista de `/`) y `getMissionMember(id)` (con `cache()` por petición); devuelven DTOs |
+| `components/` | Una pieza por vista: `CrewSummaryList`, `VitalsSummary`, `TrendsPanel`, `BodyPanel`, `AttentionBadge` |
 
 Para cambiar a SQLite o FastAPI: `crew.repository.sqlite.ts` o `crew.repository.http.ts` y una línea en `services.ts`. Ni la lógica ni la UI se tocan.
 
@@ -75,7 +75,7 @@ Para cambiar a SQLite o FastAPI: `crew.repository.sqlite.ts` o `crew.repository.
 6. **Lectura:** `<nombre>.queries.ts` con `import 'server-only'`, que devuelve DTOs.
 7. **Mutación:** `<nombre>.actions.ts` con `'use server'`; valida con Zod y devuelve `Result`.
 8. **UI:** `components/` dentro de la feature; `'use client'` solo en hojas interactivas.
-9. **Ruta:** `app/<ruta>/page.tsx` compone los componentes; los datos dinámicos van dentro de `<Suspense>`.
+9. **Ruta:** `app/<ruta>/page.tsx` compone los componentes; los datos dinámicos y los `params` van dentro de `<Suspense>`. Guía y tabla de rutas en `docs/ROUTES.md`.
 10. **Verifica:** `pnpm test`, `pnpm lint` y `pnpm build` en verde, y la feature probada con `SOMA_OFFLINE=true`.
 
 ## Comandos
