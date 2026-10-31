@@ -4,8 +4,11 @@ import path from "node:path";
 
 import { createJsonCrewRepository } from "../features/crew/crew.repository.json.ts";
 import type { CrewRepository } from "../features/crew/crew.repository.ts";
-import type { CarePlanner } from "../features/plan/planner.port.ts";
+import { createOllamaPlanner } from "../features/plan/ollama.client.ts";
+import { createFallbackPlanner } from "../features/plan/planner.chain.ts";
+import { createFixturePlanner } from "../features/plan/planner.fixture.ts";
 import { createMockPlanner } from "../features/plan/planner.mock.ts";
+import type { CarePlanner } from "../features/plan/planner.port.ts";
 import { createFallbackClassifier } from "../features/risk/classifier.chain.ts";
 import { createMockClassifier } from "../features/risk/classifier.mock.ts";
 import type { RiskClassifier } from "../features/risk/classifier.port.ts";
@@ -65,6 +68,15 @@ function buildClassifier(config: Config): RiskClassifier {
   return createFallbackClassifier([jevClassifier, layaClassifier, mock]);
 }
 
+function buildPlanner(config: Config): CarePlanner {
+  const { provider, ollama } = config.planner;
+  if (provider === "mock") return createMockPlanner();
+  return createFallbackPlanner([
+    createOllamaPlanner({ baseUrl: ollama.baseUrl, model: ollama.model }),
+    createFixturePlanner(),
+  ]);
+}
+
 function build(): Services {
   const config = getConfig();
   const dataDir = path.join(process.cwd(), "data");
@@ -76,10 +88,7 @@ function build(): Services {
   return {
     crew: createJsonCrewRepository(store),
     classifier: buildClassifier(config),
-    planner:
-      config.planner.provider === "mock"
-        ? createMockPlanner()
-        : notImplemented("planner", config.planner.provider),
+    planner: buildPlanner(config),
     spaceWeather:
       config.spaceWeather.provider === "fixture"
         ? createFixtureSpaceWeather()
