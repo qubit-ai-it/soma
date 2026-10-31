@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import type { Attention, MissionMemberDTO, Trend } from "../crew.types";
 import { BodyPanel } from "./body-panel";
 
@@ -23,7 +25,13 @@ const TREND_META: Record<Trend, { symbol: string; label: string }> = {
   insufficient: { symbol: "–", label: "Datos insuficientes" },
 };
 
-export function CrewCard({ member }: { member: MissionMemberDTO }) {
+export function CrewCard({
+  member,
+  riskSlot,
+}: {
+  member: MissionMemberDTO;
+  riskSlot?: ReactNode;
+}) {
   const attention = ATTENTION_STYLES[member.attention];
   return (
     <article className="min-w-0 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
@@ -45,6 +53,8 @@ export function CrewCard({ member }: { member: MissionMemberDTO }) {
         <Metric label="Sueño" value={`${member.vitals.sleepHours} h`} />
         <Metric label="Dosis acumulada" value={`${member.cumulativeDoseMsv} mSv`} />
       </dl>
+
+      {riskSlot}
 
       <section aria-label="Tendencias" className="mt-4 text-sm">
         <h4 className="text-zinc-500">

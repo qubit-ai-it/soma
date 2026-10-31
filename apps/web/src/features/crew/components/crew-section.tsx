@@ -1,10 +1,16 @@
-import { getMissionCrew } from "../crew.queries";
-import type { Severity } from "../crew.types";
+import type { ReactNode } from "react";
+
+import type { MissionMemberDTO, Severity } from "../crew.types";
 import { CrewCard } from "./crew-card";
 import { SEVERITY_META } from "./severity";
 
-export async function CrewSection() {
-  const crew = await getMissionCrew();
+export function CrewSection({
+  crew,
+  badges = {},
+}: {
+  crew: MissionMemberDTO[];
+  badges?: Record<string, ReactNode>;
+}) {
   return (
     <section aria-labelledby="crew-heading">
       <h2 id="crew-heading" className="mb-4 text-xl font-semibold">
@@ -26,7 +32,7 @@ export async function CrewSection() {
       </ul>
       <div className="grid gap-4 sm:grid-cols-2">
         {crew.map((member) => (
-          <CrewCard key={member.id} member={member} />
+          <CrewCard key={member.id} member={member} riskSlot={badges[member.id]} />
         ))}
       </div>
       <p className="mt-4 text-xs text-zinc-500">

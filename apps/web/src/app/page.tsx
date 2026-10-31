@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { CrewSection } from "@/features/crew/components/crew-section";
+import { MissionSection } from "./mission-section";
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
         Prototipo de monitoreo de salud de la tripulación.
       </p>
       <Suspense fallback={<p className="text-zinc-500">Cargando tripulación…</p>}>
-        <CrewSection />
+        <MissionSection />
       </Suspense>
     </main>
   );
