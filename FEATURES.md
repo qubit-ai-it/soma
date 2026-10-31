@@ -29,7 +29,7 @@
   - Dos umbrales por señal (ámbar y rojo). Ámbar conserva los de hoy: SpO₂ < 94, FC > 100, sueño < 6 h, dosis > 100 mSv. Rojo: SpO₂ < 90, FC > 120, sueño < 4 h, dosis > 150 mSv. Ninguno es orientación clínica.
 - **Fuera de alcance:** clasificación de riesgo (feature 2), escritura de datos, alertas, autenticación, modelos 3D de órganos de OrganUI.
 
-## 2. Clasificación de riesgo (Jev, Laya, mock) · M · depende de 1
+## 2. ✅ Clasificación de riesgo (Jev, Laya, mock) · M · depende de 1
 
 - **Objetivo:** clasificar el riesgo por tripulante con el puerto `RiskClassifier` y mostrarlo en la tarjeta con su incertidumbre.
 - **Archivos esperados:** `features/risk/{systemone.client,classifier.laya,classifier.jev}.ts`, `risk.logic.ts` (preguntas y umbrales por proveedor), `risk.queries.ts`, `components/risk-badge.tsx`, `server/services.ts`, `server/config.ts`.

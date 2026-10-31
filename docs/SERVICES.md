@@ -160,6 +160,9 @@ JEV_MODEL=jev-latest
 LAYA_BASE_URL=http://localhost:8000
 LAYA_MODEL=typed-decisions
 LAYA_API_KEY=
+# Confidence below this marks the result "confianza baja" (arbitrary defaults, tune with real data)
+JEV_LOW_CONFIDENCE=0.6
+LAYA_LOW_CONFIDENCE=0.4
 
 # Care planner: ollama | mock
 PLANNER_PROVIDER=mock
