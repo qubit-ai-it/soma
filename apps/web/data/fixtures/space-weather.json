@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "id": "demo-flr-1",
+      "type": "FLR",
+      "startTime": "2026-10-30T14:12:00Z",
+      "summary": "Synthetic M-class flare (demo data, not a real event)"
+    },
+    {
+      "id": "demo-cme-1",
+      "type": "CME",
+      "startTime": "2026-10-30T15:00:00Z",
+      "summary": "Synthetic earth-directed CME (demo data, not a real event)"
+    },
+    {
+      "id": "demo-gst-1",
+      "type": "GST",
+      "startTime": "2026-10-31T03:00:00Z",
+      "summary": "Synthetic G2 geomagnetic storm (demo data, not a real event)"
+    }
+  ],
+  "protonFluxPfu10Mev": 3.4,
+  "kpIndex": 5
+}

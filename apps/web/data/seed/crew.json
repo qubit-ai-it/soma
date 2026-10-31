@@ -1,0 +1,36 @@
+{
+  "crew": [
+    {
+      "id": "cm-01",
+      "name": "Amara Okafor",
+      "role": "Commander",
+      "vitals": { "heartRateBpm": 62, "spo2Pct": 98, "sleepHours": 7.2 },
+      "cumulativeDoseMsv": 41.5,
+      "lastCheckIn": "2026-10-31T06:30:00Z"
+    },
+    {
+      "id": "cm-02",
+      "name": "Mateo Quispe",
+      "role": "Flight Engineer",
+      "vitals": { "heartRateBpm": 74, "spo2Pct": 96, "sleepHours": 5.4 },
+      "cumulativeDoseMsv": 44.1,
+      "lastCheckIn": "2026-10-31T06:45:00Z"
+    },
+    {
+      "id": "cm-03",
+      "name": "Yuki Tanabe",
+      "role": "Mission Specialist",
+      "vitals": { "heartRateBpm": 104, "spo2Pct": 93, "sleepHours": 4.8 },
+      "cumulativeDoseMsv": 108.9,
+      "lastCheckIn": "2026-10-31T07:05:00Z"
+    },
+    {
+      "id": "cm-04",
+      "name": "Lucía Ferreyra",
+      "role": "Flight Surgeon",
+      "vitals": { "heartRateBpm": 58, "spo2Pct": 99, "sleepHours": 7.8 },
+      "cumulativeDoseMsv": 39.7,
+      "lastCheckIn": "2026-10-31T06:10:00Z"
+    }
+  ]
+}
