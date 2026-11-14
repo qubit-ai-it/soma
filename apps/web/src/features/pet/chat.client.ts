@@ -2,7 +2,12 @@ import { err, ok, type Result } from "../../shared/result.ts";
 
 export type ChatRole = "user" | "assistant";
 
-export type ChatMessage = { role: ChatRole; content: string };
+export type ChatMessage = {
+  role: ChatRole;
+  content: string;
+  images?: string[];
+  imageCount?: number;
+};
 
 export type MiniMaxChatOptions = {
   apiKey: string;
