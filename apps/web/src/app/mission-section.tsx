@@ -17,7 +17,7 @@ export async function MissionSection() {
         hrefFor={(id) => `/reporte/${id}`}
         riskSlots={riskSlots}
       />
-      <p className="mt-2 text-xs text-zinc-500">
+      <p className="mt-2 text-xs text-ink">
         La clasificación de riesgo requiere validación humana; no es un diagnóstico.
       </p>
     </>
