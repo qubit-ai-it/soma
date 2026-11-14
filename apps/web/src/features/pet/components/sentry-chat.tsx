@@ -92,7 +92,7 @@ export function SentryChat() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-xl border border-border bg-zinc-900 p-4">
+      <div className="rounded-md bg-muted p-4">
         <Sentry
           mode={mode}
           successSignal={successSignal}
@@ -104,22 +104,22 @@ export function SentryChat() {
       <div
         ref={listRef}
         aria-live="polite"
-        className="flex h-72 flex-col gap-3 overflow-y-auto rounded-xl border border-border p-4"
+        className="flex h-80 flex-col gap-3 overflow-y-auto rounded-md bg-card p-4"
       >
         {messages.map((m, i) => (
           <p
             key={i}
             className={
               m.role === "user"
-                ? "max-w-[85%] self-end rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground"
-                : "max-w-[85%] self-start whitespace-pre-wrap rounded-lg bg-muted px-3 py-2 text-sm"
+                ? "max-w-[85%] self-end rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"
+                : "max-w-[85%] self-start whitespace-pre-wrap rounded-md bg-secondary px-4 py-2 text-sm"
             }
           >
             {m.content}
           </p>
         ))}
         {sending && (
-          <p className="self-start text-sm text-muted-foreground">Sentry está pensando…</p>
+          <p className="self-start text-sm text-ink">Sentry está pensando…</p>
         )}
         {failure && (
           <p role="alert" className="self-start text-sm text-destructive">
@@ -138,14 +138,14 @@ export function SentryChat() {
           maxLength={4000}
           placeholder="Escribe un mensaje…"
           aria-label="Mensaje para Sentry"
-          className="h-9 flex-1 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-12 flex-1 rounded-full bg-card px-5 text-sm outline-none transition-colors duration-[var(--duration-micro)] placeholder:text-ink focus-visible:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
         />
         <Button type="submit" size="lg" disabled={sending || !draft.trim()}>
           <SendHorizontal />
           Enviar
         </Button>
       </form>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-ink">
         Sentry no es un médico: no diagnostica ni receta.
       </p>
     </div>

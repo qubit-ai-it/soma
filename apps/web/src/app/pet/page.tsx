@@ -9,11 +9,8 @@ export const metadata: Metadata = {
 
 export default function PetPage() {
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">Sentry</h1>
-      <p className="mb-10 mt-2 text-zinc-600 dark:text-zinc-400">
-        Conversa con Sentry, la mascota asistente de Soma.
-      </p>
+    <main className="container-soma max-w-3xl flex-1 py-16">
+      <h1 className="reveal mb-10 text-display">Sentry</h1>
       <SentryChat />
     </main>
   );
