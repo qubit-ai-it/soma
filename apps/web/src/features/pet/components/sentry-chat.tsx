@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { SendHorizontal } from "lucide-react";
 
 import { Button } from "@/shared/ui/button";
+import { Icon } from "@/shared/ui/icon";
 
 import type { ChatMessage } from "../chat.client";
 import type { SentryMode } from "../pet.types";
@@ -141,7 +141,7 @@ export function SentryChat() {
           className="h-12 flex-1 rounded-full bg-card px-5 text-sm outline-none transition-colors duration-[var(--duration-micro)] placeholder:text-ink focus-visible:bg-secondary focus-visible:ring-2 focus-visible:ring-ring"
         />
         <Button type="submit" size="lg" disabled={sending || !draft.trim()}>
-          <SendHorizontal />
+          <Icon name="send" />
           Enviar
         </Button>
       </form>

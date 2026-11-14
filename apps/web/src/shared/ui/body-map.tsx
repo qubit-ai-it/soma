@@ -4,7 +4,7 @@ import * as React from "react"
 import { cn } from "cn"
 
 import { Button } from "@/shared/ui/button"
-import { XIcon } from "lucide-react"
+import { Icon } from "@/shared/ui/icon"
 
 export type BodyMapView = "front" | "back"
 export type BodyMapRegion = {
@@ -413,7 +413,7 @@ export function BodyMap({
                   onClick={() => toggle(region.id)}
                 >
                   {region.label}
-                  <XIcon aria-hidden="true" data-icon="inline-end" />
+                  <Icon name="close" data-icon="inline-end" />
                 </Button>
               </li>
             ))}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Inter } from "next/font/google";
+import "material-symbols/outlined.css";
 import "./globals.css";
 
 const inter = Inter({

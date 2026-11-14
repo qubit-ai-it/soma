@@ -1,10 +1,11 @@
+import { Icon } from "@/shared/ui/icon";
 import type { MissionMemberDTO, Trend } from "../crew.types";
 
 const TREND_META: Record<Trend, { symbol: string; label: string }> = {
-  rising: { symbol: "↑", label: "Subiendo" },
-  falling: { symbol: "↓", label: "Bajando" },
-  stable: { symbol: "→", label: "Estable" },
-  insufficient: { symbol: "–", label: "Datos insuficientes" },
+  rising: { symbol: "trending_up", label: "Subiendo" },
+  falling: { symbol: "trending_down", label: "Bajando" },
+  stable: { symbol: "trending_flat", label: "Estable" },
+  insufficient: { symbol: "remove", label: "Datos insuficientes" },
 };
 
 const dateFormat = new Intl.DateTimeFormat("es", {
@@ -62,7 +63,7 @@ function TrendRow({ label, trend }: { label: string; trend: Trend }) {
     <li className="flex items-center justify-between gap-2 rounded-md bg-card px-4 py-3">
       <span>{label}</span>
       <span className="font-medium">
-        <span aria-hidden="true">{meta.symbol} </span>
+        <Icon name={meta.symbol} className="mr-1 align-middle" />
         {meta.label}
       </span>
     </li>

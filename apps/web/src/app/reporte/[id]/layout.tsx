@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { Icon } from "@/shared/ui/icon";
+
 import { AttentionBadge } from "@/features/crew/components/attention-badge";
 import { getMissionMember } from "@/features/crew/crew.queries";
 import { ReportTabs } from "./report-tabs";
@@ -9,8 +11,9 @@ import { ReportTabs } from "./report-tabs";
 export default function ReportLayout({ children, params }: LayoutProps<"/reporte/[id]">) {
   return (
     <main className="container-soma flex-1 py-16">
-      <Link href="/" className="text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground">
-        ← Volver al resumen de misión
+      <Link href="/" className="inline-flex items-center gap-2 text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground">
+        <Icon name="arrow_back" />
+        Volver al resumen de misión
       </Link>
       <Suspense fallback={<p className="mt-6 text-ink">Cargando reporte…</p>}>
         <ReportHeader params={params} />
