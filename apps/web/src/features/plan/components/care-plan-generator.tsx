@@ -18,21 +18,21 @@ export function CarePlanGenerator({ action }: Props) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 disabled:opacity-60 dark:border-zinc-700 dark:hover:bg-zinc-900"
+          className="rounded-full bg-primary px-5 py-2 font-heading text-sm font-semibold text-primary-foreground transition-colors duration-[var(--duration-micro)] ease-[var(--ease-editorial)] hover:bg-primary/85 disabled:opacity-60"
         >
           {pending ? "Generando…" : "Generar borrador"}
         </button>
-        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+        <span className="text-xs text-ink">
           El borrador no se guarda: se pierde al recargar.
         </span>
       </form>
 
       <div aria-live="polite">
         {state.status === "idle" && !pending && (
-          <p className="text-sm text-zinc-500">Aún no hay borrador.</p>
+          <p className="text-sm text-ink">Aún no hay borrador.</p>
         )}
         {state.status === "error" && (
-          <p role="alert" className="text-sm text-violet-800 dark:text-violet-300">
+          <p role="alert" className="text-sm text-danger">
             {state.message}
           </p>
         )}

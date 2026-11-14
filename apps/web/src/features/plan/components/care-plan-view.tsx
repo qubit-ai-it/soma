@@ -6,14 +6,14 @@ export function CarePlanView({ plan }: { plan: CarePlanDTO }) {
   return (
     <article
       aria-label="Borrador de plan"
-      className="rounded-md border border-zinc-200 p-3 text-sm dark:border-zinc-800"
+      className="rounded-md bg-card p-5 text-sm"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-900 dark:bg-violet-950 dark:text-violet-200">
+        <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-signal">
           {PLAN_DISCLAIMER}
         </span>
         {source.badge && (
-          <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200">
+          <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium">
             {source.badge}
           </span>
         )}
@@ -30,7 +30,7 @@ export function CarePlanView({ plan }: { plan: CarePlanDTO }) {
       <p className="mt-3 whitespace-pre-wrap">
         <span className="font-medium">Incertidumbre:</span> {plan.uncertainty}
       </p>
-      <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+      <p className="mt-1 text-xs text-ink">
         Fuente: {source.detail}. No es un diagnóstico ni orientación médica.
       </p>
     </article>
