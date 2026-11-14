@@ -66,9 +66,8 @@ const STATUS: Record<SentryMode, string> = {
   sleeping: "Descansando",
 };
 
-function newConversation() {
-  return createConversation(crypto.randomUUID(), Date.now(), GREETING);
-}
+const DRAFT_ID = "draft";
+const DRAFT = createConversation(DRAFT_ID, 0, GREETING);
 
 export function SentryAssistant() {
   const [conversations, setConversations] = useLocalStore(
@@ -79,7 +78,7 @@ export function SentryAssistant() {
   const [tasks, setTasks] = useLocalStore("soma.pet.tasks", NO_TASKS, parseTasks);
   const [runs, setRuns] = useLocalStore("soma.pet.runs", NO_RUNS, parseRuns);
 
-  const [current, setCurrent] = useState<Conversation>(newConversation);
+  const [current, setCurrent] = useState<Conversation>(DRAFT);
   const [view, setView] = useState<View>("chat");
   const [draft, setDraft] = useState("");
   const [attachments, setAttachments] = useState<string[]>([]);
@@ -161,7 +160,11 @@ export function SentryAssistant() {
     if (!content || sending) return;
 
     const message: ChatMessage = { role: "user", content, ...(images.length ? { images } : {}) };
-    const withUser = withMessages(current, [...current.messages, message], Date.now());
+    const base =
+      current.id === DRAFT_ID
+        ? { ...current, id: crypto.randomUUID(), createdAt: Date.now() }
+        : current;
+    const withUser = withMessages(base, [...base.messages, message], Date.now());
     persist(withUser);
     setDraft("");
     setAttachments([]);
@@ -226,7 +229,7 @@ export function SentryAssistant() {
   }
 
   function startNew() {
-    setCurrent(newConversation());
+    setCurrent(DRAFT);
     setDraft("");
     setAttachments([]);
     setFailure(null);
