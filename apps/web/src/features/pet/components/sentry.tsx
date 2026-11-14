@@ -35,7 +35,7 @@ export function Sentry({
   const { rive, RiveComponent } = useRive({
     src: "/mascot/soma.riv",
     artboard: "Artboard 1",
-    stateMachines: "MascotController",
+    stateMachine: "MascotController",
     autoplay: true,
     autoBind: true,
   });
