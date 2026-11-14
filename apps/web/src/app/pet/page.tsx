@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 
-import { SentryPlayground } from "@/features/pet/components/sentry-playground";
+import { SentryChat } from "@/features/pet/components/sentry-chat";
 
 export const metadata: Metadata = {
   title: "Sentry | Soma",
-  description: "Prueba temporal de la mascota Sentry",
+  description: "Chat con Sentry, la mascota de Soma",
 };
 
 export default function PetPage() {
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-12">
+    <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-12">
       <h1 className="text-3xl font-semibold tracking-tight">Sentry</h1>
       <p className="mb-10 mt-2 text-zinc-600 dark:text-zinc-400">
-        Página temporal para probar la mascota de Soma: estados, eventos y color.
+        Conversa con Sentry, la mascota asistente de Soma.
       </p>
-      <SentryPlayground />
+      <SentryChat />
     </main>
   );
 }
