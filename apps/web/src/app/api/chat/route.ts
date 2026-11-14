@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     parsed.data.messages,
   );
   if (!result.ok) {
+    console.error("[chat]", result.error);
     return Response.json({ error: "Chat provider failed" }, { status: 502 });
   }
   return Response.json({ reply: result.value });

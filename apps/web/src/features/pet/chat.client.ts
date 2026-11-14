@@ -50,12 +50,15 @@ export function createMiniMaxChat(options: MiniMaxChatOptions): MiniMaxChat {
           }),
           signal: AbortSignal.timeout(timeoutMs),
         });
-        if (!response.ok) return err(`MiniMax answered HTTP ${response.status}`);
+        if (!response.ok) {
+          const detail = (await response.text().catch(() => "")).slice(0, 300);
+          return err(`MiniMax answered HTTP ${response.status}: ${detail}`);
+        }
         const body: unknown = await response.json();
         content = (body as { choices?: { message?: { content?: unknown } }[] } | null)
           ?.choices?.[0]?.message?.content;
-      } catch {
-        return err("MiniMax is unreachable, timed out or sent an unreadable body");
+      } catch (cause) {
+        return err(`MiniMax is unreachable, timed out or sent an unreadable body: ${String(cause)}`);
       }
       if (typeof content !== "string" || !content.trim()) {
         return err("MiniMax response has no message content");
