@@ -100,7 +100,7 @@ export function TasksView({ tasks, runs, onCreate, onToggle, onDelete, onRunNow 
                 </p>
               </div>
               <Button variant="ghost" size="icon-sm" aria-label="Ejecutar ahora" onClick={() => onRunNow(t.id)}>
-                <Icon name="play_arrow" />
+                <Icon name="bolt" />
               </Button>
               <Button
                 variant="ghost"
@@ -108,7 +108,7 @@ export function TasksView({ tasks, runs, onCreate, onToggle, onDelete, onRunNow 
                 aria-label={t.enabled ? "Pausar" : "Reanudar"}
                 onClick={() => onToggle(t.id)}
               >
-                <Icon name={t.enabled ? "pause" : "resume"} />
+                <Icon name={t.enabled ? "pause" : "play_circle"} />
               </Button>
               <Button variant="ghost" size="icon-sm" aria-label="Eliminar tarea" onClick={() => onDelete(t.id)}>
                 <Icon name="delete" />
