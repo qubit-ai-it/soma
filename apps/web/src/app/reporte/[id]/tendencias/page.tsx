@@ -6,7 +6,7 @@ import { getMissionMember } from "@/features/crew/crew.queries";
 
 export default function TrendsPage({ params }: PageProps<"/reporte/[id]/tendencias">) {
   return (
-    <Suspense fallback={<p className="text-zinc-500">Cargando tendencias…</p>}>
+    <Suspense fallback={<p className="text-ink">Cargando tendencias…</p>}>
       <Content params={params} />
     </Suspense>
   );

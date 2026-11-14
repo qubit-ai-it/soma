@@ -8,7 +8,7 @@ export function SeverityLegend() {
         <li key={key} className="flex items-center gap-2">
           <span
             aria-hidden="true"
-            className={`inline-block size-3 rounded-sm ${SEVERITY_META[key].swatch}`}
+            className={`inline-block size-3 rounded-full ${SEVERITY_META[key].swatch}`}
           />
           {SEVERITY_META[key].label}
         </li>

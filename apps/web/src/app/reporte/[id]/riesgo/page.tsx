@@ -8,7 +8,7 @@ import { toRiskInput } from "../../../risk-request";
 
 export default function RiskPage({ params }: PageProps<"/reporte/[id]/riesgo">) {
   return (
-    <Suspense fallback={<p className="text-zinc-500">Clasificando riesgo…</p>}>
+    <Suspense fallback={<p className="text-ink">Clasificando riesgo…</p>}>
       <Content params={params} />
     </Suspense>
   );

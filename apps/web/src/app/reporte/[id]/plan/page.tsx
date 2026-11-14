@@ -7,7 +7,7 @@ import { generatePlan } from "./actions";
 
 export default function PlanPage({ params }: PageProps<"/reporte/[id]/plan">) {
   return (
-    <Suspense fallback={<p className="text-zinc-500">Cargando plan…</p>}>
+    <Suspense fallback={<p className="text-ink">Cargando plan…</p>}>
       <Content params={params} />
     </Suspense>
   );

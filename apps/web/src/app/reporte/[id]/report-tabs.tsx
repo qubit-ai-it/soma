@@ -16,9 +16,9 @@ export function ReportTabs({ memberId }: { memberId: string }) {
   return (
     <nav
       aria-label="Secciones del reporte"
-      className="mt-6 border-b border-zinc-200 dark:border-zinc-800"
+      className="mt-8"
     >
-      <ul className="flex gap-1">
+      <ul className="flex flex-wrap gap-2">
         {TABS.map((tab) => {
           const isActive = tab.segment === active;
           return (
@@ -26,10 +26,10 @@ export function ReportTabs({ memberId }: { memberId: string }) {
               <Link
                 href={`/reporte/${memberId}${tab.path}`}
                 aria-current={isActive ? "page" : undefined}
-                className={`inline-block border-b-2 px-3 py-2 text-sm ${
+                className={`inline-block rounded-full px-4 py-2 font-heading text-sm font-semibold transition-colors duration-[var(--duration-micro)] ease-[var(--ease-editorial)] ${
                   isActive
-                    ? "border-zinc-900 font-medium dark:border-zinc-100"
-                    : "border-transparent text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card text-foreground hover:bg-secondary"
                 }`}
               >
                 {tab.label}

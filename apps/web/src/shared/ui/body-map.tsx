@@ -326,9 +326,9 @@ export function BodyMap({
                       tabIndex={region === stop ? 0 : -1}
                       data-severity={severity?.[region.id]}
                       className={cn(
-                        "cursor-pointer fill-muted-foreground/20 stroke-background transition-colors outline-none hover:fill-muted-foreground/40",
+                        "cursor-pointer fill-secondary stroke-background transition-colors outline-none hover:fill-secondary/60",
                         severity
-                          ? "data-[severity=ok]:fill-emerald-600 data-[severity=possible-risk]:fill-amber-500 data-[severity=risky]:fill-red-600 aria-checked:stroke-foreground aria-checked:stroke-[3px]"
+                          ? "data-[severity=ok]:fill-ok data-[severity=possible-risk]:fill-warn data-[severity=risky]:fill-danger aria-checked:stroke-foreground aria-checked:stroke-[3px]"
                           : "aria-checked:fill-primary aria-checked:hover:fill-primary/80"
                       )}
                       strokeWidth={1.5}

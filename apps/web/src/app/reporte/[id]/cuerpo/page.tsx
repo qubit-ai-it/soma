@@ -7,7 +7,7 @@ import { getMissionMember } from "@/features/crew/crew.queries";
 
 export default function BodyPage({ params }: PageProps<"/reporte/[id]/cuerpo">) {
   return (
-    <Suspense fallback={<p className="text-zinc-500">Cargando mapa corporal…</p>}>
+    <Suspense fallback={<p className="text-ink">Cargando mapa corporal…</p>}>
       <Content params={params} />
     </Suspense>
   );
@@ -20,7 +20,7 @@ async function Content({ params }: Pick<PageProps<"/reporte/[id]/cuerpo">, "para
     <section aria-label="Mapa corporal">
       <SeverityLegend />
       <BodyPanel memberName={member.name} zones={member.zones} />
-      <p className="mt-4 text-xs text-zinc-500">
+      <p className="mt-4 text-xs text-ink">
         El mapa corporal es ilustrativo, no clínico ni orientación médica. Requiere validación
         humana.
       </p>

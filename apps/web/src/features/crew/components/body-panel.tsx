@@ -52,9 +52,9 @@ export function BodyPanel({
         showSummary={false}
       />
 
-      <ul className="mt-3 space-y-1 text-sm">
+      <ul className="mt-6 space-y-2 text-sm">
         {zones.map((reading) => (
-          <li key={reading.zone} className="flex items-center justify-between gap-2">
+          <li key={reading.zone} className="flex items-center justify-between gap-2 rounded-md bg-card px-4 py-3">
             <span>{reading.label}</span>
             <span
               className={`rounded-full px-2 py-0.5 text-xs font-medium ${SEVERITY_META[reading.severity].badge}`}
@@ -67,7 +67,7 @@ export function BodyPanel({
 
       <div role="status" className="mt-3 text-sm">
         {detail ? (
-          <div className="rounded-md bg-zinc-100 p-3 dark:bg-zinc-900">
+          <div className="rounded-md bg-secondary p-4">
             <p className="font-medium">
               {detail.label}: {SEVERITY_META[detail.severity].label}
             </p>
@@ -79,12 +79,12 @@ export function BodyPanel({
                 </li>
               ))}
             </ul>
-            <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 text-xs text-ink">
               Ilustrativo, no clínico.
             </p>
           </div>
         ) : (
-          <p className="text-zinc-600 dark:text-zinc-400">
+          <p className="text-ink">
             Selecciona una zona para ver qué señales la pintaron.
           </p>
         )}

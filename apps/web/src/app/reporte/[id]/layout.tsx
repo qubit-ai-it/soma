@@ -8,14 +8,14 @@ import { ReportTabs } from "./report-tabs";
 
 export default function ReportLayout({ children, params }: LayoutProps<"/reporte/[id]">) {
   return (
-    <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-12">
-      <Link href="/" className="text-sm underline-offset-4 hover:underline">
+    <main className="container-soma flex-1 py-16">
+      <Link href="/" className="text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground">
         ← Volver al resumen de misión
       </Link>
-      <Suspense fallback={<p className="mt-6 text-zinc-500">Cargando reporte…</p>}>
+      <Suspense fallback={<p className="mt-6 text-ink">Cargando reporte…</p>}>
         <ReportHeader params={params} />
       </Suspense>
-      <div className="mt-6">{children}</div>
+      <div className="mt-8">{children}</div>
     </main>
   );
 }
@@ -26,10 +26,10 @@ async function ReportHeader({ params }: Pick<LayoutProps<"/reporte/[id]">, "para
   if (!member) notFound();
   return (
     <>
-      <header className="mt-6 flex items-start justify-between gap-3">
+      <header className="reveal mt-8 flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{member.name}</h1>
-          <p className="text-zinc-600 dark:text-zinc-400">{member.role}</p>
+          <h1 className="text-headline">{member.name}</h1>
+          <p className="mt-1 text-ink">{member.role}</p>
         </div>
         <AttentionBadge attention={member.attention} />
       </header>

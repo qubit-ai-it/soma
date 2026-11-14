@@ -17,39 +17,39 @@ export function TrendsPanel({ member }: { member: MissionMemberDTO }) {
   const history = [...member.history].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
   return (
     <section aria-label="Tendencias" className="text-sm">
-      <h3 className="text-zinc-500">Tendencia ({history.length} registros)</h3>
-      <ul className="mt-1 space-y-0.5">
+      <h3 className="text-xl">Tendencia ({history.length} registros)</h3>
+      <ul className="mt-3 space-y-2">
         <TrendRow label="Frecuencia cardíaca" trend={member.trends.heartRate} />
         <TrendRow label="SpO₂" trend={member.trends.spo2} />
         <TrendRow label="Sueño" trend={member.trends.sleep} />
       </ul>
 
-      <h3 className="mt-6 text-zinc-500">Historial</h3>
+      <h3 className="mt-10 text-xl">Historial</h3>
       {history.length > 0 ? (
-        <table className="mt-2 w-full text-left">
-          <thead className="text-zinc-500">
+        <table className="mt-3 w-full overflow-hidden rounded-md bg-card text-left">
+          <thead className="bg-secondary text-ink">
             <tr>
-              <th scope="col" className="py-1 font-normal">Fecha</th>
-              <th scope="col" className="py-1 font-normal">FC (lpm)</th>
-              <th scope="col" className="py-1 font-normal">SpO₂ (%)</th>
-              <th scope="col" className="py-1 font-normal">Sueño (h)</th>
+              <th scope="col" className="px-4 py-2 font-normal">Fecha</th>
+              <th scope="col" className="px-4 py-2 font-normal">FC (lpm)</th>
+              <th scope="col" className="px-4 py-2 font-normal">SpO₂ (%)</th>
+              <th scope="col" className="px-4 py-2 font-normal">Sueño (h)</th>
             </tr>
           </thead>
           <tbody>
             {history.map((sample) => (
-              <tr key={sample.at} className="border-t border-zinc-200 dark:border-zinc-800">
-                <td className="py-1">{dateFormat.format(new Date(sample.at))}</td>
-                <td className="py-1">{sample.heartRateBpm}</td>
-                <td className="py-1">{sample.spo2Pct}</td>
-                <td className="py-1">{sample.sleepHours}</td>
+              <tr key={sample.at} className="odd:bg-muted">
+                <td className="px-4 py-2">{dateFormat.format(new Date(sample.at))}</td>
+                <td className="px-4 py-2">{sample.heartRateBpm}</td>
+                <td className="px-4 py-2">{sample.spo2Pct}</td>
+                <td className="px-4 py-2">{sample.sleepHours}</td>
               </tr>
             ))}
           </tbody>
         </table>
       ) : (
-        <p className="mt-2">Sin historial registrado.</p>
+        <p className="mt-2 text-muted-foreground">Sin historial registrado.</p>
       )}
-      <p className="mt-6 text-xs text-zinc-500">
+      <p className="mt-8 text-xs text-ink">
         Tendencias ilustrativas, no clínicas. Requiere validación humana.
       </p>
     </section>
@@ -59,7 +59,7 @@ export function TrendsPanel({ member }: { member: MissionMemberDTO }) {
 function TrendRow({ label, trend }: { label: string; trend: Trend }) {
   const meta = TREND_META[trend];
   return (
-    <li className="flex items-center justify-between gap-2">
+    <li className="flex items-center justify-between gap-2 rounded-md bg-card px-4 py-3">
       <span>{label}</span>
       <span className="font-medium">
         <span aria-hidden="true">{meta.symbol} </span>
