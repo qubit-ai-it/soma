@@ -26,6 +26,22 @@ const SYSTEM_PROMPT = [
   "You are not a doctor: never diagnose or prescribe, and point health concerns to the flight surgeon.",
 ].join(" ");
 
+function toWireMessages(history: ChatMessage[]) {
+  const lastIndex = history.length - 1;
+  return history.map((message, index) => {
+    if (index !== lastIndex || !message.images?.length) {
+      return { role: message.role, content: message.content };
+    }
+    return {
+      role: message.role,
+      content: [
+        { type: "text", text: message.content },
+        ...message.images.map((url) => ({ type: "image_url", image_url: { url } })),
+      ],
+    };
+  });
+}
+
 export type MiniMaxChat = {
   reply(history: ChatMessage[]): Promise<Result<string>>;
 };
@@ -49,7 +65,7 @@ export function createMiniMaxChat(options: MiniMaxChatOptions): MiniMaxChat {
             model: options.model,
             messages: [
               { role: "system", content: SYSTEM_PROMPT },
-              ...history.slice(-MAX_HISTORY_MESSAGES),
+              ...toWireMessages(history.slice(-MAX_HISTORY_MESSAGES)),
             ],
             reasoning_effort: "low",
           }),

@@ -9,6 +9,10 @@ const bodySchema = z.object({
       z.object({
         role: z.enum(["user", "assistant"]),
         content: z.string().trim().min(1).max(4000),
+        images: z
+          .array(z.string().startsWith("data:image/").max(2_000_000))
+          .max(3)
+          .optional(),
       }),
     )
     .min(1)

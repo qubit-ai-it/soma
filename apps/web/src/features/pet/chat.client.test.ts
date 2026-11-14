@@ -47,6 +47,25 @@ describe("createMiniMaxChat", () => {
     assert.equal(body.messages.length, MAX_HISTORY_MESSAGES + 1);
   });
 
+  it("sends images of the last message as image_url parts only", async () => {
+    const calls: { url: string; init: RequestInit }[] = [];
+    const chat = createMiniMaxChat({
+      ...base,
+      fetch: fakeFetch(() => Response.json({ choices: [{ message: { content: "x" } }] }), calls),
+    });
+    await chat.reply([
+      { role: "user", content: "old", images: ["data:image/jpeg;base64,OLD"] },
+      { role: "assistant", content: "ok" },
+      { role: "user", content: "new", images: ["data:image/jpeg;base64,NEW"] },
+    ]);
+    const { messages } = JSON.parse(calls[0].init.body as string);
+    assert.equal(messages[1].content, "old");
+    assert.deepEqual(messages[3].content, [
+      { type: "text", text: "new" },
+      { type: "image_url", image_url: { url: "data:image/jpeg;base64,NEW" } },
+    ]);
+  });
+
   it("returns an error on a non-2xx status", async () => {
     const chat = createMiniMaxChat({ ...base, fetch: fakeFetch(() => new Response("no", { status: 401 })) });
     const result = await chat.reply([{ role: "user", content: "hi" }]);
