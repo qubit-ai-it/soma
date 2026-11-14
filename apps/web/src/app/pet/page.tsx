@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { SentryChat } from "@/features/pet/components/sentry-chat";
+import { SentryAssistant } from "@/features/pet/components/sentry-assistant";
 
 export const metadata: Metadata = {
   title: "Sentry | Soma",
@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function PetPage() {
   return (
-    <main className="container-soma max-w-3xl flex-1 py-16">
+    <main className="container-soma flex-1 py-16">
       <h1 className="reveal mb-10 text-display">Sentry</h1>
-      <SentryChat />
+      <SentryAssistant />
     </main>
   );
 }
