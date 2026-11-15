@@ -1,3 +1,5 @@
+import type { Role } from "../roles/roles.types.ts";
+
 export type NavItem = {
   id: string;
   label: string;
@@ -15,6 +17,24 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "sentry", label: "Sentry", href: "/pet", icon: "smart_toy" },
   { id: "demo", label: "Demo", href: "/demo", icon: "play_circle" },
 ];
+
+const ORDER_BY_ROLE: Record<Role, readonly string[]> = {
+  astronaut: ["home", "report", "live", "xr", "sentry", "alerts", "earth", "demo"],
+  cmo: ["home", "report", "alerts", "live", "xr", "sentry", "earth", "demo"],
+  commander: ["home", "alerts", "report", "sentry", "demo", "live", "xr", "earth"],
+  earth: ["home", "earth", "alerts", "report", "sentry", "demo", "live", "xr"],
+};
+
+export function navItemsFor(role: Role, astronautMemberId: string): NavItem[] {
+  const order = ORDER_BY_ROLE[role];
+  return [...NAV_ITEMS]
+    .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
+    .map((item) =>
+      item.id === "report" && role === "astronaut"
+        ? { ...item, href: `/reporte/${astronautMemberId}` }
+        : item,
+    );
+}
 
 const PREFIXES: readonly (readonly [string, string])[] = [
   ["/reporte", "report"],
