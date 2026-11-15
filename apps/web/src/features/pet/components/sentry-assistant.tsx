@@ -88,6 +88,8 @@ export function SentryAssistant() {
   const [asleep, setAsleep] = useState(false);
   const [working, setWorking] = useState(false);
   const [readAloud, setReadAloud] = useState(false);
+  const [conversation, setConversation] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
   const [successSignal, setSuccessSignal] = useState(0);
   const [errorSignal, setErrorSignal] = useState(0);
 
@@ -97,20 +99,31 @@ export function SentryAssistant() {
   const tasksRef = useRef(tasks);
   const speechOut = useSpeechSupport();
 
-  const onDictated = useCallback((text: string) => {
-    setDraft(`${dictationBase.current}${text}`);
-  }, []);
-  const dictation = useDictation(LANG, onDictated);
+  const sendRef = useRef<(text: string, images: string[]) => void>(() => {});
+  const conversationRef = useRef(false);
+
+  const dictation = useDictation(LANG, {
+    onText: (text) => setDraft(`${dictationBase.current}${text}`),
+    onFinal: (text) => {
+      if (conversationRef.current) sendRef.current(text, []);
+    },
+    onError: (code) => {
+      if (code === "not-allowed" || code === "service-not-allowed") setConversation(false);
+    },
+  });
+  const { start: startListening, listening: isListening } = dictation;
 
   const mode: SentryMode = sending
     ? "thinking"
     : working
       ? "working"
-      : dictation.listening || draft
-        ? "listening"
-        : asleep
-          ? "sleeping"
-          : "idle";
+      : speaking
+        ? "idle"
+        : dictation.listening || draft
+          ? "listening"
+          : asleep
+            ? "sleeping"
+            : "idle";
 
   function armSleep() {
     clearTimeout(sleepTimer.current);
@@ -126,6 +139,12 @@ export function SentryAssistant() {
   useEffect(() => {
     tasksRef.current = tasks;
   }, [tasks]);
+
+  useEffect(() => {
+    if (!conversation || sending || speaking || isListening) return;
+    const timer = setTimeout(startListening, 400);
+    return () => clearTimeout(timer);
+  }, [conversation, sending, speaking, isListening, startListening]);
 
   const execute = useCallback(
     (task: ScheduledTask) => {
@@ -193,8 +212,12 @@ export function SentryAssistant() {
         withMessages(withUser, [...withUser.messages, { role: "assistant", content: body.reply }], Date.now()),
       );
       setSuccessSignal((n) => n + 1);
-      if (readAloud) speak(body.reply, LANG);
+      if (readAloud || conversationRef.current) {
+        setSpeaking(true);
+        speak(body.reply, LANG, () => setSpeaking(false));
+      }
     } catch (e) {
+      setConversation(false);
       setFailure(e instanceof Error ? e.message : "No pude responder.");
       setErrorSignal((n) => n + 1);
     } finally {
@@ -202,6 +225,11 @@ export function SentryAssistant() {
       armSleep();
     }
   }
+
+  useEffect(() => {
+    sendRef.current = send;
+    conversationRef.current = conversation;
+  });
 
   async function attach(files: File[]) {
     const room = MAX_ATTACHMENTS - attachments.length;
@@ -222,6 +250,21 @@ export function SentryAssistant() {
     }
     dictationBase.current = draft ? `${draft} ` : "";
     dictation.start();
+  }
+
+  function toggleConversation() {
+    if (conversation) {
+      setConversation(false);
+      dictation.stop();
+      stopSpeaking();
+      setSpeaking(false);
+      setDraft("");
+      return;
+    }
+    dictationBase.current = "";
+    setView("chat");
+    setConversation(true);
+    armSleep();
   }
 
   function toggleReadAloud() {
@@ -260,7 +303,7 @@ export function SentryAssistant() {
           className="w-24 shrink-0 lg:w-full lg:max-w-72"
         />
         <p aria-live="polite" className="font-heading text-lg font-bold lg:text-center">
-          {STATUS[mode]}
+          {speaking ? "Hablando…" : STATUS[mode]}
         </p>
       </aside>
 
@@ -280,6 +323,17 @@ export function SentryAssistant() {
               </button>
             ))}
           </nav>
+          {speechOut && dictation.supported && (
+            <Button
+              variant={conversation ? "default" : "outline"}
+              size="sm"
+              aria-pressed={conversation}
+              onClick={toggleConversation}
+            >
+              <Icon name={conversation ? "stop_circle" : "graphic_eq"} />
+              {conversation ? "Terminar" : "Conversar"}
+            </Button>
+          )}
           {speechOut && (
             <Button
               variant={readAloud ? "default" : "outline"}
