@@ -44,8 +44,7 @@ export function CrewSummaryList({
         ))}
       </ul>
       <p className="mt-6 text-xs text-ink">
-        Demostración · Fuente: Sintética. Los umbrales son ilustrativos, no clínicos ni
-        orientación médica.
+        No es orientación médica.
       </p>
     </section>
   );

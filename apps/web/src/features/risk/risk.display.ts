@@ -12,7 +12,7 @@ export function describeSource(source: {
   calibrated: boolean;
 }): { badge: string | null; detail: string } {
   const detail = `${source.provider} · ${source.mode}`;
-  if (source.mode === "mock") return { badge: "Simulado", detail };
+  if (source.mode === "mock") return { badge: null, detail };
   if (source.provider === "laya" && !source.calibrated) {
     return { badge: "respaldo local · sin calibrar", detail };
   }

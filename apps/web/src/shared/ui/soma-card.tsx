@@ -11,6 +11,7 @@ export type CardAction = {
   icon?: string;
   variant?: "primary" | "secondary";
   href?: string;
+  newTab?: boolean;
   onClick?: () => void;
   disabled?: boolean;
 };
@@ -103,7 +104,12 @@ export function SomaCard({
               </>
             );
             return action.href ? (
-              <Link key={action.label} href={action.href} className={className}>
+              <Link
+                key={action.label}
+                href={action.href}
+                className={className}
+                {...(action.newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              >
                 {content}
               </Link>
             ) : (

@@ -42,11 +42,6 @@ export function TasksView({ tasks, runs, onCreate, onToggle, onDelete, onRunNow 
 
   return (
     <div className="flex flex-col gap-6">
-      <p className="text-xs text-ink">
-        Demostración · Fuente: sintética. Las tareas se ejecutan mientras esta página está abierta;
-        no usan sensores reales.
-      </p>
-
       <form onSubmit={submit} className="flex flex-wrap gap-2">
         <input
           value={name}
