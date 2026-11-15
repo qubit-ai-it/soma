@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "cn";
 
+import type { SentryMode } from "../sentry.types";
 import { Icon } from "./icon";
+import { Sentry } from "./sentry";
 
 export type CardTone = "ok" | "warn" | "danger" | "info" | "neutral";
 
@@ -22,6 +24,14 @@ const CHIP: Record<CardTone, string> = {
   danger: "bg-danger/15 text-danger",
   info: "bg-accent-soft text-signal",
   neutral: "bg-secondary text-ink",
+};
+
+const TONE_MODE: Record<CardTone, SentryMode> = {
+  ok: "idle",
+  neutral: "idle",
+  info: "thinking",
+  warn: "warning",
+  danger: "warning",
 };
 
 const ACTION =
@@ -76,7 +86,9 @@ export function SomaCard({
   return (
     <article aria-label={label ?? title} className={cn("flex flex-col gap-4 rounded-2xl bg-card p-5", className)}>
       <header className="flex items-center justify-between gap-3">
-        {avatar ?? <SomaFace />}
+        {avatar ?? (
+          <Sentry mode={TONE_MODE[tone]} label={`Sentry · ${TONE_MODE[tone]}`} className="w-14 shrink-0" />
+        )}
         {chip && (
           <span className={cn("rounded-full px-3 py-1 text-xs font-semibold", CHIP[tone])}>{chip}</span>
         )}

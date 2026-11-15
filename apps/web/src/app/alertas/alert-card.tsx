@@ -5,7 +5,6 @@ import { useState, useTransition } from "react";
 import { STATUS_LABELS, formatDateTime } from "@/features/alerts/alerts.display";
 import type { Alert } from "@/features/alerts/alerts.types";
 import { DEMO_ACTORS, ROLE_LABELS, canAccess } from "@/features/roles/roles.logic";
-import { Sentry } from "@/features/pet/components/sentry";
 import { useDemoRole } from "@/features/roles/roles.store";
 import { SomaCard, type CardAction, type CardTone } from "@/shared/ui/soma-card";
 
@@ -64,13 +63,6 @@ export function AlertCard({ alert }: { alert: Alert }) {
 
   return (
     <SomaCard
-      avatar={
-        <Sentry
-          mode={alert.status === "closed" ? "idle" : "warning"}
-          label={alert.status === "closed" ? "Sentry en reposo" : "Sentry en modo alerta"}
-          className="w-16 shrink-0"
-        />
-      }
       title={alert.title}
       line={alert.action}
       chip={chip}

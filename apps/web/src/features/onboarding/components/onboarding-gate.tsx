@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
-import { Sentry } from "@/features/pet/components/sentry";
 import { useLocalStore } from "@/features/pet/local-store";
+import { Sentry } from "@/shared/ui/sentry";
 
 import {
   ONBOARDING_DONE,

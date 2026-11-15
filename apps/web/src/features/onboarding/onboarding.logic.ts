@@ -1,4 +1,4 @@
-import type { SentryMode } from "../pet/pet.types.ts";
+import type { SentryMode } from "../../shared/sentry.types.ts";
 
 export const ONBOARDING_KEY = "soma.onboarding.v1";
 export const ONBOARDING_DONE = "done";

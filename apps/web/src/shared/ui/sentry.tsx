@@ -9,7 +9,7 @@ import {
   useViewModelInstanceTrigger,
 } from "@rive-app/react-canvas";
 
-import { hexToRgb, type SentryMode } from "../pet.types";
+import { hexToRgb, type SentryMode } from "../sentry.types";
 
 RuntimeLoader.setWasmUrl("/rive/rive.wasm");
 RuntimeLoader.setWasmFallbackUrl("/rive/rive_fallback.wasm");

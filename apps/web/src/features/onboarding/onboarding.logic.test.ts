@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { SENTRY_MODES } from "../pet/pet.types.ts";
+import { SENTRY_MODES } from "../../shared/sentry.types.ts";
 import {
   ONBOARDING_DONE,
   ONBOARDING_STEPS,
