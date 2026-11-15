@@ -26,18 +26,21 @@ const SYSTEM_PROMPT = [
   "You are not a doctor: never diagnose or prescribe, and point health concerns to the flight surgeon.",
 ].join(" ");
 
-function toWireMessages(history: ChatMessage[]) {
-  const lastIndex = history.length - 1;
-  return history.map((message, index) => {
-    if (index !== lastIndex || !message.images?.length) {
-      return { role: message.role, content: message.content };
-    }
+function toPart(dataUrl: string) {
+  const match = /^data:([^;,]+);base64,(.+)$/.exec(dataUrl);
+  return match ? { inlineData: { mimeType: match[1], data: match[2] } } : null;
+}
+
+function toContents(history: ChatMessage[]) {
+  const recent = history.slice(-MAX_HISTORY_MESSAGES);
+  const firstUser = recent.findIndex((m) => m.role === "user");
+  const lastIndex = recent.length - 1;
+  return recent.slice(Math.max(0, firstUser)).map((message, offset) => {
+    const isLast = Math.max(0, firstUser) + offset === lastIndex;
+    const images = isLast ? (message.images ?? []).map(toPart).filter((p) => p !== null) : [];
     return {
-      role: message.role,
-      content: [
-        { type: "text", text: message.content },
-        ...message.images.map((url) => ({ type: "image_url", image_url: { url } })),
-      ],
+      role: message.role === "assistant" ? "model" : "user",
+      parts: [{ text: message.content }, ...images],
     };
   });
 }
@@ -49,7 +52,8 @@ export type GeminiChat = {
 export function createGeminiChat(options: GeminiChatOptions): GeminiChat {
   const doFetch = options.fetch ?? fetch;
   const timeoutMs = options.timeoutMs ?? DEFAULT_CHAT_TIMEOUT_MS;
-  const url = `${options.baseUrl.replace(/\/+$/, "")}/chat/completions`;
+  const base = options.baseUrl.replace(/\/+$/, "").replace(/\/openai$/, "");
+  const url = `${base}/models/${encodeURIComponent(options.model)}:generateContent`;
 
   return {
     async reply(history) {
@@ -59,15 +63,11 @@ export function createGeminiChat(options: GeminiChatOptions): GeminiChat {
           method: "POST",
           headers: {
             "content-type": "application/json",
-            authorization: `Bearer ${options.apiKey}`,
+            "x-goog-api-key": options.apiKey,
           },
           body: JSON.stringify({
-            model: options.model,
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              ...toWireMessages(history.slice(-MAX_HISTORY_MESSAGES)),
-            ],
-            reasoning_effort: "low",
+            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents: toContents(history),
           }),
           signal: AbortSignal.timeout(timeoutMs),
         });
@@ -76,8 +76,12 @@ export function createGeminiChat(options: GeminiChatOptions): GeminiChat {
           return err(`Gemini answered HTTP ${response.status}: ${detail}`);
         }
         const body: unknown = await response.json();
-        content = (body as { choices?: { message?: { content?: unknown } }[] } | null)
-          ?.choices?.[0]?.message?.content;
+        const parts = (
+          body as { candidates?: { content?: { parts?: { text?: unknown }[] } }[] } | null
+        )?.candidates?.[0]?.content?.parts;
+        content = parts
+          ?.map((part) => (typeof part.text === "string" ? part.text : ""))
+          .join("");
       } catch (cause) {
         return err(`Gemini is unreachable, timed out or sent an unreadable body: ${String(cause)}`);
       }

@@ -25,7 +25,7 @@ const envSchema = z.object({
   OLLAMA_MODEL: z.string().default("medgemma1.5:4b"),
 
   GEMINI_API_KEY: optionalString,
-  GEMINI_BASE_URL: z.url().default("https://generativelanguage.googleapis.com/v1beta/openai"),
+  GEMINI_BASE_URL: z.url().default("https://generativelanguage.googleapis.com/v1beta"),
   GEMINI_MODEL: z.string().default("gemini-3.5-flash-lite"),
 
   SPACE_WEATHER_PROVIDER: z.enum(["live", "fixture"]).default("fixture"),
