@@ -268,13 +268,13 @@ export function OnboardingGate() {
         <div className="flex w-full flex-col gap-2">
           {last ? (
             <>
-              <button
-                type="button"
+              <Link
+                href="/"
                 onClick={finish}
                 className={`${ACTION} bg-primary text-primary-foreground hover:bg-primary/85`}
               >
                 Empezar
-              </button>
+              </Link>
               <Link
                 href="/demo"
                 onClick={finish}

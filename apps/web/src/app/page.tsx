@@ -1,14 +1,8 @@
-import { Suspense } from "react";
+import type { Metadata } from "next";
+import { SimulationConsole } from "@/features/simulation/simulation-console";
 
-import { MissionSection } from "./mission-section";
+export const metadata: Metadata = { title: "Simulación de tripulación · Soma" };
 
 export default function Home() {
-  return (
-    <main className="container-soma flex-1 py-12">
-      <h1 className="reveal mb-10 text-display">Soma</h1>
-      <Suspense fallback={<p className="text-ink">Cargando tripulación…</p>}>
-        <MissionSection />
-      </Suspense>
-    </main>
-  );
+  return <SimulationConsole />;
 }
