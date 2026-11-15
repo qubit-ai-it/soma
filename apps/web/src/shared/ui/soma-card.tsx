@@ -49,6 +49,7 @@ type Props = {
   line?: string;
   chip?: string;
   tone?: CardTone;
+  avatar?: ReactNode;
   children?: ReactNode;
   detail?: ReactNode;
   detailLabel?: string;
@@ -63,6 +64,7 @@ export function SomaCard({
   line,
   chip,
   tone = "neutral",
+  avatar,
   children,
   detail,
   detailLabel = "Ver detalle",
@@ -74,7 +76,7 @@ export function SomaCard({
   return (
     <article aria-label={label ?? title} className={cn("flex flex-col gap-4 rounded-2xl bg-card p-5", className)}>
       <header className="flex items-center justify-between gap-3">
-        <SomaFace />
+        {avatar ?? <SomaFace />}
         {chip && (
           <span className={cn("rounded-full px-3 py-1 text-xs font-semibold", CHIP[tone])}>{chip}</span>
         )}
