@@ -4,8 +4,12 @@ export const ONBOARDING_KEY = "soma.onboarding.v1";
 export const ONBOARDING_DONE = "done";
 export const ONBOARDING_OPEN_EVENT = "soma:onboarding";
 
+export const SETUP_KINDS = ["role", "source", "xr"] as const;
+export type SetupKind = (typeof SETUP_KINDS)[number];
+
 export type OnboardingStep = {
   id: string;
+  kind: "info" | SetupKind;
   mode: SentryMode;
   title: string;
   line: string;
@@ -14,33 +18,59 @@ export type OnboardingStep = {
 export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
   {
     id: "hello",
+    kind: "info",
     mode: "idle",
     title: "Soy Sentry",
     line: "Acompaño a la tripulación y vigilo cambios en su salud.",
   },
   {
     id: "baseline",
+    kind: "info",
     mode: "thinking",
     title: "Cada persona es su referencia",
     line: "Comparo a cada astronauta con su propia historia.",
   },
   {
     id: "rules",
+    kind: "info",
     mode: "working",
     title: "Las reglas deciden",
     line: "Yo explico. La decisión siempre es de una persona.",
   },
   {
     id: "alerts",
+    kind: "info",
     mode: "warning",
     title: "Si algo cambia, aviso",
     line: "Alertas cortas, solo con lo que importa.",
   },
   {
     id: "offline",
+    kind: "info",
     mode: "idle",
     title: "También sin conexión",
     line: "Todo sigue funcionando aunque Tierra no responda.",
+  },
+  {
+    id: "role",
+    kind: "role",
+    mode: "listening",
+    title: "¿Cuál es tu rol?",
+    line: "Define qué información ves.",
+  },
+  {
+    id: "source",
+    kind: "source",
+    mode: "working",
+    title: "¿De dónde vienen tus datos?",
+    line: "Conecta un reloj o una banda.",
+  },
+  {
+    id: "xr",
+    kind: "xr",
+    mode: "thinking",
+    title: "¿Tienes un visor XR?",
+    line: "Lo usaremos para guiar los procedimientos.",
   },
 ];
 

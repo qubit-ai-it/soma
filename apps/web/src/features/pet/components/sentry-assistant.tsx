@@ -16,7 +16,7 @@ import {
 } from "../chat.history";
 import { fileToDataUrl, MAX_ATTACHMENTS } from "../image";
 import { newId } from "../id";
-import { useLocalStore } from "../local-store";
+import { useLocalStore } from "@/shared/local-store";
 import type { SentryMode } from "../pet.types";
 import {
   createTask,

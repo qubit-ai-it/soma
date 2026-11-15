@@ -4,8 +4,8 @@ import { DM_Sans, Inter } from "next/font/google";
 import "material-symbols/outlined.css";
 import "./globals.css";
 
-import { OnboardingGate } from "@/features/onboarding/components/onboarding-gate";
 import { SentryFileProvider } from "@/shared/ui/sentry-file";
+import { OnboardingGate } from "./onboarding-gate";
 import { SiteNav } from "./site-nav";
 
 const inter = Inter({

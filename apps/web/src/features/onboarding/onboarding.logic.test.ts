@@ -5,6 +5,7 @@ import { SENTRY_MODES } from "../../shared/sentry.types.ts";
 import {
   ONBOARDING_DONE,
   ONBOARDING_STEPS,
+  SETUP_KINDS,
   isLastStep,
   nextStepIndex,
   shouldShowOnboarding,
@@ -25,6 +26,17 @@ describe("onboarding steps", () => {
       assert.ok(words(step.title) <= 6, `title too long: ${step.title}`);
       assert.ok(words(step.line) <= 14, `line too long: ${step.line}`);
     }
+  });
+
+  it("asks for the role, the data source and the XR headset once each, after the intro", () => {
+    const kinds = ONBOARDING_STEPS.map((s) => s.kind);
+    assert.deepEqual(
+      kinds.filter((k) => k !== "info"),
+      [...SETUP_KINDS],
+    );
+    const firstSetup = kinds.findIndex((k) => k !== "info");
+    assert.ok(kinds.slice(0, firstSetup).every((k) => k === "info"));
+    assert.ok(kinds.slice(firstSetup).every((k) => k !== "info"));
   });
 
   it("walks forward without passing the last step", () => {
