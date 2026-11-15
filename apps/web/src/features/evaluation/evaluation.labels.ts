@@ -62,6 +62,23 @@ export const CHECKPOINT_LABEL: Record<string, string> = {
   "Not evaluable": "No evaluable",
 };
 
+export const PROVENANCE_LABEL: Record<string, string> = {
+  real: "Real",
+  historical: "Histórico",
+  synthetic: "Sintético",
+};
+
+export const QUALITY_LABEL: Record<string, string> = {
+  valid: "Válida",
+  suspect: "Dudosa",
+  invalid: "Inválida",
+  missing: "Sin dato",
+};
+
+export function formatNumber(value: number, digits = 1): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(digits);
+}
+
 export function signalLabel(signal: string): string {
   return SIGNAL_LABEL[signal] ?? signal;
 }
