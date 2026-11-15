@@ -61,7 +61,7 @@ export function exportAudit(entries: readonly AuditEntry[], exportedAt: string):
   return JSON.stringify(
     {
       exportedAt,
-      note: "Registro de demostración con datos sintéticos. Solo se agregan entradas; la cadena de hashes detecta ediciones.",
+      note: "Solo se agregan entradas; la cadena de hashes detecta ediciones.",
       count: entries.length,
       chainValid: verifyChain(entries).valid,
       entries,

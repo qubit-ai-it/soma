@@ -127,7 +127,7 @@ export function TasksView({ tasks, runs, onCreate, onToggle, onDelete, onRunNow 
                 <span className="font-heading font-bold text-foreground">
                   {r.value} {r.unit}
                 </span>{" "}
-                · sintético · {time.format(r.at)}
+                · {time.format(r.at)}
               </span>
             </li>
           ))}

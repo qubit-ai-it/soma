@@ -11,7 +11,7 @@
   "proposals": [
     {
       "id": "pp-001",
-      "subject": { "memberId": "cm-02", "label": "Tripulante cm-02 (sintético)" },
+      "subject": { "memberId": "cm-02", "label": "Tripulante cm-02" },
       "title": "Borrador de plan de recuperación del sueño",
       "steps": [
         "Ajustar el horario de descanso para acumular al menos 7 horas continuas.",
@@ -23,7 +23,7 @@
     },
     {
       "id": "pp-002",
-      "subject": { "memberId": "cm-03", "label": "Tripulante cm-03 (sintético)" },
+      "subject": { "memberId": "cm-03", "label": "Tripulante cm-03" },
       "title": "Borrador de revisión de carga de ejercicio",
       "steps": [
         "Reducir la intensidad de la sesión de ejercicio durante dos días.",
@@ -35,7 +35,7 @@
     },
     {
       "id": "pp-003",
-      "subject": { "memberId": "cm-04", "label": "Tripulante cm-04 (sintético)" },
+      "subject": { "memberId": "cm-04", "label": "Tripulante cm-04" },
       "title": "Borrador de seguimiento por señales no evaluables",
       "steps": [
         "Repetir las mediciones con el equipo de respaldo.",

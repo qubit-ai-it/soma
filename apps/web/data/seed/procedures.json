@@ -2,8 +2,8 @@
   "procedures": [
     {
       "id": "ultrasound-capture-demo",
-      "title": "Captura guiada de ultrasonido (demostración)",
-      "description": "Contenido de demostración para el flujo XR. No es un protocolo clínico y debe sustituirse por procedimientos curados y aprobados por un médico.",
+      "title": "Captura guiada de ultrasonido",
+      "description": "Procedimiento de referencia para el flujo XR. Debe ser curado y aprobado por un médico.",
       "steps": [
         {
           "id": "check-equipment",

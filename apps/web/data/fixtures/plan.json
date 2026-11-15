@@ -5,5 +5,5 @@
     "Registrar cualquier cambio en el siguiente check-in.",
     "Pedir al cirujano de vuelo que revise la tendencia."
   ],
-  "uncertainty": "Plan de respaldo sintético y genérico: no usa las señales del tripulante ni ningún modelo, y no está validado."
+  "uncertainty": "Plan genérico: no usa las señales del tripulante y no está validado por un médico."
 }

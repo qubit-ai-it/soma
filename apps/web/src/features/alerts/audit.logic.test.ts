@@ -100,6 +100,6 @@ describe("exportAudit", () => {
     assert.equal(parsed.count, 2);
     assert.equal(parsed.chainValid, true);
     assert.equal(parsed.entries.length, 2);
-    assert.match(parsed.note, /sint/i);
+    assert.match(parsed.note, /hashes/i);
   });
 });

@@ -20,10 +20,10 @@ export const ROLE_LABELS: Record<Role, string> = {
 
 // Fictional identities for the demo; there is no authentication
 export const DEMO_ACTORS: Record<Role, DemoActor> = {
-  astronaut: { id: "demo-astronaut-01", label: "Astronauta demo", memberId: "cm-02" },
-  cmo: { id: "demo-cmo-01", label: "Médico de a bordo demo" },
-  commander: { id: "demo-commander-01", label: "Comandante demo" },
-  earth: { id: "demo-earth-md-01", label: "Médico de Tierra demo" },
+  astronaut: { id: "demo-astronaut-01", label: "Astronauta", memberId: "cm-02" },
+  cmo: { id: "demo-cmo-01", label: "Médico de a bordo" },
+  commander: { id: "demo-commander-01", label: "Comandante" },
+  earth: { id: "demo-earth-md-01", label: "Médico de Tierra" },
 };
 
 const STATIC_ACCESS: Record<Exclude<Resource, "clinical_detail">, readonly Role[]> = {

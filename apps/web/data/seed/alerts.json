@@ -3,7 +3,7 @@
     {
       "id": "al-001",
       "memberId": "cm-02",
-      "memberLabel": "Tripulante cm-02 (sintético)",
+      "memberLabel": "Tripulante cm-02",
       "level": "F2",
       "title": "Sueño y variabilidad cardiaca por debajo de su línea base",
       "action": "Revisión por el médico de a bordo",
@@ -11,7 +11,7 @@
         "astronaut",
         "cmo"
       ],
-      "clinicalDetail": "Sueño 4,1 h; HRV 28 ms frente a línea base de 52 ms (datos sintéticos).",
+      "clinicalDetail": "Sueño 4,1 h; HRV 28 ms frente a línea base de 52 ms.",
       "status": "open",
       "createdAt": "2026-10-30T07:10:00.000Z",
       "source": "deterministic-engine"
@@ -19,7 +19,7 @@
     {
       "id": "al-002",
       "memberId": "cm-03",
-      "memberLabel": "Tripulante cm-03 (sintético)",
+      "memberLabel": "Tripulante cm-03",
       "level": "F3",
       "title": "Alerta F3: se requiere acción inmediata",
       "action": "Evaluación médica inmediata y notificación a Tierra",
@@ -29,7 +29,7 @@
         "commander",
         "earth"
       ],
-      "clinicalDetail": "SpO2 87 % sostenida durante 20 min (datos sintéticos).",
+      "clinicalDetail": "SpO2 87 % sostenida durante 20 min.",
       "status": "acknowledged",
       "createdAt": "2026-10-30T08:30:00.000Z",
       "source": "deterministic-engine",
@@ -42,7 +42,7 @@
     {
       "id": "al-003",
       "memberId": "cm-04",
-      "memberLabel": "Tripulante cm-04 (sintético)",
+      "memberLabel": "Tripulante cm-04",
       "level": "F2",
       "title": "Frecuencia cardiaca en reposo elevada",
       "action": "Repetir la medición y revisar con el médico de a bordo",
@@ -50,7 +50,7 @@
         "astronaut",
         "cmo"
       ],
-      "clinicalDetail": "FC en reposo 96 lpm frente a línea base de 68 lpm (datos sintéticos).",
+      "clinicalDetail": "FC en reposo 96 lpm frente a línea base de 68 lpm.",
       "status": "closed",
       "createdAt": "2026-10-29T09:00:00.000Z",
       "source": "deterministic-engine",

@@ -1,5 +1,5 @@
 {
-  "version": "demo-library-0.1.0",
+  "version": "library-1.0.0",
   "protocols": [
     {
       "id": "sleep-schedule-adjustment",
@@ -13,10 +13,10 @@
       ],
       "triggers": { "ruleIds": ["sleep-low"], "signals": ["sleepHours"] },
       "approval": {
-        "approvedBy": "Panel médico de demostración (Tierra)",
-        "version": "demo-1.0.0",
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "Contenido de demostración, no es orientación clínica",
+        "source": "No es orientación clínica",
         "demonstration": true
       }
     },
@@ -35,10 +35,10 @@
         "signals": ["fatigue"]
       },
       "approval": {
-        "approvedBy": "Panel médico de demostración (Tierra)",
-        "version": "demo-1.0.0",
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "Contenido de demostración, no es orientación clínica",
+        "source": "No es orientación clínica",
         "demonstration": true
       }
     },
@@ -53,10 +53,10 @@
       ],
       "triggers": { "ruleIds": ["hrv-low", "heart-rate-high"], "signals": ["hrv", "heartRate"] },
       "approval": {
-        "approvedBy": "Panel médico de demostración (Tierra)",
-        "version": "demo-1.0.0",
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "Contenido de demostración, no es orientación clínica",
+        "source": "No es orientación clínica",
         "demonstration": true
       }
     },
@@ -72,10 +72,10 @@
       ],
       "triggers": { "ruleIds": [], "signals": [], "anyEvaluable": true },
       "approval": {
-        "approvedBy": "Panel médico de demostración (Tierra)",
-        "version": "demo-1.0.0",
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "Contenido de demostración, no es orientación clínica",
+        "source": "No es orientación clínica",
         "demonstration": true
       }
     },
@@ -90,10 +90,10 @@
       ],
       "triggers": { "ruleIds": ["conv-3"], "signals": [], "minStatus": "F2" },
       "approval": {
-        "approvedBy": "Panel médico de demostración (Tierra)",
-        "version": "demo-1.0.0",
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "Contenido de demostración, no es orientación clínica",
+        "source": "No es orientación clínica",
         "demonstration": true
       }
     }

@@ -22,7 +22,6 @@ export default function AlertsPage() {
         Volver
       </Link>
       <h1 className="reveal mt-8 text-headline">Alertas</h1>
-      <p className="mt-2 text-xs text-ink">Demostración · datos sintéticos</p>
       <div className="mt-6">
         <RoleSwitcher />
       </div>
