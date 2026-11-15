@@ -1,7 +1,9 @@
 import { z } from "zod";
 
-import { createGeminiChat } from "@/features/pet/chat.client";
+import { createOllamaChat } from "@/features/pet/chat.client";
 import { getConfig } from "@/server/config";
+
+export const maxDuration = 150;
 
 const bodySchema = z.object({
   messages: z
@@ -25,12 +27,12 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const { apiKey, baseUrl, model } = getConfig().chat;
-  if (!apiKey) {
-    return Response.json({ error: "Chat is not configured" }, { status: 503 });
+  const { url, model, authorization } = getConfig().chat;
+  if (!url) {
+    return Response.json({ error: "Chat is unavailable" }, { status: 503 });
   }
 
-  const result = await createGeminiChat({ apiKey, baseUrl, model }).reply(
+  const result = await createOllamaChat({ url, model, authorization }).reply(
     parsed.data.messages,
   );
   if (!result.ok) {

@@ -1,4 +1,4 @@
-import { err, ok, type Result } from "../../shared/result.ts";
+import { requestOllamaChat, type OllamaMessage } from "../../server/ollama-chat.ts";
 
 export type ChatRole = "user" | "assistant";
 
@@ -9,15 +9,15 @@ export type ChatMessage = {
   imageCount?: number;
 };
 
-export type GeminiChatOptions = {
-  apiKey: string;
-  baseUrl: string;
+type OllamaChatOptions = {
+  url: string;
   model: string;
+  authorization?: string;
   timeoutMs?: number;
   fetch?: typeof fetch;
 };
 
-export const DEFAULT_CHAT_TIMEOUT_MS = 60_000;
+const DEFAULT_CHAT_TIMEOUT_MS = 120_000;
 export const MAX_HISTORY_MESSAGES = 20;
 
 const SYSTEM_PROMPT = [
@@ -26,69 +26,35 @@ const SYSTEM_PROMPT = [
   "You are not a doctor: never diagnose or prescribe, and point health concerns to the flight surgeon.",
 ].join(" ");
 
-function toPart(dataUrl: string) {
-  const match = /^data:([^;,]+);base64,(.+)$/.exec(dataUrl);
-  return match ? { inlineData: { mimeType: match[1], data: match[2] } } : null;
-}
-
-function toContents(history: ChatMessage[]) {
+function toMessages(history: ChatMessage[]): OllamaMessage[] {
   const recent = history.slice(-MAX_HISTORY_MESSAGES);
-  const firstUser = recent.findIndex((m) => m.role === "user");
-  const lastIndex = recent.length - 1;
-  return recent.slice(Math.max(0, firstUser)).map((message, offset) => {
-    const isLast = Math.max(0, firstUser) + offset === lastIndex;
-    const images = isLast ? (message.images ?? []).map(toPart).filter((p) => p !== null) : [];
-    return {
-      role: message.role === "assistant" ? "model" : "user",
-      parts: [{ text: message.content }, ...images],
-    };
-  });
+  const firstUser = Math.max(0, recent.findIndex((message) => message.role === "user"));
+  const turns = recent.slice(firstUser).map(({ role, content }): OllamaMessage => ({ role, content }));
+  const lastTurn = turns.at(-1);
+  if (lastTurn?.role === "user") {
+    const images = (recent.at(-1)?.images ?? [])
+      .map((image) => /^data:image\/[^;,]+;base64,(.+)$/.exec(image)?.[1])
+      .filter((image) => image !== undefined);
+    if (images.length) lastTurn.images = images;
+  }
+
+  return [{ role: "system", content: SYSTEM_PROMPT }, ...turns];
 }
 
-export type GeminiChat = {
-  reply(history: ChatMessage[]): Promise<Result<string>>;
-};
-
-export function createGeminiChat(options: GeminiChatOptions): GeminiChat {
-  const doFetch = options.fetch ?? fetch;
-  const timeoutMs = options.timeoutMs ?? DEFAULT_CHAT_TIMEOUT_MS;
-  const base = options.baseUrl.replace(/\/+$/, "").replace(/\/openai$/, "");
-  const url = `${base}/models/${encodeURIComponent(options.model)}:generateContent`;
+export function createOllamaChat(options: OllamaChatOptions) {
+  const connection = {
+    url: options.url,
+    timeoutMs: options.timeoutMs ?? DEFAULT_CHAT_TIMEOUT_MS,
+    fetch: options.fetch,
+    headers: {
+      "ngrok-skip-browser-warning": "1",
+      ...(options.authorization ? { authorization: options.authorization } : {}),
+    },
+  };
 
   return {
-    async reply(history) {
-      let content: unknown;
-      try {
-        const response = await doFetch(url, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            "x-goog-api-key": options.apiKey,
-          },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-            contents: toContents(history),
-          }),
-          signal: AbortSignal.timeout(timeoutMs),
-        });
-        if (!response.ok) {
-          const detail = (await response.text().catch(() => "")).slice(0, 300);
-          return err(`Gemini answered HTTP ${response.status}: ${detail}`);
-        }
-        const body: unknown = await response.json();
-        const parts = (
-          body as { candidates?: { content?: { parts?: { text?: unknown }[] } }[] } | null
-        )?.candidates?.[0]?.content?.parts;
-        content = parts
-          ?.map((part) => (typeof part.text === "string" ? part.text : ""))
-          .join("");
-      } catch (cause) {
-        return err(`Gemini is unreachable, timed out or sent an unreadable body: ${String(cause)}`);
-      }
-      if (typeof content !== "string" || !content.trim()) {
-        return err("Gemini response has no message content");
-      }
-      return ok(content.trim());
+    reply(history: ChatMessage[]) {
+      return requestOllamaChat(connection, { model: options.model, messages: toMessages(history) });
     },
   };
 }

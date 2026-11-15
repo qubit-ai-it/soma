@@ -230,7 +230,7 @@ export function SentryAssistant() {
       if (!response.ok || !body?.reply) {
         throw new Error(
           response.status === 503
-            ? "El chat no está configurado (falta GEMINI_API_KEY)."
+            ? "El chat de Sentry no está disponible en este momento."
             : "No pude responder. Inténtalo de nuevo.",
         );
       }

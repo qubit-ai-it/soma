@@ -20,6 +20,21 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Chat de Sentry con Ollama
+
+Configura estas variables en `apps/web/.env.local` o en el entorno del servidor y reinicia la aplicación.
+
+```dotenv
+CHAT_OLLAMA_URL=https://tu-dominio.ngrok-free.dev/api/chat
+CHAT_OLLAMA_MODEL=medgemma:27b
+```
+
+El servidor llama a la API nativa de Ollama. Si Next.js y Ollama corren en la misma máquina, puedes usar `http://localhost:11434/api/chat`. Para adjuntar imágenes, usa un modelo con capacidad de visión. Puedes consultar los modelos instalados con `ollama list` o `GET /api/tags`. [API de chat](https://docs.ollama.com/api/chat) · [Visión](https://docs.ollama.com/capabilities/vision) · [Listado de modelos](https://docs.ollama.com/api/tags)
+
+Para exponer Ollama por ngrok, configura la política de tráfico para que reescriba `Host` a `localhost`. Si activas Basic Auth en ngrok, guarda el encabezado `Basic <credenciales codificadas>` en `CHAT_OLLAMA_AUTHORIZATION`, solo en el entorno del servidor. [Guía de Ollama en ngrok](https://ngrok.com/docs/universal-gateway/examples/ollama)
+
+`SOMA_OFFLINE=true` deshabilita el chat. El planificador tiene su propia configuración en `PLANNER_PROVIDER` y `OLLAMA_*`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
