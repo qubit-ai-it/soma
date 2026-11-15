@@ -2,17 +2,22 @@
 
 import { useEffect, useRef } from "react";
 import {
-  RuntimeLoader,
   useRive,
   useViewModelInstanceColor,
   useViewModelInstanceEnum,
   useViewModelInstanceTrigger,
 } from "@rive-app/react-canvas";
 
-import { hexToRgb, type SentryMode } from "../pet.types";
+import { hexToRgb, type SentryMode } from "../sentry.types";
+import { MASCOT_SRC } from "./rive-runtime";
+import { useSharedMascotFile } from "./sentry-file";
 
-RuntimeLoader.setWasmUrl("/rive/rive.wasm");
-RuntimeLoader.setWasmFallbackUrl("/rive/rive_fallback.wasm");
+const ARTBOARD = {
+  artboard: "Artboard 1",
+  stateMachine: "MascotController",
+  autoplay: true,
+  autoBind: true,
+};
 
 type Props = {
   mode?: SentryMode;
@@ -32,13 +37,15 @@ export function Sentry({
   className,
 }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { rive, RiveComponent } = useRive({
-    src: "/mascot/soma.riv",
-    artboard: "Artboard 1",
-    stateMachine: "MascotController",
-    autoplay: true,
-    autoBind: true,
-  });
+  const shared = useSharedMascotFile();
+  // the shared file is returned while still loading: wait for "success", fall back to src on failure
+  const { rive, RiveComponent } = useRive(
+    shared === null || shared.status === "failed"
+      ? { src: MASCOT_SRC, ...ARTBOARD }
+      : shared.status === "success" && shared.riveFile
+        ? { riveFile: shared.riveFile, ...ARTBOARD }
+        : null,
+  );
 
   const vmi = rive?.viewModelInstance ?? null;
   const { setValue: setMode } = useViewModelInstanceEnum("mode", vmi);

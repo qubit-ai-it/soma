@@ -1,0 +1,44 @@
+{
+  "id": "critical-f3",
+  "title": "Sudden heart rate spike reaching an explicit critical rule",
+  "description": "Synthetic demo scenario. Ten stable baseline days, a mild heart rate drift, then a single abrupt spike that trips the explicit critical rule while the other signals stay normal. All values are synthetic.",
+  "subjectId": "cm-01",
+  "startDate": "2026-11-01",
+  "baselineUntil": "2026-11-11T00:00:00Z",
+  "checkpoints": [
+    { "label": "Baseline stable", "evaluatedAt": "2026-11-11T12:00:00Z" },
+    { "label": "Normal variation", "evaluatedAt": "2026-11-12T12:00:00Z" },
+    { "label": "Early deviation", "evaluatedAt": "2026-11-13T12:00:00Z" },
+    { "label": "Deviation continues", "evaluatedAt": "2026-11-14T12:00:00Z" },
+    { "label": "Critical spike", "evaluatedAt": "2026-11-15T12:00:00Z" }
+  ],
+  "series": [
+    {
+      "signal": "sleepHours",
+      "unit": "h",
+      "source": "wearable-sim",
+      "device": "watch-sim",
+      "values": [7.1, 7.4, 7.2, 6.9, 7.3, 7.0, 7.5, 7.2, 7.1, 7.3, 7.0, 7.2, 7.1, 7.0, 7.2]
+    },
+    {
+      "signal": "hrv",
+      "unit": "ms",
+      "source": "wearable-sim",
+      "device": "watch-sim",
+      "values": [52, 50, 53, 51, null, 52, 50, 53, 51, 52, 51, 52, 50, 51, 52]
+    },
+    {
+      "signal": "heartRate",
+      "unit": "bpm",
+      "source": "wearable-sim",
+      "device": "watch-sim",
+      "values": [61, 60, 62, 63, 60, 61, 62, 60, 61, 62, 62, 61, 66, 68, 118]
+    },
+    {
+      "signal": "fatigue",
+      "unit": "score",
+      "source": "self-report",
+      "values": [3, 2, 4, 3, 3, 2, 4, 3, 5, 3, 3, 4, 3, 4, 3]
+    }
+  ]
+}

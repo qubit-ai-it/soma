@@ -7,9 +7,9 @@ import { Button } from "@/shared/ui/button";
 import { ZONE_REGION_IDS } from "@/features/crew/crew.body";
 import { AssignmentRoutes } from "./assignment-routes";
 import { assessTelemetry, incidentProgress } from "./incident";
-import { corridorFloors, roomFloor } from "./dispatch";
+import { constrainToDeck, corridorFloors, isCorridor, locationAt, locationNames, roomFloor, type DeckFloor } from "./deck";
 import {
-  crewColors, crewIds, equipment, roomAt, roomIds, rooms,
+  crewColors, crewIds, equipment, roomIds, rooms,
   telemetryLabels, telemetrySchema,
   type Point, type SimCrew, type SimulationState, type SimulationUpdate, type Telemetry,
 } from "./simulation";
@@ -32,7 +32,7 @@ type Drag = { crewId: SimCrew["id"]; start: Point; pointer: number; position?: P
 function mapPoint(event: PointerEvent, map: HTMLDivElement): Point {
   const box = map.getBoundingClientRect();
   const percent = (offset: number, size: number) => Math.round(Math.min(98, Math.max(2, offset * 100 / size)) * 10) / 10;
-  return { x: percent(event.clientX - box.left, box.width), y: percent(event.clientY - box.top, box.height) };
+  return constrainToDeck({ x: percent(event.clientX - box.left, box.width), y: percent(event.clientY - box.top, box.height) });
 }
 
 function TelemetryInput({ name, value, onChange }: {
@@ -92,7 +92,7 @@ function CrewDetails({ member, onClose, onUpdate }: {
       <header className={styles.cardHeader}>
         <div>
           <h3><Dot color={crewColor(member.id)} /> {member.name}</h3>
-          <p>{rooms[roomAt(member.position)]} · {member.position.x}, {member.position.y}</p>
+          <p>{locationNames[locationAt(member.position)]} · {member.position.x.toFixed(1)}, {member.position.y.toFixed(1)}</p>
         </div>
         <button type="button" className={styles.close} onClick={onClose} aria-label="Cerrar ficha">×</button>
       </header>
@@ -115,7 +115,7 @@ function Dot({ color }: { color: string }) {
   return <span className={styles.dot} style={{ color }} aria-hidden="true" />;
 }
 
-function floorStyle({ left, top, width, height }: ReturnType<typeof roomFloor>) {
+function floorStyle({ left, top, width, height }: DeckFloor) {
   return { left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` };
 }
 
@@ -217,7 +217,7 @@ export function SimulationConsole() {
     <main className={styles.console}>
       <header className={styles.top}>
         <div>
-          <Link href="/" className={styles.home}>← Soma</Link>
+          <Link href="/mision" className={styles.home}>← Panel de misión</Link>
           <h1>Simulación de tripulación</h1>
         </div>
         <span className={styles.model}><Dot color="#61edb3" /> MedGemma <span>· Simulación</span></span>
@@ -231,36 +231,44 @@ export function SimulationConsole() {
               <header className={styles.sectionHeader}>
                 <div>
                   <h2>Plano de la nave</h2>
-                  <p>Haz clic para ver la ficha. Arrastra un punto para mover al tripulante.</p>
+                  <p>Haz clic para ver la ficha. Arrastra por los módulos y pasillos numerados.</p>
                 </div>
               </header>
               <div ref={map} className={styles.map} aria-label="Plano de la nave">
                 <div className={styles.rooms} aria-hidden="true">
                   {corridorFloors.map((floor) => (
-                    <div className={styles.corridor} key={`${floor.left}-${floor.top}`} style={floorStyle(floor)} />
-                  ))}
-                  {roomIds.map((id) => (
-                    <div className={styles.room} key={id} data-module={id} style={floorStyle(roomFloor(id))}>
-                      <span>{rooms[id]}</span>
-                      <div className={styles.roomEquipment}>
-                        {Object.values(equipment).filter(({ room }) => room === id).map(({ label }) => (
-                          <small key={label}>{label}</small>
-                        ))}
-                      </div>
+                    <div className={styles.corridor} key={floor.id} style={floorStyle(floor)} title={locationNames[floor.id]}>
+                      <span>{floor.number}</span>
                     </div>
                   ))}
+                  {roomIds.map((id) => {
+                    const floor = roomFloor(id);
+                    return (
+                      <div className={styles.room} key={id} data-module={id} style={{ ...floorStyle(floor),
+                        borderRadius: `${floor.radiusX / floor.width * 100}% / ${floor.radiusY / floor.height * 100}%`,
+                      }}>
+                        <span>{rooms[id]}</span>
+                        <div className={styles.roomEquipment}>
+                          {Object.values(equipment).filter(({ room }) => room === id).map(({ label }) => (
+                            <small key={label}>{label}</small>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
                 <AssignmentRoutes state={state} />
                 {state.crew.map((crewMember, index) => {
                   const { id, name } = crewMember;
                   const position = preview?.id === id ? preview.position : crewMember.position;
+                  const location = locationAt(position);
                   const readingAlert = criticalReadings.get(id)?.length;
                   const critical = !!readingAlert || (incidentStatus === "critical" && decision?.affectedCrewId === id);
                   return (
                     <button key={id} type="button"
-                      className={styles.marker} data-critical={critical} data-selected={selected === id}
+                      className={styles.marker} data-critical={critical} data-corridor={isCorridor(location)} data-selected={selected === id}
                       style={{ "--marker-color": crewColor(id), color: crewColor(id), left: `${position.x}%`, top: `${position.y}%` } as CSSProperties}
-                      aria-label={`${name}, ${rooms[roomAt(position)]}${critical ? ", alerta crítica" : ""}`} aria-expanded={selected === id}
+                      aria-label={`${name}, ${locationNames[location]}${critical ? ", alerta crítica" : ""}`} aria-expanded={selected === id}
                       onPointerDown={(event) => startDrag(event, id)}
                       onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={cancelDrag}
                       onClick={(event) => { if (event.detail === 0) setSelected(id); }}
@@ -273,7 +281,7 @@ export function SimulationConsole() {
                         if (!offset) return;
                         event.preventDefault();
                         const clamp = (value: number) => Math.max(2, Math.min(98, value));
-                        void save({ kind: "move", crewId: id, position: { x: clamp(position.x + offset.x), y: clamp(position.y + offset.y) } });
+                        void save({ kind: "move", crewId: id, position: constrainToDeck({ x: clamp(position.x + offset.x), y: clamp(position.y + offset.y) }) });
                       }}
                     >
                       <span aria-hidden="true">{index + 1}</span>
@@ -300,7 +308,7 @@ export function SimulationConsole() {
                 {decision && (alerts.length === 0 || decision.status !== "nominal") && (
                   <div className={styles.decision} data-status={awaitingReview ? "watch" : incidentStatus}>
                     <strong>{awaitingReview ? "Reevaluación pendiente" : statusLabel[incidentStatus ?? decision.status]}</strong>
-                    {affected && <p>{affected.name} · {rooms[roomAt(affected.position)]}</p>}
+                    {affected && <p>{affected.name} · {locationNames[locationAt(affected.position)]}</p>}
                     {decision.equipmentId && decision.instructions.some(({ via }) => via !== null) && (
                       <p>Equipo asignado · {equipment[decision.equipmentId].label}</p>
                     )}
@@ -315,7 +323,7 @@ export function SimulationConsole() {
                                   <Dot color={crewColor(arrival.crewId)} />
                                   <span>{state.crew.find(({ id }) => id === arrival.crewId)?.name}</span>
                                   <span data-arrived={arrival.arrived}>{arrival.arrived ? "En destino"
-                                    : arrival.pickup ? `Recogida en ${rooms[arrival.pickup]}` : `Rumbo a ${rooms[arrival.destination]}`}</span>
+                                    : arrival.pickup ? `Recogida en ${rooms[arrival.pickup]}` : `Rumbo a ${locationNames[arrival.destination]}`}</span>
                                 </li>
                               ))}
                             </ul>
@@ -340,7 +348,7 @@ export function SimulationConsole() {
                   <button type="button" key={person.id} data-selected={person.id === selected} onClick={() => setSelected(person.id)}>
                     <Dot color={crewColor(person.id)} />
                     <strong>{person.name}</strong>
-                    <small>{rooms[roomAt(person.position)]}{!!criticalReadings.get(person.id)?.length && (
+                    <small>{locationNames[locationAt(person.position)]}{!!criticalReadings.get(person.id)?.length && (
                       <span className={styles.rosterAlert}> · Alerta crítica</span>
                     )}</small>
                   </button>
@@ -372,7 +380,7 @@ export function SimulationConsole() {
                   <article key={person.id} className={styles.chat} data-selected={person.id === selected}>
                     <button type="button" onClick={() => setSelected(person.id)} className={styles.chatHeader}>
                       <Dot color={crewColor(person.id)} />
-                      <span><strong>{person.name}</strong><small>{rooms[roomAt(person.position)]}</small></span>
+                      <span><strong>{person.name}</strong><small>{locationNames[locationAt(person.position)]}</small></span>
                       {messages.length > 0 && <span className={styles.count} aria-label={`${messages.length} mensajes`}>{messages.length}</span>}
                     </button>
                     <div className={styles.thread} role="log" aria-label={`Mensajes para ${person.name}`}>

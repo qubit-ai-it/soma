@@ -67,7 +67,7 @@ export function RiskPanel({ risk }: { risk: RiskBadgeDTO | null }) {
         )}
       </p>
       <p className="mt-2 text-xs text-ink">
-        Fuente: {source.detail}. Requiere validación humana; no es un diagnóstico.
+        Requiere validación humana; no es un diagnóstico.
       </p>
     </section>
   );

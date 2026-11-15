@@ -29,9 +29,9 @@ const STEPS: Record<RiskLevel, string[]> = {
 };
 
 const UNCERTAINTY = [
-  "Borrador simulado con redacción aleatoria. No usa el historial del tripulante ni ningún modelo médico.",
-  "Generado por un sustituto de MedGemma. Los pasos son genéricos y no están validados.",
-  "Salida de ejemplo: aquí se desconocen la confianza y los límites del modelo real.",
+  "Borrador preliminar. No usa el historial completo del tripulante y requiere validación médica.",
+  "Los pasos son generales y no están validados por un médico.",
+  "Se desconocen la confianza y los límites del análisis; requiere validación médica.",
 ];
 
 function pick<T>(items: T[], random: Random): T {

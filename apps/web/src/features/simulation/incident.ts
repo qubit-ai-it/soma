@@ -1,4 +1,5 @@
-import { roomAt, type CrewId, type Decision, type EquipmentId, type SimCrew, type SimulationState, type Telemetry } from "./simulation.ts";
+import { locationAt } from "./deck.ts";
+import { type CrewId, type Decision, type EquipmentId, type SimCrew, type SimulationState, type Telemetry } from "./simulation.ts";
 
 // Reference bands for the fictional exercise.
 type AlertSignal = Exclude<keyof Telemetry, "sleepHours">;
@@ -48,13 +49,13 @@ export function incidentProgress(state: SimulationState) {
 
   const previousSignals = decision.signals ?? [];
   const sleepOnly = previousSignals.length > 0 && previousSignals.every((signal) => signal === "sleepHours");
-  const destination = roomAt(affected.position);
+  const destination = locationAt(affected.position);
   const arrivals = (sleepOnly ? [] : decision.instructions).flatMap((instruction) => {
     const member = state.crew.find(({ id }) => id === instruction.crewId);
     if (!instruction.destination || !member || hasCriticalTelemetry(member)) return [];
     return [{ crewId: member.id, destination,
       pickup: instruction.equipmentCollected === false ? instruction.via : null,
-      arrived: roomAt(member.position) === destination && instruction.equipmentCollected !== false,
+      arrived: locationAt(member.position) === destination && instruction.equipmentCollected !== false,
     }];
   });
   const assessed = assessTelemetry(affected.telemetry);
@@ -115,7 +116,7 @@ export function validIncidentTransition(state: SimulationState, next: Decision) 
   const previous = activeIncident(state.decision);
   if (next.status !== "critical" || previous?.status !== "critical" || previous.affectedCrewId !== affected.id
       || incidentProgress(state)?.sleepOnly) return true;
-  const destination = roomAt(affected.position);
+  const destination = locationAt(affected.position);
   // An available responder already sent directly stays with this assignment.
   const direct = previous.instructions.find((instruction) => !instruction.via && instruction.destination === destination
     && state.crew.some((member) => member.id === instruction.crewId && !hasCriticalTelemetry(member)));

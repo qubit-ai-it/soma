@@ -6,7 +6,8 @@ import { createJsonStore } from "../../server/json-store.ts";
 import { crewFileSchema } from "../crew/crew.schema.ts";
 import { evaluateSimulation } from "./orchestrator.ts";
 import { activeIncident, needsIncidentReview } from "./incident.ts";
-import { crewIds, roomAt, telemetrySchema, type SimulationState, type SimulationUpdate } from "./simulation.ts";
+import { constrainToDeck, locationAt } from "./deck.ts";
+import { crewIds, telemetrySchema, type SimulationState, type SimulationUpdate } from "./simulation.ts";
 
 const dataDir = path.join(process.cwd(), "data");
 const seedDir = path.join(dataDir, "seed");
@@ -42,10 +43,23 @@ async function initialState(): Promise<SimulationState> {
   };
 }
 
+function fitSavedDeck(state: SimulationState): SimulationState {
+  const crew = state.crew.map((member) => {
+    const position = constrainToDeck(member.position);
+    return position === member.position ? member : { ...member, position };
+  });
+  const affected = crew.find(({ id }) => id === state.decision?.affectedCrewId);
+  const destination = affected && locationAt(affected.position);
+  const reroute = state.phase === "done" && state.decision?.status === "critical" && destination
+    && state.decision.instructions.some((instruction) => instruction.destination && instruction.destination !== destination);
+  if (!reroute && crew.every((member, index) => member === state.crew[index])) return state;
+  return { ...state, crew, phase: reroute ? "pending" : state.phase, version: state.version + 1, revision: state.revision + 1 };
+}
+
 export async function getSimulation(): Promise<SimulationState> {
   const saved = await store.read(key) as SimulationState | null;
-  if (saved) return saved;
-  return await store.update(key, async (current) => current ?? await initialState()) as SimulationState;
+  if (saved && fitSavedDeck(saved) === saved) return saved;
+  return await store.update(key, async (current) => fitSavedDeck((current as SimulationState | null) ?? await initialState())) as SimulationState;
 }
 
 export async function updateSimulation(update: SimulationUpdate): Promise<SimulationState> {
@@ -64,19 +78,20 @@ export async function updateSimulation(update: SimulationUpdate): Promise<Simula
 
     const member = state.crew.find(({ id }) => id === update.crewId)!;
     const at = new Date().toISOString();
+    const position = update.kind === "move" ? constrainToDeck(update.position) : member.position;
     const before = update.kind === "move" ? member.position : member.telemetry;
     const after = update.kind === "move"
-      ? update.position
+      ? position
       : telemetrySchema.parse({ ...member.telemetry, ...update.telemetry });
     if (JSON.stringify(before) === JSON.stringify(after)) return state;
 
     const nextMember = update.kind === "move"
-      ? { ...member, position: update.position, updatedAt: at }
+      ? { ...member, position, updatedAt: at }
       : { ...member, telemetry: { ...member.telemetry, ...update.telemetry }, updatedAt: at };
     const decision = update.kind === "move" && state.decision ? {
       ...state.decision,
       instructions: state.decision.instructions.map((instruction) => (
-        instruction.crewId === member.id && instruction.equipmentCollected === false && instruction.via === roomAt(update.position)
+        instruction.crewId === member.id && instruction.equipmentCollected === false && instruction.via === locationAt(position)
           ? { ...instruction, equipmentCollected: true } : instruction
       )),
     } : state.decision;

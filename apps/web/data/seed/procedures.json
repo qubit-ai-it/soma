@@ -1,0 +1,48 @@
+{
+  "procedures": [
+    {
+      "id": "ultrasound-capture-demo",
+      "title": "Captura guiada de ultrasonido",
+      "description": "Procedimiento de referencia para el flujo XR. Debe ser curado y aprobado por un médico.",
+      "steps": [
+        {
+          "id": "check-equipment",
+          "title": "Revisa el equipo",
+          "instruction": "Confirma que la sonda, el gel y la tableta están al alcance y que la sonda tiene batería."
+        },
+        {
+          "id": "stabilize",
+          "title": "Estabiliza tu posición",
+          "instruction": "Asegura los pies o un anclaje para que ambas manos queden libres y tu cuerpo no flote."
+        },
+        {
+          "id": "apply-gel",
+          "title": "Aplica el gel",
+          "instruction": "Aplica una capa fina de gel sobre la zona marcada en el diagrama corporal de tu visor."
+        },
+        {
+          "id": "locate-landmark",
+          "title": "Ubica la referencia",
+          "instruction": "Apoya la sonda sobre la referencia resaltada en tu visor y mantén un contacto suave y estable."
+        },
+        {
+          "id": "adjust-image",
+          "title": "Ajusta la imagen",
+          "instruction": "Ajusta la profundidad y la ganancia hasta que la estructura quede centrada y nítida.",
+          "optional": true
+        },
+        {
+          "id": "capture-image",
+          "title": "Captura la imagen",
+          "instruction": "Quédate quieto y captura la imagen. Haz una segunda captura si la primera se movió."
+        },
+        {
+          "id": "review-quality",
+          "title": "Revisa la calidad de la imagen",
+          "instruction": "Compara la imagen con la guía de calidad. Si no se ve con claridad, marca este paso como fallido y repite la captura.",
+          "safetyNote": "La calidad de la imagen es parte de la evidencia. Una imagen deficiente no debe usarse para una evaluación."
+        }
+      ]
+    }
+  ]
+}

@@ -4,9 +4,9 @@ import { describe, it } from "node:test";
 import { describeSource } from "./risk.display.ts";
 
 describe("describeSource", () => {
-  it("labels the mock as simulated and shows provider and mode", () => {
+  it("shows no badge for the mock and keeps provider and mode in the detail", () => {
     const meta = describeSource({ provider: "simulated-jev", mode: "mock", calibrated: false });
-    assert.equal(meta.badge, "Simulado");
+    assert.equal(meta.badge, null);
     assert.equal(meta.detail, "simulated-jev · mock");
   });
 

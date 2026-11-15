@@ -14,6 +14,12 @@ export const rooms = {
 
 export const roomIds = roomIdSchema.options;
 
+export const corridorIds = ["pasillo-1", "pasillo-2", "pasillo-3", "pasillo-4", "pasillo-5", "pasillo-6", "pasillo-7"] as const;
+const corridorIdSchema = z.enum(corridorIds);
+export type CorridorId = z.infer<typeof corridorIdSchema>;
+export const locationIdSchema = z.union([roomIdSchema, corridorIdSchema]);
+export type LocationId = z.infer<typeof locationIdSchema>;
+
 export const equipmentIds = ["desfibrilador", "oximetro", "tensiometro", "dosimetro"] as const;
 export const equipmentIdSchema = z.enum(equipmentIds);
 export type EquipmentId = z.infer<typeof equipmentIdSchema>;
@@ -27,31 +33,10 @@ export const equipment = {
 export const pointSchema = z.object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100) });
 export type Point = z.infer<typeof pointSchema>;
 
-export function roomAt({ x, y }: Point): RoomId {
-  const column = Math.min(2, Math.floor(x * 3 / 100));
-  return roomIds[(y < 50 ? 0 : 3) + column];
-}
-
 export function roomCenter(id: RoomId): Point {
   const index = roomIds.indexOf(id);
   return { x: ((index % 3) + 0.5) * 100 / 3, y: index < 3 ? 25 : 75 };
 }
-
-export function routeBetween(origin: RoomId, destination: RoomId): RoomId[] {
-  let index = roomIds.indexOf(origin);
-  const target = roomIds.indexOf(destination);
-  const path = [origin];
-  while (index % 3 !== target % 3) {
-    index += Math.sign(target % 3 - index % 3);
-    path.push(roomIds[index]);
-  }
-  if (index !== target) path.push(destination);
-  return path;
-}
-
-export const corridors = roomIds.flatMap((room) =>
-  roomIds.filter((other) => routeBetween(room, other).length === 2).map((other) => [room, other]),
-);
 
 export const crewIdSchema = z.enum(["cm-01", "cm-02", "cm-03", "cm-04", "cm-05"]);
 export type CrewId = z.infer<typeof crewIdSchema>;
@@ -98,7 +83,7 @@ export type SimulationUpdate = z.infer<typeof updateSchema>;
 const instructionSchema = z.object({
   crewId: crewIdSchema,
   message: z.string().trim().min(1).max(500),
-  destination: roomIdSchema.nullable(),
+  destination: locationIdSchema.nullable(),
   via: roomIdSchema.nullable(),
   equipmentCollected: z.boolean().optional(),
 });

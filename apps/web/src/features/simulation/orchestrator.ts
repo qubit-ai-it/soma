@@ -4,10 +4,11 @@ import { z } from "zod";
 import { getConfig } from "../../server/config.ts";
 import { requestOllamaChat } from "../../server/ollama-chat.ts";
 import { err, ok } from "../../shared/result.ts";
+import { corridorFloors, locationAt, locationNames } from "./deck.ts";
 import { dispatchResponse } from "./dispatch.ts";
 import { alertSignals, assessTelemetry, equipmentFor, incidentOptions, incidentProgress, validIncidentTransition } from "./incident.ts";
 import {
-  corridors, equipment, equipmentIdSchema, roomAt, rooms,
+  equipment, equipmentIdSchema,
   type Decision, type SimulationState,
 } from "./simulation.ts";
 
@@ -16,7 +17,7 @@ const prompt = [
   "Cada lectura incluye su valor, rango y gravedad según el ejercicio. Usa las variaciones recientes y las combinaciones de lecturas para decidir. Una desviación leve y estable, como SpO2 93 %, es watch. Da prioridad a las lecturas críticas. Mientras haya una asignación crítica en tránsito, el plan actual debe seguir activo.",
   "Elige un tripulante de los IDs permitidos. Devuelve los nombres de las señales fuera de rango que motivan la decisión. Si espera al equipo con las lecturas corregidas, conserva sus señales originales. Si procede cerrar o no hay caso, usa affectedCrewId null, signals [] y equipmentId null.",
   "En un caso crítico, elige equipmentId de equipmentOptions del afectado cuando el equipo ayude a verificar o coordinar el ejercicio. Para SpO2 usa oxímetro, para presión usa tensiómetro, para dosis usa dosímetro. El desfibrilador se puede trasladar en el ejercicio de pulso cero. Usa null cuando no haga falta trasladar ningún instrumento o el caso esté en atención.",
-  "La aplicación asigna las rutas y envía los mensajes según la decisión. No indiques tratamientos ni procedimientos.",
+  "location indica el módulo o el pasillo numerado en el que está cada tripulante. El destino del aviso es esa ubicación exacta. La aplicación asigna las rutas y envía los mensajes según la decisión. No indiques tratamientos ni procedimientos.",
 ].join("\n");
 
 export async function evaluateSimulation(state: SimulationState) {
@@ -38,7 +39,7 @@ export async function evaluateSimulation(state: SimulationState) {
       ? previousEquipment ? [previousEquipment] : []
       : equipmentFor(member.telemetry);
     return {
-      ...member, readings, equipmentOptions, room: roomAt(member.position),
+      ...member, readings, equipmentOptions, location: locationAt(member.position),
       available: !readings.some(({ severity }) => severity === "critical"),
     };
   });
@@ -68,7 +69,9 @@ export async function evaluateSimulation(state: SimulationState) {
       {
         role: "user",
         content: JSON.stringify({
-          crew, rooms, corridors, equipment, incidentProgress: progress,
+          crew, locations: locationNames,
+          corridors: corridorFloors.map(({ id, from, to }) => ({ id, from, to })),
+          equipment, incidentProgress: progress,
           previousDecision: previous, changes: state.changes.slice(-5),
         }),
       },
@@ -88,6 +91,8 @@ export async function evaluateSimulation(state: SimulationState) {
   const abnormal = affected?.readings.filter(({ corrected }) => !corrected) ?? [];
   const selected = abnormal.filter(({ signal, severity }) => severity === "critical" || signals.includes(signal));
   const evidence = selected.length ? selected : abnormal;
+  const assessedSignals = evidence.length ? evidence.map(({ signal }) => signal)
+    : affected && currentCase ? previous?.signals.filter((signal) => signal !== "sleepHours") ?? [] : [];
   const selectedTool = status === "critical" && affected
     ? keepCurrentEquipment && currentCase ? previousEquipment
       : equipmentId && affected.equipmentOptions.includes(equipmentId) ? equipmentId : null
@@ -96,10 +101,9 @@ export async function evaluateSimulation(state: SimulationState) {
     ? instruction : { ...instruction, equipmentCollected: undefined }) : [];
   const decision: Decision = {
     status, affectedCrewId, equipmentId: selectedTool,
-    signals: evidence.length ? evidence.map(({ signal }) => signal)
-      : affected && currentCase ? previous?.signals.filter((signal) => signal !== "sleepHours") ?? [] : [],
+    signals: assessedSignals,
     instructions: status === "critical" && affected
-      ? dispatchResponse(state.crew, affected, selectedTool, previousInstructions)
+      ? dispatchResponse(state.crew, affected, selectedTool, previousInstructions, assessedSignals)
       : [],
   };
   return validIncidentTransition(state, decision)

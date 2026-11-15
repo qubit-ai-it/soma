@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { corridorFloors, roomFloor, walkingPath } from "./dispatch";
+import { corridorFloors, locationAt, locationCenter, roomFloor, shortestWalk } from "./deck";
 import { activeIncident, incidentProgress } from "./incident";
-import { crewColors, crewIds, roomAt, roomCenter, roomIds, type SimulationState } from "./simulation";
+import { crewColors, crewIds, roomCenter, roomIds, type SimulationState } from "./simulation";
 import styles from "./simulation.module.css";
 
 export function AssignmentRoutes({ state }: { state: SimulationState }) {
@@ -19,14 +19,14 @@ export function AssignmentRoutes({ state }: { state: SimulationState }) {
     const routes = decision.instructions.flatMap((instruction) => {
       const origin = state.crew.find(({ id }) => id === instruction.crewId);
       const room = instruction.destination;
-      if (!origin || !room || (affected && roomAt(affected.position) !== room)) return [];
+      if (!origin || !room || (affected && locationAt(affected.position) !== room)) return [];
       const pickup = instruction.equipmentCollected !== true && instruction.via;
-      if (roomAt(origin.position) === room && instruction.equipmentCollected !== false) return [];
-      const destination = affected?.position ?? roomCenter(room);
+      if (locationAt(origin.position) === room && instruction.equipmentCollected !== false) return [];
+      const destination = affected?.position ?? locationCenter(room);
       const waypoint = pickup && roomCenter(pickup);
       const path = waypoint
-        ? [...walkingPath(origin.position, waypoint), ...walkingPath(waypoint, destination).slice(1)]
-        : walkingPath(origin.position, destination);
+        ? [...shortestWalk(origin.position, waypoint).path, ...shortestWalk(waypoint, destination).path.slice(1)]
+        : shortestWalk(origin.position, destination).path;
       return [{ path, color: crewColors[crewIds.indexOf(instruction.crewId)], via: instruction.via }];
     });
 
@@ -43,11 +43,8 @@ export function AssignmentRoutes({ state }: { state: SimulationState }) {
       ctx.beginPath();
       for (const room of roomIds) {
         const floor = roomFloor(room);
-        const center = roomCenter(room);
-        const radiusX = floor.width / 2 * x;
-        ctx.moveTo(center.x * x + radiusX, center.y * y);
-        ctx.ellipse(center.x * x, center.y * y, radiusX, floor.height / 2 * y, 0, 0, Math.PI * 2);
-        ctx.closePath();
+        ctx.roundRect(floor.left * x, floor.top * y, floor.width * x, floor.height * y,
+          { x: floor.radiusX * x, y: floor.radiusY * y });
       }
       for (const floor of corridorFloors) {
         ctx.rect(floor.left * x, floor.top * y, floor.width * x, floor.height * y);

@@ -8,7 +8,9 @@ const TABS = [
   { segment: "tendencias", label: "Tendencias", path: "/tendencias" },
   { segment: "cuerpo", label: "Cuerpo", path: "/cuerpo" },
   { segment: "riesgo", label: "Riesgo", path: "/riesgo" },
+  { segment: "evaluacion", label: "Evaluación", path: "/evaluacion" },
   { segment: "plan", label: "Plan", path: "/plan" },
+  { segment: "seguimiento", label: "Seguimiento", path: "/seguimiento" },
 ] as const;
 
 export function ReportTabs({ memberId }: { memberId: string }) {

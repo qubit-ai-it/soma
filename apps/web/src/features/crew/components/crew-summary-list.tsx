@@ -9,15 +9,17 @@ export function CrewSummaryList({
   crew,
   hrefFor,
   riskSlots = {},
+  heading = "Tripulación",
 }: {
   crew: CrewSummaryDTO[];
   hrefFor: (id: string) => string;
   riskSlots?: Record<string, ReactNode>;
+  heading?: string;
 }) {
   return (
     <section aria-labelledby="crew-heading">
       <h2 id="crew-heading" className="mb-6 text-headline">
-        Tripulación
+        {heading}
       </h2>
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {crew.map((member) => (
@@ -44,8 +46,7 @@ export function CrewSummaryList({
         ))}
       </ul>
       <p className="mt-6 text-xs text-ink">
-        Demostración · Fuente: Sintética. Los umbrales son ilustrativos, no clínicos ni
-        orientación médica.
+        No es orientación médica.
       </p>
     </section>
   );

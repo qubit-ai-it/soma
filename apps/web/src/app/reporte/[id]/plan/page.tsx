@@ -2,7 +2,12 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { getMissionMember } from "@/features/crew/crew.queries";
+import { getEvaluationBoard } from "@/features/evaluation/evaluation.queries";
+import { selectionInputFromCheckpoint } from "@/features/plan/plan.evaluation";
 import { CarePlanGenerator } from "@/features/plan/components/care-plan-generator";
+import { ImmediateStepsView } from "@/features/plan/components/immediate-steps-view";
+import { getImmediatePlan } from "@/features/plan/plan.queries";
+import { selectionInputFromFlags } from "@/features/plan/plan.selection";
 import { generatePlan } from "./actions";
 
 export default function PlanPage({ params }: PageProps<"/reporte/[id]/plan">) {
@@ -16,5 +21,26 @@ export default function PlanPage({ params }: PageProps<"/reporte/[id]/plan">) {
 async function Content({ params }: Pick<PageProps<"/reporte/[id]/plan">, "params">) {
   const member = await getMissionMember((await params).id);
   if (!member) notFound();
-  return <CarePlanGenerator action={generatePlan.bind(null, member.id)} />;
+
+  const board = await getEvaluationBoard();
+  const scenario = board.scenarios.find(
+    (s) => s.id === "fatigue-sleep-hrv" && s.subjectId === member.id,
+  );
+  const checkpoint = scenario?.checkpoints.at(-1);
+
+  const { immediateSteps } = await getImmediatePlan(
+    checkpoint
+      ? selectionInputFromCheckpoint(checkpoint)
+      : selectionInputFromFlags(
+          member.flags.map((flag) => flag.code),
+          member.attention,
+        ),
+  );
+
+  return (
+    <div className="space-y-8">
+      <ImmediateStepsView steps={immediateSteps} />
+      <CarePlanGenerator action={generatePlan.bind(null, member.id)} />
+    </div>
+  );
 }

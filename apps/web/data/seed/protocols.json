@@ -1,0 +1,101 @@
+{
+  "version": "library-1.0.0",
+  "protocols": [
+    {
+      "id": "sleep-schedule-adjustment",
+      "title": "Ajuste del horario de sueño",
+      "summary": "Proteger una ventana de sueño más larga cuando el sueño baja respecto al baseline.",
+      "steps": [
+        { "id": "sleep-1", "text": "Reservar una ventana de sueño de al menos 8 horas en el próximo ciclo." },
+        { "id": "sleep-2", "text": "Mantener la hora de acostarse estable durante los próximos 3 días." },
+        { "id": "sleep-3", "text": "Reducir la luz intensa y las pantallas en la hora previa a dormir." },
+        { "id": "sleep-4", "text": "Registrar al despertar cuántas horas se durmió y cómo se siente el descanso." }
+      ],
+      "triggers": { "ruleIds": ["sleep-low"], "signals": ["sleepHours"] },
+      "approval": {
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
+        "approvedAt": "2026-10-01T00:00:00Z",
+        "source": "No es orientación clínica",
+        "demonstration": true
+      }
+    },
+    {
+      "id": "workload-adjustment",
+      "title": "Ajuste de carga de trabajo",
+      "summary": "Aliviar la carga cuando la fatiga sube o la variabilidad cardíaca cae.",
+      "steps": [
+        { "id": "workload-1", "text": "Posponer las tareas no esenciales de las próximas 24 horas." },
+        { "id": "workload-2", "text": "Dividir las tareas largas en bloques cortos con pausas." },
+        { "id": "workload-3", "text": "Evitar tareas críticas en la franja de mayor cansancio informada." },
+        { "id": "workload-4", "text": "Avisar al comandante del ajuste de carga, sin detalle clínico." }
+      ],
+      "triggers": {
+        "ruleIds": ["fatigue-high", "hrv-low-persistent"],
+        "signals": ["fatigue"]
+      },
+      "approval": {
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
+        "approvedAt": "2026-10-01T00:00:00Z",
+        "source": "No es orientación clínica",
+        "demonstration": true
+      }
+    },
+    {
+      "id": "hydration-and-rest",
+      "title": "Hidratación y descanso",
+      "summary": "Medidas de apoyo general mientras se observa la evolución.",
+      "steps": [
+        { "id": "hydration-1", "text": "Beber agua de forma regular y registrar el consumo del día." },
+        { "id": "hydration-2", "text": "Hacer una pausa de descanso de 20 minutos a media jornada." },
+        { "id": "hydration-3", "text": "Hacer una comida completa a horas regulares." }
+      ],
+      "triggers": { "ruleIds": ["hrv-low", "heart-rate-high"], "signals": ["hrv", "heartRate"] },
+      "approval": {
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
+        "approvedAt": "2026-10-01T00:00:00Z",
+        "source": "No es orientación clínica",
+        "demonstration": true
+      }
+    },
+    {
+      "id": "repeat-measurement",
+      "title": "Repetir la medición",
+      "summary": "Confirmar la desviación con una segunda medición en condiciones controladas.",
+      "steps": [
+        { "id": "repeat-1", "text": "Descansar 15 minutos antes de medir." },
+        { "id": "repeat-2", "text": "Repetir las mediciones con el mismo dispositivo y la misma postura." },
+        { "id": "repeat-3", "text": "Comprobar que el dispositivo está bien colocado y cargado." },
+        { "id": "repeat-4", "text": "Registrar el resultado como nueva observación." }
+      ],
+      "triggers": { "ruleIds": [], "signals": [], "anyEvaluable": true },
+      "approval": {
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
+        "approvedAt": "2026-10-01T00:00:00Z",
+        "source": "No es orientación clínica",
+        "demonstration": true
+      }
+    },
+    {
+      "id": "notify-medical-officer",
+      "title": "Avisar al oficial médico a bordo",
+      "summary": "Poner la evidencia en manos del oficial médico cuando la desviación es persistente o converge.",
+      "steps": [
+        { "id": "notify-1", "text": "Compartir con el oficial médico a bordo el resumen de evidencia del motor." },
+        { "id": "notify-2", "text": "Acordar con el oficial médico a bordo el siguiente punto de revisión." },
+        { "id": "notify-3", "text": "Dejar constancia de la notificación en la línea de tiempo." }
+      ],
+      "triggers": { "ruleIds": ["conv-3"], "signals": [], "minStatus": "F2" },
+      "approval": {
+        "approvedBy": "Panel médico de Tierra",
+        "version": "1.0.0",
+        "approvedAt": "2026-10-01T00:00:00Z",
+        "source": "No es orientación clínica",
+        "demonstration": true
+      }
+    }
+  ]
+}

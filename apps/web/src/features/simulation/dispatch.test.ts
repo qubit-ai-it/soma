@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { corridorFloors, dispatchMessage, dispatchResponse, walkingPath } from "./dispatch.ts";
+import { constrainToDeck, corridorFloors, locationAt, locationCenter, shortestWalk, walkableLocation } from "./deck.ts";
+import { dispatchMessage, dispatchResponse } from "./dispatch.ts";
 import { type CrewId, type Instruction, type SimCrew } from "./simulation.ts";
 
 function member(id: CrewId, x: number, y: number, pulse = 72): SimCrew {
@@ -41,21 +42,64 @@ test("active assignments persist until a destination changes or a responder beco
 });
 
 test("only the equipment assignment names the defibrillator", () => {
-  const responder = dispatchMessage("laboratorio", "Lucía");
+  const responder = dispatchMessage("laboratorio", "Lucía", null, ["heartRateBpm"]);
   const equipment = dispatchMessage("laboratorio", "Lucía", "desfibrilador");
   assert.match(responder, /Ve de inmediato al módulo Laboratorio para asistir a Lucía/);
+  assert.match(responder, /comprueba si responde y cómo respira/);
+  assert.match(responder, /En la ficha del ejercicio, verifica el pulso/);
   assert.doesNotMatch(responder, /desfibrilador/);
   assert.match(equipment, /Recoge el desfibrilador en Área médica y llévalo al módulo Laboratorio/);
+  assert.match(equipment, /entrega el equipo a quien está asistiendo/);
+});
+
+test("the first responder is told which readings to verify in the exercise", () => {
+  const affected = member("cm-01", 80, 25);
+  const crew = [affected, member("cm-02", 85, 25), member("cm-03", 50, 75)];
+  const [direct, carrier] = dispatchResponse(crew, affected, "oximetro", [], ["spo2Pct", "systolic", "diastolic"]);
+  assert.match(direct.message, /verifica la saturación de oxígeno y la presión sistólica y diastólica/);
+  assert.equal(direct.message.match(/presión/g)?.length, 1);
+  assert.doesNotMatch(direct.message, /oxímetro/);
+  assert.match(carrier.message, /Recoge el oxímetro/);
 });
 
 test("visible routes project outer positions onto the floor and cross rooms in a corridor", () => {
-  const [start, exit, entry, finish] = walkingPath({ x: 2, y: 2 }, { x: 62, y: 4 });
+  const [start, exit, entry, finish] = shortestWalk({ x: 2, y: 2 }, { x: 62, y: 4 }).path;
   assert.ok(start.x > 2 && start.y > 2);
   assert.ok(finish.x < 62 && finish.y > 4);
   assert.equal(exit.y, entry.y);
   assert.ok(corridorFloors.some(({ left, top, width, height }) => (
     [exit, entry].every(({ x, y }) => x >= left && x <= left + width && y >= top && y <= top + height)
   )));
+});
+
+test("empty gaps and exterior corners snap to a walkable floor", () => {
+  for (const point of [{ x: 2, y: 2 }, { x: 34, y: 40 }, { x: 65, y: 52 }, { x: 98, y: 98 }]) {
+    assert.equal(walkableLocation(point), null);
+    const fitted = constrainToDeck(point);
+    assert.ok(walkableLocation(fitted));
+    assert.equal(constrainToDeck(fitted), fitted);
+  }
+});
+
+test("numbered corridors are independently detected and their routes stay on the deck", () => {
+  const destination = locationCenter("pasillo-2");
+  assert.equal(locationAt(destination), "pasillo-2");
+  const paths = [shortestWalk({ x: 18, y: 71 }, destination), shortestWalk(destination, locationCenter("pasillo-4"))];
+  for (const { path } of paths) {
+    assert.ok(Number.isFinite(shortestWalk(path[0], path.at(-1)!).distance));
+    for (let index = 1; index < path.length; index++) {
+      const a = path[index - 1];
+      const b = path[index];
+      for (const ratio of [0.1, 0.3, 0.5, 0.7, 0.9]) {
+        assert.ok(walkableLocation({ x: a.x + (b.x - a.x) * ratio, y: a.y + (b.y - a.y) * ratio }));
+      }
+    }
+  }
+  const affected = { ...member("cm-01", destination.x, destination.y, 0), name: "Amara" };
+  const [direct, carrier] = dispatchResponse([affected, member("cm-02", 55, 24), member("cm-03", 50, 75)], affected, "desfibrilador");
+  assert.equal(direct.destination, "pasillo-2");
+  assert.match(direct.message, /al Pasillo 2/);
+  assert.match(carrier.message, /al Pasillo 2/);
 });
 
 test("equipment can come from Engineering and a direct response can have no equipment", () => {

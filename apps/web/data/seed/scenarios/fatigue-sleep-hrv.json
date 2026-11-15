@@ -1,0 +1,45 @@
+{
+  "id": "fatigue-sleep-hrv",
+  "title": "Reduced sleep with HRV decline and rising fatigue",
+  "description": "Synthetic demo scenario. Ten stable baseline days, then a week of shortened sleep, falling HRV and rising self-reported fatigue. One HRV sensor gap sits in the baseline. All values are synthetic.",
+  "subjectId": "cm-01",
+  "startDate": "2026-11-01",
+  "baselineUntil": "2026-11-11T00:00:00Z",
+  "checkpoints": [
+    { "label": "Baseline stable", "evaluatedAt": "2026-11-11T12:00:00Z" },
+    { "label": "Normal variation", "evaluatedAt": "2026-11-12T12:00:00Z" },
+    { "label": "Early deviation", "evaluatedAt": "2026-11-13T12:00:00Z" },
+    { "label": "Deviation continues", "evaluatedAt": "2026-11-14T12:00:00Z" },
+    { "label": "Persistent and converging", "evaluatedAt": "2026-11-15T12:00:00Z" },
+    { "label": "Sustained", "evaluatedAt": "2026-11-17T12:00:00Z" }
+  ],
+  "series": [
+    {
+      "signal": "sleepHours",
+      "unit": "h",
+      "source": "wearable-sim",
+      "device": "watch-sim",
+      "values": [7.1, 7.4, 7.2, 6.9, 7.3, 7.0, 7.5, 7.2, 7.1, 7.3, 7.0, 7.1, 5.4, 5.1, 4.9, 5.0, 4.8]
+    },
+    {
+      "signal": "hrv",
+      "unit": "ms",
+      "source": "wearable-sim",
+      "device": "watch-sim",
+      "values": [52, 50, 53, 51, null, 52, 50, 53, 51, 52, 51, 50, 47, 43, 41, 40, 38]
+    },
+    {
+      "signal": "heartRate",
+      "unit": "bpm",
+      "source": "wearable-sim",
+      "device": "watch-sim",
+      "values": [61, 60, 62, 63, 60, 61, 62, 60, 61, 62, 61, 62, 63, 63, 65, 66, 67]
+    },
+    {
+      "signal": "fatigue",
+      "unit": "score",
+      "source": "self-report",
+      "values": [3, 2, 4, 3, 3, 2, 4, 3, 5, 3, 3, 3, 4, 4, 6, 7, 8]
+    }
+  ]
+}

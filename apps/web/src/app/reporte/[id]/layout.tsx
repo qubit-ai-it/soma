@@ -11,7 +11,7 @@ import { ReportTabs } from "./report-tabs";
 export default function ReportLayout({ children, params }: LayoutProps<"/reporte/[id]">) {
   return (
     <main className="container-soma flex-1 py-16">
-      <Link href="/" className="inline-flex items-center gap-2 text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground">
+      <Link href="/mision" className="inline-flex items-center gap-2 text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground">
         <Icon name="arrow_back" />
         Volver al resumen de misión
       </Link>

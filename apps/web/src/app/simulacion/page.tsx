@@ -1,8 +1,5 @@
-import type { Metadata } from "next";
-import { SimulationConsole } from "@/features/simulation/simulation-console";
-
-export const metadata: Metadata = { title: "Simulación de tripulación · Soma" };
+import { redirect } from "next/navigation";
 
 export default function SimulationPage() {
-  return <SimulationConsole />;
+  redirect("/");
 }

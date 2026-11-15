@@ -16,7 +16,7 @@ import {
 } from "../chat.history";
 import { fileToDataUrl, MAX_ATTACHMENTS } from "../image";
 import { newId } from "../id";
-import { useLocalStore } from "../local-store";
+import { useLocalStore } from "@/shared/local-store";
 import type { SentryMode } from "../pet.types";
 import {
   createTask,
@@ -32,7 +32,7 @@ import {
 import { speak, stopSpeaking, useDictation, useSpeechSupport } from "../use-speech";
 import { ChatView } from "./chat-view";
 import { HistoryView } from "./history-view";
-import { Sentry } from "./sentry";
+import { Sentry } from "@/shared/ui/sentry";
 import { TasksView } from "./tasks-view";
 import { VoiceBackdrop } from "./voice-backdrop";
 

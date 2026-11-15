@@ -1,9 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 
+import { SomaCard } from "@/shared/ui/soma-card";
+
+import { PLAN_DISCLAIMER, PROPOSED_DRAFT_TITLE } from "../plan.display";
 import { IDLE_PLAN_STATE, type PlanActionState } from "../plan.types";
-import { CarePlanView } from "./care-plan-view";
+import { CarePlanDetail } from "./care-plan-view";
 
 type Props = {
   action: (previous: PlanActionState) => Promise<PlanActionState>;
@@ -12,31 +15,39 @@ type Props = {
 export function CarePlanGenerator({ action }: Props) {
   const [state, formAction, pending] = useActionState(action, IDLE_PLAN_STATE);
 
-  return (
-    <section aria-label="Plan o tratamiento" className="space-y-3">
-      <form action={formAction} className="flex flex-wrap items-center gap-3">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-full bg-primary px-5 py-2 font-heading text-sm font-semibold text-primary-foreground transition-colors duration-[var(--duration-micro)] ease-[var(--ease-editorial)] hover:bg-primary/85 disabled:opacity-60"
-        >
-          {pending ? "Generando…" : "Generar borrador"}
-        </button>
-        <span className="text-xs text-ink">
-          El borrador no se guarda: se pierde al recargar.
-        </span>
-      </form>
+  const line =
+    state.status === "ready"
+      ? (state.plan.steps[0] ?? "")
+      : state.status === "idle" && !pending
+        ? "Aún no hay borrador. No se guarda al recargar."
+        : undefined;
 
-      <div aria-live="polite">
-        {state.status === "idle" && !pending && (
-          <p className="text-sm text-ink">Aún no hay borrador.</p>
-        )}
-        {state.status === "error" && (
-          <p role="alert" className="text-sm text-danger">
-            {state.message}
-          </p>
-        )}
-        {state.status === "ready" && <CarePlanView plan={state.plan} />}
+  return (
+    <section aria-label={PROPOSED_DRAFT_TITLE} className="space-y-4">
+      <h2 className="font-heading text-2xl font-bold">{PROPOSED_DRAFT_TITLE}</h2>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-live="polite">
+        <SomaCard
+          title="Plan generado por IA"
+          label="Borrador de plan"
+          line={line}
+          chip={PLAN_DISCLAIMER}
+          tone="info"
+          detail={state.status === "ready" ? <CarePlanDetail plan={state.plan} /> : undefined}
+          actions={[
+            {
+              label: pending ? "Generando…" : state.status === "ready" ? "Generar de nuevo" : "Generar borrador",
+              icon: "auto_awesome",
+              disabled: pending,
+              onClick: () => startTransition(() => formAction()),
+            },
+          ]}
+        >
+          {state.status === "error" && (
+            <p role="alert" className="text-sm text-danger">
+              {state.message}
+            </p>
+          )}
+        </SomaCard>
       </div>
     </section>
   );
