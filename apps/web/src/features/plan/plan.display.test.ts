@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { describePlanSource, PLAN_DISCLAIMER } from "./plan.display.ts";
+import {
+  describePlanSource,
+  describeValidation,
+  IMMEDIATE_STEPS_TITLE,
+  PLAN_DISCLAIMER,
+  PROPOSED_DRAFT_TITLE,
+} from "./plan.display.ts";
 
 describe("plan source labels", () => {
   it("labels the random simulation as simulated", () => {
@@ -24,5 +30,19 @@ describe("plan source labels", () => {
 
   it("keeps the mandatory disclaimer text", () => {
     assert.equal(PLAN_DISCLAIMER, "Borrador · requiere validación humana");
+  });
+});
+
+describe("plan split labels", () => {
+  it("names the two sections", () => {
+    assert.equal(IMMEDIATE_STEPS_TITLE, "Pasos pre-aprobados");
+    assert.equal(PROPOSED_DRAFT_TITLE, "Borrador pendiente de validación en Tierra");
+  });
+
+  it("describes the pending validation status in words", () => {
+    assert.equal(
+      describeValidation({ status: "pending-validation" }),
+      "Pendiente de validación por un médico en Tierra",
+    );
   });
 });
