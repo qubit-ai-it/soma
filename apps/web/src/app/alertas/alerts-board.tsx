@@ -28,9 +28,6 @@ export function AlertsBoard({ alerts, entries, chainValid }: Props) {
       {summary && (
         <section aria-label="Resumen operativo" className="space-y-2 rounded-md bg-card p-5">
           <h2 className="text-xl font-heading font-bold">Resumen operativo</h2>
-          <p className="text-sm text-ink">
-            Disponibilidad de la tripulación con alertas sin resolver, sin detalle clínico.
-          </p>
           <dl className="flex flex-wrap gap-6 text-sm">
             <div>
               <dt className="text-ink">Disponibles</dt>
@@ -53,11 +50,11 @@ export function AlertsBoard({ alerts, entries, chainValid }: Props) {
       )}
 
       <section aria-label="Alertas" className="space-y-3">
-        <h2 className="text-xl font-heading font-bold">Alertas visibles para {ROLE_LABELS[role]}</h2>
+        <h2 className="text-xl font-heading font-bold">Alertas · {ROLE_LABELS[role]}</h2>
         {visible.length === 0 ? (
-          <p className="rounded-md bg-card p-4 text-sm text-ink">No hay alertas para este rol.</p>
+          <p className="rounded-2xl bg-card p-5 text-base text-ink">Sin alertas para este rol.</p>
         ) : (
-          <div className="space-y-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {visible.map((alert) => (
               <AlertCard key={alert.id} alert={alert} />
             ))}

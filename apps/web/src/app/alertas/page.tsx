@@ -19,13 +19,10 @@ export default function AlertsPage() {
         className="inline-flex items-center gap-2 text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground"
       >
         <Icon name="arrow_back" />
-        Volver al resumen de misión
+        Volver
       </Link>
-      <h1 className="reveal mt-8 text-headline">Alertas y auditoría</h1>
-      <p className="mt-2 text-sm text-ink">
-        Datos sintéticos de demostración. El nivel F0 a F3 es la escala interna de SOMA y la decide el motor
-        determinista; las alertas las reconoce y cierra siempre una persona identificada.
-      </p>
+      <h1 className="reveal mt-8 text-headline">Alertas</h1>
+      <p className="mt-2 text-xs text-ink">Demostración · datos sintéticos</p>
       <div className="mt-6">
         <RoleSwitcher />
       </div>
