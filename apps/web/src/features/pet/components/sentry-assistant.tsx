@@ -47,6 +47,16 @@ const GREETING: ChatMessage = {
   content: "Hola, soy Sentry. ¿En qué te ayudo con la misión?",
 };
 
+const VOICE_ERRORS: Record<string, string> = {
+  "not-allowed":
+    "El micrófono está bloqueado. Permítelo en el candado de la barra de direcciones y usa localhost o HTTPS.",
+  "service-not-allowed":
+    "El navegador no permite el reconocimiento de voz en esta página. Usa localhost o HTTPS.",
+  "audio-capture": "No se detecta ningún micrófono.",
+  network: "No se pudo conectar con el servicio de voz del navegador.",
+  "language-not-supported": "El navegador no soporta el reconocimiento de voz en español.",
+};
+
 const NO_CONVERSATIONS: Conversation[] = [];
 const NO_TASKS: ScheduledTask[] = [];
 const NO_RUNS: TaskRun[] = [];
@@ -109,7 +119,10 @@ export function SentryAssistant() {
       if (conversationRef.current) sendRef.current(text, []);
     },
     onError: (code) => {
-      if (code === "not-allowed" || code === "service-not-allowed") setConversation(false);
+      const message = VOICE_ERRORS[code];
+      if (!message) return;
+      setFailure(message);
+      setConversation(false);
     },
   });
   const { start: startListening, listening: isListening } = dictation;
