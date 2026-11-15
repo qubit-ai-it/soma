@@ -1,0 +1,70 @@
+{
+  "alerts": [
+    {
+      "id": "al-001",
+      "memberId": "cm-02",
+      "memberLabel": "Tripulante cm-02 (sintético)",
+      "level": "F2",
+      "title": "Sueño y variabilidad cardiaca por debajo de su línea base",
+      "action": "Revisión por el médico de a bordo",
+      "recipients": [
+        "astronaut",
+        "cmo"
+      ],
+      "clinicalDetail": "Sueño 4,1 h; HRV 28 ms frente a línea base de 52 ms (datos sintéticos).",
+      "status": "open",
+      "createdAt": "2026-10-30T07:10:00.000Z",
+      "source": "deterministic-engine"
+    },
+    {
+      "id": "al-002",
+      "memberId": "cm-03",
+      "memberLabel": "Tripulante cm-03 (sintético)",
+      "level": "F3",
+      "title": "Alerta F3: se requiere acción inmediata",
+      "action": "Evaluación médica inmediata y notificación a Tierra",
+      "recipients": [
+        "astronaut",
+        "cmo",
+        "commander",
+        "earth"
+      ],
+      "clinicalDetail": "SpO2 87 % sostenida durante 20 min (datos sintéticos).",
+      "status": "acknowledged",
+      "createdAt": "2026-10-30T08:30:00.000Z",
+      "source": "deterministic-engine",
+      "acknowledged": {
+        "actorId": "demo-cmo-01",
+        "role": "cmo",
+        "at": "2026-10-30T08:34:00.000Z"
+      }
+    },
+    {
+      "id": "al-003",
+      "memberId": "cm-04",
+      "memberLabel": "Tripulante cm-04 (sintético)",
+      "level": "F2",
+      "title": "Frecuencia cardiaca en reposo elevada",
+      "action": "Repetir la medición y revisar con el médico de a bordo",
+      "recipients": [
+        "astronaut",
+        "cmo"
+      ],
+      "clinicalDetail": "FC en reposo 96 lpm frente a línea base de 68 lpm (datos sintéticos).",
+      "status": "closed",
+      "createdAt": "2026-10-29T09:00:00.000Z",
+      "source": "deterministic-engine",
+      "acknowledged": {
+        "actorId": "demo-cmo-01",
+        "role": "cmo",
+        "at": "2026-10-29T09:05:00.000Z"
+      },
+      "closed": {
+        "actorId": "demo-cmo-01",
+        "role": "cmo",
+        "at": "2026-10-29T10:20:00.000Z",
+        "note": "Valores confirmados tras repetir la medición."
+      }
+    }
+  ]
+}
