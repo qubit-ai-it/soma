@@ -1,0 +1,48 @@
+{
+  "procedures": [
+    {
+      "id": "ultrasound-capture-demo",
+      "title": "Guided ultrasound capture (demo)",
+      "description": "Demonstration content for the XR flow. It is not a clinical protocol and must be replaced by procedures curated and approved by a physician.",
+      "steps": [
+        {
+          "id": "check-equipment",
+          "title": "Check the equipment",
+          "instruction": "Confirm that the probe, the gel and the tablet are within reach and that the probe is charged."
+        },
+        {
+          "id": "stabilize",
+          "title": "Stabilize your position",
+          "instruction": "Secure your feet or a restraint so that both hands stay free and your body does not drift."
+        },
+        {
+          "id": "apply-gel",
+          "title": "Apply the gel",
+          "instruction": "Apply a thin layer of gel on the marked area shown on the body diagram in your headset."
+        },
+        {
+          "id": "locate-landmark",
+          "title": "Locate the landmark",
+          "instruction": "Place the probe on the landmark highlighted in your headset and keep light, steady contact."
+        },
+        {
+          "id": "adjust-image",
+          "title": "Adjust the image",
+          "instruction": "Adjust depth and gain until the structure is centered and clear.",
+          "optional": true
+        },
+        {
+          "id": "capture-image",
+          "title": "Capture the image",
+          "instruction": "Hold still and capture the image. Capture a second one if the first moved."
+        },
+        {
+          "id": "review-quality",
+          "title": "Review the image quality",
+          "instruction": "Compare the image with the quality guide. If it is unclear, mark this step as failed and repeat the capture.",
+          "safetyNote": "Image quality is part of the evidence. A poor image must not be used for an assessment."
+        }
+      ]
+    }
+  ]
+}
