@@ -35,6 +35,7 @@ describe("activeItemId", () => {
   });
 
   it("marks the matching section", () => {
+    assert.equal(activeItemId("/vivo"), "live");
     assert.equal(activeItemId("/xr"), "xr");
     assert.equal(activeItemId("/tierra"), "earth");
     assert.equal(activeItemId("/alertas"), "alerts");

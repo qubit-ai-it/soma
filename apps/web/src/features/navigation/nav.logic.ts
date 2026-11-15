@@ -8,6 +8,7 @@ export type NavItem = {
 export const NAV_ITEMS: readonly NavItem[] = [
   { id: "home", label: "Inicio", href: "/", icon: "home" },
   { id: "report", label: "Reporte", href: "/reporte/cm-01", icon: "monitor_heart" },
+  { id: "live", label: "En vivo", href: "/vivo", icon: "favorite" },
   { id: "xr", label: "XR", href: "/xr", icon: "view_in_ar" },
   { id: "earth", label: "Tierra", href: "/tierra", icon: "public" },
   { id: "alerts", label: "Alertas", href: "/alertas", icon: "notifications" },
@@ -17,6 +18,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
 
 const PREFIXES: readonly (readonly [string, string])[] = [
   ["/reporte", "report"],
+  ["/vivo", "live"],
   ["/xr", "xr"],
   ["/tierra", "earth"],
   ["/alertas", "alerts"],

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import {
   ONBOARDING_DONE,
@@ -15,12 +15,8 @@ import {
 import { ROLE_LABELS } from "@/features/roles/roles.logic";
 import { setDemoRole, useDemoRole } from "@/features/roles/roles.store";
 import { ROLES, type Role } from "@/features/roles/roles.types";
-import {
-  connectHeartRate,
-  type BluetoothError,
-  type BluetoothLike,
-  type HeartRateConnection,
-} from "@/features/settings/bluetooth.logic";
+import { BLUETOOTH_MESSAGES } from "@/features/live/live.display";
+import { connectLive, getLiveState, useLiveState } from "@/features/live/live.store";
 import { SOURCE_OPTIONS, XR_OPTIONS, type SetupOption } from "@/features/settings/settings.logic";
 import { useSettings } from "@/features/settings/settings.store";
 import {
@@ -43,12 +39,6 @@ const ROLE_ICONS: Record<Role, string> = {
   cmo: "stethoscope",
   commander: "flag",
   earth: "public",
-};
-
-const BLUETOOTH_MESSAGES: Record<BluetoothError, string> = {
-  unsupported: "Este navegador no permite Bluetooth.",
-  cancelled: "Conexión cancelada.",
-  error: "No se pudo conectar.",
 };
 
 const parseStored = (value: unknown) => (typeof value === "string" ? value : "");
@@ -115,23 +105,13 @@ export function OnboardingGate() {
   const [closed, setClosed] = useState(false);
   const [index, setIndex] = useState(0);
   const [profile, setProfile] = useState<DeviceProfile | null>(null);
-  const [bpm, setBpm] = useState<number | null>(null);
   const [bluetoothMessage, setBluetoothMessage] = useState<string | null>(null);
-  const [connected, setConnected] = useState(false);
-  const connection = useRef<HeartRateConnection | null>(null);
+  const live = useLiveState();
 
   const open = mounted && (forced || (shouldShowOnboarding(stored || null) && !closed));
   const step = ONBOARDING_STEPS[index];
 
-  function stopDevice() {
-    connection.current?.stop();
-    connection.current = null;
-    setConnected(false);
-    setBpm(null);
-  }
-
   function finish() {
-    stopDevice();
     setStored(ONBOARDING_DONE);
     setForced(false);
     setClosed(true);
@@ -173,20 +153,16 @@ export function OnboardingGate() {
 
   async function pairDevice() {
     setBluetoothMessage(null);
-    stopDevice();
-    const bluetooth = (navigator as unknown as { bluetooth?: BluetoothLike }).bluetooth;
-    const result = await connectHeartRate(bluetooth, setBpm);
-    if (!result.ok) {
-      setBluetoothMessage(BLUETOOTH_MESSAGES[result.error]);
+    const error = await connectLive();
+    if (error) {
+      setBluetoothMessage(BLUETOOTH_MESSAGES[error]);
       return;
     }
-    connection.current = result.value;
-    setConnected(true);
-    setSettings((prev) => ({ ...prev, source: "bluetooth", device: result.value.name }));
+    const device = getLiveState().deviceName ?? undefined;
+    setSettings((prev) => ({ ...prev, source: "bluetooth", device }));
   }
 
   function goNext() {
-    if (step.kind === "source") stopDevice();
     setIndex(nextStepIndex(index));
   }
 
@@ -248,10 +224,7 @@ export function OnboardingGate() {
             <OptionList
               options={SOURCE_OPTIONS}
               value={settings.source}
-              onSelect={(id) => {
-                if (id !== "bluetooth") stopDevice();
-                setSettings((prev) => ({ ...prev, source: id }));
-              }}
+              onSelect={(id) => setSettings((prev) => ({ ...prev, source: id }))}
             />
             {settings.source === "bluetooth" && (
               <div className="flex w-full flex-col items-center gap-2">
@@ -261,12 +234,12 @@ export function OnboardingGate() {
                   className={`${ACTION} bg-secondary text-foreground hover:bg-secondary/70`}
                 >
                   <Icon name="bluetooth" className="mr-2" />
-                  {connected ? "Conectar otro" : "Conectar"}
+                  {live.status === "connected" ? "Conectar otro" : "Conectar"}
                 </button>
-                {connected && settings.device && (
+                {live.status === "connected" && live.deviceName && (
                   <p role="status" className="text-sm">
-                    {settings.device}
-                    {bpm !== null && ` · ${bpm} lpm`}
+                    {live.deviceName}
+                    {live.readings.length > 0 && ` · ${live.readings[live.readings.length - 1].bpm} lpm`}
                   </p>
                 )}
                 {bluetoothMessage && (
