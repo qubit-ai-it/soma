@@ -1,12 +1,9 @@
 import { Icon } from "@/shared/ui/icon";
-import {
-  formatNumber,
-  NOT_EVALUABLE_MESSAGE,
-  PROVENANCE_LABEL,
-  QUALITY_LABEL,
-  STATUS_COPY,
-} from "../evaluation.labels";
+import { SomaCard } from "@/shared/ui/soma-card";
+import { formatNumber, QUALITY_LABEL } from "../evaluation.labels";
 import type { CheckpointView, SignalView } from "../evaluation.types";
+
+const TOP_REASONS = 3;
 
 function baselineText(signal: SignalView): string {
   if (signal.baseline.status !== "ready") {
@@ -30,53 +27,35 @@ function qualityText(signal: SignalView): string {
   return last ? QUALITY_LABEL[last.quality] : "Sin lecturas";
 }
 
-function provenanceText(signal: SignalView): string {
-  const { type, source, device } = signal.provenance;
-  return [PROVENANCE_LABEL[type], source, device].filter(Boolean).join(" · ");
-}
-
 export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
   const { status, rules, limitations, signals } = checkpoint;
-  return (
-    <section aria-label="Por qué este estado" className="space-y-6 text-sm">
-      <h3 className="text-xl">¿Por qué {STATUS_COPY[status].name}?</h3>
+  const top = rules.slice(0, TOP_REASONS);
+  const emptyText =
+    status === "NOT_EVALUABLE"
+      ? "Ninguna regla pudo evaluarse."
+      : "Ninguna regla activada: todo habitual.";
 
-      {status === "NOT_EVALUABLE" && (
-        <p className="rounded-md bg-secondary p-4 text-foreground">
-          <Icon name="help" className="mr-2 align-middle" />
-          {NOT_EVALUABLE_MESSAGE}
-        </p>
+  const detail = (
+    <div className="space-y-5">
+      {rules.length > TOP_REASONS && (
+        <ul className="space-y-2">
+          {rules.slice(TOP_REASONS).map((rule) => (
+            <li key={rule.id}>
+              <span className="font-heading font-bold">{rule.level}</span> · {rule.label}
+              <span className="block text-xs">
+                {rule.description} · Regla {rule.id}
+              </span>
+            </li>
+          ))}
+        </ul>
       )}
-
-      <div>
-        <h4 className="font-heading font-bold">Reglas activadas</h4>
-        {rules.length > 0 ? (
-          <ul className="mt-2 space-y-2">
-            {rules.map((rule) => (
-              <li key={rule.id} className="rounded-md bg-card p-3">
-                <p>
-                  <span className="font-heading font-bold">{rule.level}</span> · {rule.label}
-                </p>
-                <p className="mt-1 text-ink">{rule.description}</p>
-                <p className="mt-1 text-xs text-ink">Regla {rule.id}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-2 text-ink">
-            {status === "NOT_EVALUABLE"
-              ? "Ninguna regla pudo evaluarse con los datos disponibles."
-              : "Ninguna regla se activó: las señales siguen dentro de su variación habitual."}
-          </p>
-        )}
-      </div>
 
       {limitations.length > 0 && (
         <div>
-          <h4 className="font-heading font-bold">Limitaciones de los datos</h4>
+          <h4 className="font-heading font-bold">Limitaciones</h4>
           <ul className="mt-2 space-y-1">
             {limitations.map((limitation) => (
-              <li key={limitation.code} className="flex gap-2 text-ink">
+              <li key={limitation.code} className="flex gap-2">
                 <Icon name="warning" className="mt-0.5 shrink-0" />
                 <span>{limitation.text}</span>
               </li>
@@ -86,22 +65,21 @@ export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
       )}
 
       <div>
-        <h4 className="font-heading font-bold">Señales, baseline y calidad</h4>
-        <div className="mt-2 overflow-x-auto rounded-md">
-          <table className="w-full min-w-[640px] bg-card text-left">
-            <thead className="bg-secondary text-ink">
+        <h4 className="font-heading font-bold">Señales y baseline</h4>
+        <div className="mt-2 overflow-x-auto rounded-xl">
+          <table className="w-full min-w-[640px] bg-secondary text-left">
+            <thead className="text-ink">
               <tr>
                 <th scope="col" className="px-3 py-2 font-normal">Señal</th>
                 <th scope="col" className="px-3 py-2 font-normal">Baseline</th>
                 <th scope="col" className="px-3 py-2 font-normal">Último valor válido</th>
                 <th scope="col" className="px-3 py-2 font-normal">Desviación</th>
-                <th scope="col" className="px-3 py-2 font-normal">Calidad de la última lectura</th>
-                <th scope="col" className="px-3 py-2 font-normal">Procedencia</th>
+                <th scope="col" className="px-3 py-2 font-normal">Calidad</th>
               </tr>
             </thead>
             <tbody>
               {signals.map((signal) => (
-                <tr key={signal.signal} className="odd:bg-muted">
+                <tr key={signal.signal}>
                   <th scope="row" className="px-3 py-2 text-left font-normal">
                     {signal.label}
                     {signal.firedRuleIds.length > 0 && (
@@ -116,13 +94,29 @@ export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
                   </td>
                   <td className="px-3 py-2">{deviationText(signal)}</td>
                   <td className="px-3 py-2">{qualityText(signal)}</td>
-                  <td className="px-3 py-2">{provenanceText(signal)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-    </section>
+    </div>
+  );
+
+  return (
+    <SomaCard label="Por qué este estado" title="¿Por qué?" detail={detail}>
+      {top.length > 0 ? (
+        <ul className="space-y-2">
+          {top.map((rule) => (
+            <li key={rule.id} className="flex gap-2 text-base">
+              <Icon name="arrow_right" className="mt-0.5 shrink-0" />
+              <span>{rule.label}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-base text-muted-foreground">{emptyText}</p>
+      )}
+    </SomaCard>
   );
 }

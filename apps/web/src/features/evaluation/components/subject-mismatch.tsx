@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { SomaCard } from "@/shared/ui/soma-card";
 
 export function SubjectMismatch({
   memberName,
@@ -10,23 +10,17 @@ export function SubjectMismatch({
   scenarioHref: string | null;
 }) {
   return (
-    <section aria-label="Evaluación no disponible" className="rounded-md bg-card p-5 text-sm">
-      <h3 className="text-xl">Sin escenario para este miembro</h3>
-      <p className="mt-2">
-        Los escenarios sintéticos de la demostración pertenecen a{" "}
-        <span className="font-medium">{scenarioSubjectName ?? "otro miembro de la tripulación"}</span>
-        , no a {memberName}. SOMA no evalúa a {memberName} con datos de otra persona.
-      </p>
-      {scenarioHref && (
-        <p className="mt-3">
-          <Link href={scenarioHref} className="underline underline-offset-4">
-            Ver la evaluación de {scenarioSubjectName}
-          </Link>
-        </p>
-      )}
-      <p className="mt-4 text-xs text-ink">
-        Datos sintéticos y reglas de demostración. Sin datos no hay evaluación.
-      </p>
-    </section>
+    <SomaCard
+      label="Evaluación no disponible"
+      tone="info"
+      chip="Sin datos"
+      title="Sin escenario para este miembro"
+      line={`Estos datos son de ${scenarioSubjectName ?? "otro miembro"}, no de ${memberName}.`}
+      actions={
+        scenarioHref
+          ? [{ label: `Ver a ${scenarioSubjectName}`, href: scenarioHref, icon: "arrow_forward" }]
+          : undefined
+      }
+    />
   );
 }

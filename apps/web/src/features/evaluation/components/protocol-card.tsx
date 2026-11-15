@@ -2,34 +2,25 @@
 
 import { useState } from "react";
 
-import { Button } from "@/shared/ui/button";
-import { Icon } from "@/shared/ui/icon";
+import { SomaCard } from "@/shared/ui/soma-card";
 
 export function ProtocolCard() {
   const [pressed, setPressed] = useState(false);
   return (
-    <section aria-label="Protocolo aprobado" className="rounded-md bg-accent-soft p-5 text-sm">
-      <h3 className="flex items-center gap-2 text-xl">
-        <Icon name="medical_information" />
-        Protocolo aprobado
-      </h3>
-      <p className="mt-2">
-        Aquí se mostrará el protocolo pre-aprobado por Tierra para F3. Marcador de posición: aún no
-        hay un protocolo cargado.
-      </p>
-      <p className="mt-2 text-ink">
-        La generación libre está desactivada en F3: solo se muestran protocolos aprobados.
-      </p>
-      <div className="mt-4">
-        <Button type="button" onClick={() => setPressed(true)}>
-          Escalar manualmente
-        </Button>
-      </div>
+    <SomaCard
+      label="Protocolo aprobado"
+      tone="danger"
+      chip="F3"
+      title="Protocolo aprobado"
+      line="Generación libre desactivada. Solo protocolos aprobados."
+      detail={<p>Aún no hay un protocolo pre-aprobado cargado.</p>}
+      actions={[{ label: "Escalar manualmente", icon: "campaign", onClick: () => setPressed(true) }]}
+    >
       {pressed && (
-        <p role="status" className="mt-3 text-ink">
-          Botón de demostración: no está conectado y no envía nada a nadie.
+        <p role="status" className="text-sm text-ink">
+          Aún no está conectado: no envía nada.
         </p>
       )}
-    </section>
+    </SomaCard>
   );
 }

@@ -9,7 +9,7 @@ import { getEvaluationBoard } from "@/features/evaluation/evaluation.queries";
 
 export default function EvaluationPage({ params }: PageProps<"/reporte/[id]/evaluacion">) {
   return (
-    <Suspense fallback={<p className="text-ink">Evaluando escenarios…</p>}>
+    <Suspense fallback={<p className="text-ink">Evaluando…</p>}>
       <Content params={params} />
     </Suspense>
   );

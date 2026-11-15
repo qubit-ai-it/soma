@@ -2,7 +2,7 @@ import { buildChart } from "../evaluation.chart";
 import { formatNumber } from "../evaluation.labels";
 import type { SignalView } from "../evaluation.types";
 
-const LAYOUT = { width: 320, height: 130, padX: 14, padY: 14 };
+const LAYOUT = { width: 320, height: 90, padX: 14, padY: 10 };
 
 function describe(signal: SignalView): string {
   const valid = signal.points.filter((p) => p.value !== null).length;
@@ -17,10 +17,9 @@ function describe(signal: SignalView): string {
 export function SignalChart({ signal }: { signal: SignalView }) {
   const chart = buildChart(signal, LAYOUT);
   const lastDot = chart.dots.at(-1);
-  const baselineBand = signal.baseline.status === "ready" ? signal.baseline.band : null;
-
+  
   return (
-    <figure className="rounded-md bg-card p-4">
+    <figure className="rounded-xl bg-secondary p-3">
       <figcaption className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
         <span className="font-heading font-bold">{signal.label}</span>
         <span className="text-ink">{signal.unit}</span>
@@ -73,12 +72,9 @@ export function SignalChart({ signal }: { signal: SignalView }) {
           </g>
         ))}
       </svg>
-      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink">
-        <li>Puntos azules: baseline</li>
-        <li>Puntos blancos: después del baseline</li>
-        {baselineBand && <li>Banda: baseline ± 2 desviaciones</li>}
-        {chart.gaps.length > 0 && <li>Marca amarilla: sin dato (no es cero)</li>}
-      </ul>
+      <p className="mt-1 text-xs text-ink">
+        Azul: baseline · Blanco: después{chart.gaps.length > 0 ? " · Amarillo: sin dato" : ""}
+      </p>
     </figure>
   );
 }

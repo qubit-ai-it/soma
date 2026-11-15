@@ -14,36 +14,36 @@ export const RULE_LABEL: Record<string, string> = {
   "hrv-low-persistent": "HRV baja de forma persistente",
   "fatigue-high": "Fatiga por encima de su baseline",
   "heart-rate-high": "Frecuencia cardíaca por encima de su baseline",
-  "heart-rate-critical": "Frecuencia cardíaca en rango crítico (regla de demostración)",
+  "heart-rate-critical": "Frecuencia cardíaca en rango crítico",
   "conv-3": "Tres o más señales desviadas a la vez",
 };
 
 export const STATUS_COPY: Record<Status, { name: string; summary: string }> = {
-  F0: { name: "F0", summary: "Dentro de su variación habitual" },
-  F1: { name: "F1", summary: "Desviación leve respecto a su baseline" },
-  F2: { name: "F2", summary: "Desviación persistente o convergente" },
-  F3: { name: "F3", summary: "Regla crítica de demostración activada" },
-  NOT_EVALUABLE: { name: "NO EVALUABLE", summary: "No hay datos suficientes para evaluar" },
+  F0: { name: "F0", summary: "Todo dentro de lo habitual" },
+  F1: { name: "F1", summary: "Desviación leve" },
+  F2: { name: "F2", summary: "Desviación persistente" },
+  F3: { name: "F3", summary: "Regla crítica activada" },
+  NOT_EVALUABLE: { name: "NO EVALUABLE", summary: "Faltan datos para evaluar" },
 };
 
 export const NOT_EVALUABLE_MESSAGE =
-  "La ausencia de datos no es normalidad: SOMA no afirma que todo esté bien cuando no puede evaluar.";
+  "NO EVALUABLE no es F0: sin datos no hay evaluación.";
 
 export const SCENARIO_COPY: Record<string, { title: string; description: string }> = {
   "fatigue-sleep-hrv": {
     title: "Sueño reducido, HRV en descenso y fatiga",
     description:
-      "Diez días de baseline estable y luego una semana de sueño corto, HRV a la baja y fatiga creciente. Termina en F2.",
+      "Sueño corto, HRV a la baja. Termina en F2.",
   },
   "critical-f3": {
     title: "Pico de frecuencia cardíaca",
     description:
-      "Baseline estable y un salto abrupto de una sola señal que activa la regla crítica. Termina en F3.",
+      "Salto abrupto de una señal. Termina en F3.",
   },
   "insufficient-data": {
     title: "Sensor de HRV sin datos",
     description:
-      "El sensor de HRV casi no registró durante el baseline y sigue sin datos. Termina en NO EVALUABLE.",
+      "HRV sin datos. Termina en NO EVALUABLE.",
   },
 };
 
