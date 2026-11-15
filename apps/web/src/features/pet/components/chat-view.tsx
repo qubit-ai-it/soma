@@ -96,14 +96,14 @@ export function ChatView({
         )}
       </div>
 
-      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+      <div className="flex flex-wrap gap-2">
         {QUICK_ACTIONS.map((text) => (
           <button
             key={text}
             type="button"
             disabled={sending}
             onClick={() => onQuickAction(text)}
-            className="shrink-0 rounded-full bg-secondary px-4 py-2 text-xs transition-colors duration-[var(--duration-micro)] hover:bg-secondary/70 disabled:opacity-50"
+            className="rounded-full bg-secondary px-4 py-2 text-xs transition-colors duration-[var(--duration-micro)] hover:bg-secondary/70 disabled:opacity-50"
           >
             {text}
           </button>
