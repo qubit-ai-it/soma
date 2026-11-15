@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { getMissionMember } from "@/features/crew/crew.queries";
+import { getEvaluationBoard } from "@/features/evaluation/evaluation.queries";
+import { selectionInputFromCheckpoint } from "@/features/plan/plan.evaluation";
 import { CarePlanGenerator } from "@/features/plan/components/care-plan-generator";
 import { ImmediateStepsView } from "@/features/plan/components/immediate-steps-view";
 import { getImmediatePlan } from "@/features/plan/plan.queries";
@@ -20,15 +22,29 @@ async function Content({ params }: Pick<PageProps<"/reporte/[id]/plan">, "params
   const member = await getMissionMember((await params).id);
   if (!member) notFound();
 
+  const board = await getEvaluationBoard();
+  const scenario = board.scenarios.find(
+    (s) => s.id === "fatigue-sleep-hrv" && s.subjectId === member.id,
+  );
+  const checkpoint = scenario?.checkpoints.at(-1);
+
   const { immediateSteps } = await getImmediatePlan(
-    selectionInputFromFlags(
-      member.flags.map((flag) => flag.code),
-      member.attention,
-    ),
+    checkpoint
+      ? selectionInputFromCheckpoint(checkpoint)
+      : selectionInputFromFlags(
+          member.flags.map((flag) => flag.code),
+          member.attention,
+        ),
   );
 
   return (
     <div className="space-y-8">
+      {checkpoint && (
+        <p className="text-xs text-ink">
+          Selección basada en la evaluación del motor determinista ({checkpoint.status}, checkpoint «
+          {checkpoint.label}»). Datos sintéticos y reglas de demostración.
+        </p>
+      )}
       <ImmediateStepsView steps={immediateSteps} />
       <CarePlanGenerator action={generatePlan.bind(null, member.id)} />
     </div>
