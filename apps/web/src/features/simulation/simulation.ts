@@ -41,7 +41,7 @@ export function roomCenter(id: RoomId): Point {
 export const crewIdSchema = z.enum(["cm-01", "cm-02", "cm-03", "cm-04", "cm-05"]);
 export type CrewId = z.infer<typeof crewIdSchema>;
 export const crewIds = crewIdSchema.options;
-export const crewColors = ["#69e7ff", "#b6a0ff", "#61edb3", "#ffb368", "#ff91c2"];
+export const crewColorTokens = ["--crew-cyan", "--crew-lavender", "--crew-mint", "--crew-amber", "--crew-pink"];
 
 export const telemetrySchema = z.object({
   heartRateBpm: z.number().int().min(0).max(300),

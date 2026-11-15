@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { BodyMap, type BodyMapSeverity } from "@/shared/ui/body-map";
 import { Button } from "@/shared/ui/button";
+import { Icon } from "@/shared/ui/icon";
 import { ZONE_REGION_IDS } from "@/features/crew/crew.body";
 import { AssignmentRoutes } from "./assignment-routes";
 import { assessTelemetry, incidentProgress } from "./incident";
 import { constrainToDeck, corridorFloors, isCorridor, locationAt, locationNames, roomFloor, type DeckFloor } from "./deck";
 import {
-  crewColors, crewIds, equipment, roomIds, rooms,
+  crewColorTokens, crewIds, equipment, roomIds, rooms,
   telemetryLabels, telemetrySchema,
   type Point, type SimCrew, type SimulationState, type SimulationUpdate, type Telemetry,
 } from "./simulation";
@@ -20,7 +21,7 @@ const statusLabel = {
   nominal: "Sin incidente", watch: "En atención", critical: "Incidente crítico", resolved: "Incidente resuelto",
 };
 const timeLabel = new Intl.DateTimeFormat("es-PE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-const crewColor = (id: SimCrew["id"]) => crewColors[crewIds.indexOf(id)];
+const crewColor = (id: SimCrew["id"]) => `var(${crewColorTokens[crewIds.indexOf(id)]})`;
 const bodySignals: Record<keyof typeof ZONE_REGION_IDS, (keyof Telemetry)[]> = {
   head: [],
   thorax: ["heartRateBpm", "spo2Pct", "systolic", "diastolic"],
@@ -94,7 +95,9 @@ function CrewDetails({ member, onClose, onUpdate }: {
           <h3><Dot color={crewColor(member.id)} /> {member.name}</h3>
           <p>{locationNames[locationAt(member.position)]} · {member.position.x.toFixed(1)}, {member.position.y.toFixed(1)}</p>
         </div>
-        <button type="button" className={styles.close} onClick={onClose} aria-label="Cerrar ficha">×</button>
+        <Button type="button" variant="outline" size="icon-sm" onClick={onClose} aria-label="Cerrar ficha">
+          <Icon name="close" />
+        </Button>
       </header>
       <div className={styles.fields}>
         {(Object.keys(telemetryLabels) as (keyof Telemetry)[]).map((name) => (
@@ -214,13 +217,15 @@ export function SimulationConsole() {
   const alerts = state?.crew.filter(({ id }) => criticalReadings.get(id)?.length) ?? [];
 
   return (
-    <main className={styles.console}>
+    <main className={`container-soma ${styles.console}`}>
       <header className={styles.top}>
-        <div>
-          <Link href="/mision" className={styles.home}>← Panel de misión</Link>
-          <h1>Simulación de tripulación</h1>
-        </div>
-        <span className={styles.model}><Dot color="#61edb3" /> MedGemma <span>· Simulación</span></span>
+        <Link href="/mision" className={styles.home}><Icon name="arrow_back" /> Panel de misión</Link>
+        <h1 className="text-display">Simulación de tripulación</h1>
+        <ul className={styles.context}>
+          <li>Demostración</li>
+          <li>Fuente sintética</li>
+          <li>Uso no clínico</li>
+        </ul>
       </header>
 
       {connectionError && <p role="alert" className={styles.error}>Se perdió la conexión con el simulador. Reconectando…</p>}
@@ -230,8 +235,8 @@ export function SimulationConsole() {
             <section className={styles.mapCard}>
               <header className={styles.sectionHeader}>
                 <div>
-                  <h2>Plano de la nave</h2>
-                  <p>Haz clic para ver la ficha. Arrastra por los módulos y pasillos numerados.</p>
+                  <h2 className="text-headline">Plano de la nave</h2>
+                  <p>Arrastra para mover. Haz clic para ver la ficha.</p>
                 </div>
               </header>
               <div ref={map} className={styles.map} aria-label="Plano de la nave">
@@ -294,7 +299,10 @@ export function SimulationConsole() {
 
             <aside className={styles.overview}>
               <div className={styles.analysis} aria-live="polite">
-                <h2>Evaluación de MedGemma</h2>
+                <header className={styles.analysisHeader}>
+                  <h2 className="text-headline">Evaluación</h2>
+                  <span className={styles.model}><Dot color="var(--signal)" /> MedGemma</span>
+                </header>
                 {alerts.length > 0 && (
                   <div className={styles.decision} data-status="critical">
                     <strong>Lecturas críticas</strong>
@@ -303,10 +311,10 @@ export function SimulationConsole() {
                     ))}
                   </div>
                 )}
-                {state.phase === "pending" && <p className={styles.pending}><Dot color="#69e7ff" /> Evaluando con MedGemma…</p>}
+                {state.phase === "pending" && <p className={styles.pending}><Dot color="var(--signal)" /> Evaluando con MedGemma…</p>}
                 {state.error && <p className={styles.error}>{state.error}</p>}
                 {decision && (alerts.length === 0 || decision.status !== "nominal") && (
-                  <div className={styles.decision} data-status={awaitingReview ? "watch" : incidentStatus}>
+                  <div className={styles.decision} data-status={awaitingReview ? "pending" : incidentStatus}>
                     <strong>{awaitingReview ? "Reevaluación pendiente" : statusLabel[incidentStatus ?? decision.status]}</strong>
                     {affected && <p>{affected.name} · {locationNames[locationAt(affected.position)]}</p>}
                     {decision.equipmentId && decision.instructions.some(({ via }) => via !== null) && (
@@ -333,15 +341,15 @@ export function SimulationConsole() {
                           <p>{progress.canResolve ? "Reevaluando las lecturas con MedGemma…" : "En espera de la corrección de telemetría."}</p>
                         )}
                         {progress.readings.map(({ signal, value, min, max, corrected }) => (
-                          <p key={signal}>{telemetryLabels[signal]} {value} · {corrected ? "Corregido" : `Rango del ejercicio: ${min}–${max}`}</p>
+                          <p key={signal} className={styles.metric}>{telemetryLabels[signal]} <strong>{value}</strong> · {corrected ? "Corregido" : `Rango del ejercicio: ${min}–${max}`}</p>
                         ))}
                       </div>
                     )}
                   </div>
                 )}
                 {state.phase === "idle" && <p>Modifica una lectura o mueve un tripulante para iniciar el análisis.</p>}
-                {state.phase === "error" && <button type="button" className={styles.retry}
-                  onClick={() => void save({ kind: "retry" })}>Reintentar análisis</button>}
+                {state.phase === "error" && <Button type="button" variant="outline" size="sm" className="justify-self-start"
+                  onClick={() => void save({ kind: "retry" })}>Reintentar análisis</Button>}
               </div>
               <div className={styles.roster}>
                 {state.crew.map((person) => (
@@ -360,10 +368,7 @@ export function SimulationConsole() {
           {error && <p role="alert" className={styles.error}>{error}</p>}
           <section aria-label="Chats de la tripulación" className={styles.comms}>
             <div className={styles.sectionHeader}>
-              <div>
-                <h2>Chats de la tripulación</h2>
-                <p>MedGemma entrega cada instrucción al chat de su destinatario.</p>
-              </div>
+              <h2 className="text-headline">Chats de la tripulación</h2>
               <Button type="button" variant="destructive" size="sm"
                 disabled={clearingMessages || state.messages.length === 0}
                 onClick={() => {

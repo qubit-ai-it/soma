@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { corridorFloors, locationAt, locationCenter, roomFloor, shortestWalk } from "./deck";
 import { activeIncident, incidentProgress } from "./incident";
-import { crewColors, crewIds, roomCenter, roomIds, type SimulationState } from "./simulation";
+import { crewColorTokens, crewIds, roomCenter, roomIds, type SimulationState } from "./simulation";
 import styles from "./simulation.module.css";
 
 export function AssignmentRoutes({ state }: { state: SimulationState }) {
@@ -27,7 +27,7 @@ export function AssignmentRoutes({ state }: { state: SimulationState }) {
       const path = waypoint
         ? [...shortestWalk(origin.position, waypoint).path, ...shortestWalk(waypoint, destination).path.slice(1)]
         : shortestWalk(origin.position, destination).path;
-      return [{ path, color: crewColors[crewIds.indexOf(instruction.crewId)], via: instruction.via }];
+      return [{ path, colorToken: crewColorTokens[crewIds.indexOf(instruction.crewId)], via: instruction.via }];
     });
 
     const draw = () => {
@@ -39,6 +39,7 @@ export function AssignmentRoutes({ state }: { state: SimulationState }) {
       const x = width / 100;
       const y = height / 100;
       const ctx = context;
+      const palette = getComputedStyle(element);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.beginPath();
       for (const room of roomIds) {
@@ -56,7 +57,7 @@ export function AssignmentRoutes({ state }: { state: SimulationState }) {
       ctx.globalAlpha = 0.85;
       for (const route of routes) {
         ctx.beginPath();
-        ctx.strokeStyle = route.color;
+        ctx.strokeStyle = palette.getPropertyValue(route.colorToken).trim();
         ctx.setLineDash(route.via ? [6, 5] : []);
         route.path.forEach((point, index) => {
           if (index === 0) ctx.moveTo(point.x * x, point.y * y);
