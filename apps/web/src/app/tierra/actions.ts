@@ -3,11 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { isIdentifiedHuman } from "@/features/alerts/alerts.logic";
+import { authorizeCaller as authorize } from "@/features/alerts/alerts.authorize";
 import { linkPatchSchema, reviewInputSchema } from "@/features/earth/earth.schema";
 import { getEcosystem } from "@/features/earth/ecosystem.server";
-import { DEMO_ACTORS, canAccess } from "@/features/roles/roles.logic";
-import { ROLES, type Resource, type Role } from "@/features/roles/roles.types";
+import { ROLES } from "@/features/roles/roles.types";
 import { err, ok, type Result } from "@/shared/result";
 
 const callerSchema = z.object({
@@ -18,17 +17,6 @@ const callerSchema = z.object({
 const linkSchema = callerSchema.extend({ patch: linkPatchSchema });
 const flushSchema = callerSchema.extend({ force: z.boolean() });
 const reviewSchema = callerSchema.extend({ review: reviewInputSchema });
-
-function authorize(
-  caller: { role: Role; actorId: string },
-  resource: Resource,
-): Result<string> {
-  if (!canAccess(caller.role, resource)) return err("El rol activo no tiene permiso para esta acción.");
-  if (!isIdentifiedHuman(caller.actorId) || DEMO_ACTORS[caller.role].id !== caller.actorId) {
-    return err("Se requiere una persona identificada.");
-  }
-  return ok(caller.actorId);
-}
 
 function refresh() {
   revalidatePath("/tierra");
