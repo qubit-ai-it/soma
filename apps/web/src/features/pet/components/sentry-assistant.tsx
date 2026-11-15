@@ -15,6 +15,7 @@ import {
   type Conversation,
 } from "../chat.history";
 import { fileToDataUrl, MAX_ATTACHMENTS } from "../image";
+import { newId } from "../id";
 import { useLocalStore } from "../local-store";
 import type { SentryMode } from "../pet.types";
 import {
@@ -129,7 +130,7 @@ export function SentryAssistant() {
   const execute = useCallback(
     (task: ScheduledTask) => {
       const now = Date.now();
-      const run = runTask(task, crypto.randomUUID(), now, Math.random());
+      const run = runTask(task, newId(), now, Math.random());
       setRuns((previous) => recordRun(previous, run));
       setTasks((previous) => markRan(previous, task.id, now));
       setWorking(true);
@@ -162,7 +163,7 @@ export function SentryAssistant() {
     const message: ChatMessage = { role: "user", content, ...(images.length ? { images } : {}) };
     const base =
       current.id === DRAFT_ID
-        ? { ...current, id: crypto.randomUUID(), createdAt: Date.now() }
+        ? { ...current, id: newId(), createdAt: Date.now() }
         : current;
     const withUser = withMessages(base, [...base.messages, message], Date.now());
     persist(withUser);
@@ -329,7 +330,7 @@ export function SentryAssistant() {
               tasks={tasks}
               runs={runs}
               onCreate={(input) =>
-                setTasks((previous) => [createTask(crypto.randomUUID(), Date.now(), input), ...previous])
+                setTasks((previous) => [createTask(newId(), Date.now(), input), ...previous])
               }
               onToggle={(id) =>
                 setTasks((previous) => previous.map((t) => (t.id === id ? { ...t, enabled: !t.enabled } : t)))
