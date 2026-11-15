@@ -5,13 +5,13 @@ import { useRiveFile } from "@rive-app/react-canvas";
 
 import { MASCOT_SRC } from "./rive-runtime";
 
-type MascotFile = ReturnType<typeof useRiveFile>["riveFile"];
+type MascotFileState = ReturnType<typeof useRiveFile>;
 
-const MascotFileContext = createContext<{ riveFile: MascotFile } | null>(null);
+const MascotFileContext = createContext<MascotFileState | null>(null);
 
 export function SentryFileProvider({ children }: { children: ReactNode }) {
-  const { riveFile } = useRiveFile({ src: MASCOT_SRC });
-  return <MascotFileContext value={{ riveFile }}>{children}</MascotFileContext>;
+  const state = useRiveFile({ src: MASCOT_SRC });
+  return <MascotFileContext value={state}>{children}</MascotFileContext>;
 }
 
 export function useSharedMascotFile() {

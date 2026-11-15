@@ -38,10 +38,11 @@ export function Sentry({
 }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const shared = useSharedMascotFile();
+  // the shared file is returned while still loading: wait for "success", fall back to src on failure
   const { rive, RiveComponent } = useRive(
-    shared === null
+    shared === null || shared.status === "failed"
       ? { src: MASCOT_SRC, ...ARTBOARD }
-      : shared.riveFile
+      : shared.status === "success" && shared.riveFile
         ? { riveFile: shared.riveFile, ...ARTBOARD }
         : null,
   );
