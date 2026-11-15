@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 
+import { PROPOSED_DRAFT_TITLE } from "../plan.display";
 import { IDLE_PLAN_STATE, type PlanActionState } from "../plan.types";
 import { CarePlanView } from "./care-plan-view";
 
@@ -13,7 +14,8 @@ export function CarePlanGenerator({ action }: Props) {
   const [state, formAction, pending] = useActionState(action, IDLE_PLAN_STATE);
 
   return (
-    <section aria-label="Plan o tratamiento" className="space-y-3">
+    <section aria-label={PROPOSED_DRAFT_TITLE} className="space-y-3">
+      <h2 className="font-heading text-lg font-bold">{PROPOSED_DRAFT_TITLE}</h2>
       <form action={formAction} className="flex flex-wrap items-center gap-3">
         <button
           type="submit"

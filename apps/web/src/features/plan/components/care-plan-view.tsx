@@ -1,4 +1,4 @@
-import { describePlanSource, PLAN_DISCLAIMER } from "../plan.display";
+import { describePlanSource, describeValidation, PLAN_DISCLAIMER } from "../plan.display";
 import type { CarePlanDTO } from "../plan.types";
 
 export function CarePlanView({ plan }: { plan: CarePlanDTO }) {
@@ -19,6 +19,10 @@ export function CarePlanView({ plan }: { plan: CarePlanDTO }) {
         )}
       </div>
 
+      <p className="mt-3 text-xs font-medium">
+        Estado de validación: {describeValidation(plan.validation)}
+      </p>
+
       <ol className="mt-3 list-decimal space-y-1 pl-5">
         {plan.steps.map((step, index) => (
           <li key={index} className="whitespace-pre-wrap">
@@ -31,7 +35,8 @@ export function CarePlanView({ plan }: { plan: CarePlanDTO }) {
         <span className="font-medium">Incertidumbre:</span> {plan.uncertainty}
       </p>
       <p className="mt-1 text-xs text-ink">
-        Fuente: {source.detail}. No es un diagnóstico ni orientación médica.
+        Fuente: {source.detail}. No es un diagnóstico ni orientación médica. No inicies estos pasos
+        hasta que un médico en Tierra los valide.
       </p>
     </article>
   );
