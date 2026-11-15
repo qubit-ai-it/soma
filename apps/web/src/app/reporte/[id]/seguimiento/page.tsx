@@ -1,0 +1,67 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
+
+import { getMissionMember } from "@/features/crew/crew.queries";
+import { FollowUpView } from "@/features/followup/components/followup-view";
+import {
+  FOLLOWUP_SCENARIOS,
+  getFollowUp,
+  type FollowUpScenarioId,
+} from "@/features/followup/followup.queries";
+
+export default function FollowUpPage({
+  params,
+  searchParams,
+}: PageProps<"/reporte/[id]/seguimiento">) {
+  return (
+    <Suspense fallback={<p className="text-ink">Cargando seguimiento…</p>}>
+      <Content params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function Content({
+  params,
+  searchParams,
+}: Pick<PageProps<"/reporte/[id]/seguimiento">, "params" | "searchParams">) {
+  const { id } = await params;
+  const member = await getMissionMember(id);
+  if (!member) notFound();
+
+  const { escenario } = await searchParams;
+  const scenarioId: FollowUpScenarioId =
+    escenario === "followup-worsening" ? "followup-worsening" : "followup-recovery";
+
+  const followUp = await getFollowUp(member.id, scenarioId);
+  if (!followUp) {
+    return (
+      <p className="text-sm text-ink">
+        No hay un escenario de seguimiento de demostración para este tripulante.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <nav aria-label="Escenario de demostración" className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-ink">Escenario sintético:</span>
+        {FOLLOWUP_SCENARIOS.map((s) => (
+          <Link
+            key={s.id}
+            href={`/reporte/${member.id}/seguimiento?escenario=${s.id}`}
+            aria-current={s.id === scenarioId ? "page" : undefined}
+            className={
+              s.id === scenarioId
+                ? "rounded-full bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground"
+                : "rounded-full bg-secondary px-4 py-1.5 text-sm font-medium"
+            }
+          >
+            {s.label}
+          </Link>
+        ))}
+      </nav>
+      <FollowUpView title={followUp.title} contract={followUp.contract} result={followUp.result} />
+    </div>
+  );
+}
