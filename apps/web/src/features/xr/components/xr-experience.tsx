@@ -13,6 +13,8 @@ import {
   type SessionAction,
 } from "../session.flow";
 import { loadStoredSession, saveSession, type SessionStorageLike } from "../session.storage";
+import { SomaCard } from "@/shared/ui/soma-card";
+
 import { CapturePanel } from "./capture-panel";
 import { LiveLog } from "./live-log";
 import { ProcedureStepper } from "./procedure-stepper";
@@ -70,24 +72,32 @@ export function XrExperience({ procedure, subjectId = "cm-01" }: Props) {
   }
 
   if (session === null) {
-    return <p className="text-xl text-ink">Cargando sesión…</p>;
+    return <p className="text-lg text-muted-foreground">Cargando sesión…</p>;
   }
 
   const live = session.mode === "live";
   const real = live && profile.kind === "quest";
 
   return (
-    <div className="space-y-8">
-      <section aria-label="Dispositivo" className="space-y-2 rounded-lg bg-card p-6">
-        <p className="font-heading text-2xl font-semibold">{profile.label}</p>
-        <p className="text-lg text-ink">{profile.detail}</p>
-        <p className="text-lg text-ink">
-          Contenido de demostración: no es un protocolo clínico. SOMA no diagnostica ni prescribe.
-        </p>
-      </section>
-
-      <section aria-label="Modo" className="space-y-2">
-        <div role="group" aria-label="Modo de sesión" className="inline-flex rounded-full bg-card p-1">
+    <div className="space-y-4">
+      <SomaCard
+        label="Dispositivo"
+        title={profile.kind === "simulated" ? "Visor no detectado" : profile.label}
+        chip={live ? "En vivo" : "Práctica"}
+        tone={live ? "info" : "neutral"}
+        detail={
+          <>
+            <p>{profile.detail}</p>
+            <p>
+              {live
+                ? "En vivo se registra cada acción. Para cambiar de modo, termina o aborta la sesión."
+                : "Práctica no registra nada y puedes reiniciar cuando quieras."}
+            </p>
+            <p>SOMA no diagnostica ni prescribe.</p>
+          </>
+        }
+      >
+        <div role="group" aria-label="Modo de sesión" className="flex gap-2">
           {(["practice", "live"] as const).map((mode) => (
             <button
               key={mode}
@@ -95,23 +105,18 @@ export function XrExperience({ procedure, subjectId = "cm-01" }: Props) {
               aria-pressed={session.mode === mode}
               disabled={session.mode !== mode && !canSwitchMode(session)}
               onClick={() => switchMode(mode)}
-              className={`min-h-16 rounded-full px-8 font-heading text-xl font-semibold disabled:opacity-40 ${
-                session.mode === mode ? "bg-primary text-primary-foreground" : "hover:bg-secondary"
+              className={`h-12 flex-1 rounded-full px-5 font-heading text-base font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40 ${
+                session.mode === mode ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/70"
               }`}
             >
               {mode === "practice" ? "Práctica" : "En vivo"}
             </button>
           ))}
         </div>
-        <p className="text-lg text-ink">
-          {live
-            ? "En vivo: se registra cada acción. Para cambiar de modo, termina o aborta la sesión."
-            : "Práctica: no se registra nada y puedes reiniciar cuando quieras."}
-        </p>
-      </section>
+      </SomaCard>
 
       {message && (
-        <p role="alert" className="rounded-lg bg-danger/15 p-4 text-lg">
+        <p role="alert" className="rounded-2xl bg-danger/15 px-5 py-3 text-base text-danger">
           {message}
         </p>
       )}

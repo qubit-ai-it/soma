@@ -63,5 +63,5 @@ export function resolveDeviceProfile(caps: XrCapabilities): DeviceProfile {
       : !immersive
         ? "WebXR no reporta sesiones inmersivas disponibles. El procedimiento sigue disponible en pantalla."
         : "Dispositivo con WebXR, pero no es un Meta Quest. El procedimiento se muestra en pantalla.";
-  return { kind: "simulated", label: "Modo simulado", detail };
+  return { kind: "simulated", label: "Visor no detectado", detail };
 }

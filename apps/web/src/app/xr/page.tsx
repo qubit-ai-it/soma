@@ -13,8 +13,9 @@ const procedure = procedureFileSchema.parse(seed).procedures[0];
 
 export default function XrPage() {
   return (
-    <main className="container-soma flex-1 py-12">
-      <h1 className="reveal mb-8 text-headline">{procedure.title}</h1>
+    <main className="container-soma flex-1 py-8">
+      <h1 className="reveal text-headline">{procedure.title}</h1>
+      <div className="mb-6" />
       <XrExperience procedure={procedure} />
     </main>
   );

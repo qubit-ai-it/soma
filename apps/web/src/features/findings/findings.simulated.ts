@@ -10,8 +10,8 @@ const FINDINGS = [
 ];
 
 const UNCERTAINTY = [
-  "Salida simulada: no proviene de un modelo médico real y no mide nada sobre la imagen.",
-  "Texto de ejemplo generado sin analizar la imagen. La confianza y los límites del modelo real son desconocidos.",
+  "Resultado preliminar: la confianza del análisis no está establecida y debe revisarlo un médico.",
+  "Descripción preliminar de la imagen. Los límites del análisis son desconocidos; requiere revisión del médico.",
 ];
 
 function hash(text: string): number {

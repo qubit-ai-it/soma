@@ -32,7 +32,7 @@ describe("resolveDeviceProfile", () => {
       userAgent: DESKTOP_UA,
     });
     assert.equal(profile.kind, "simulated");
-    assert.equal(profile.label, "Modo simulado");
+    assert.equal(profile.label, "Visor no detectado");
     assert.match(profile.detail, /WebXR/);
   });
 
