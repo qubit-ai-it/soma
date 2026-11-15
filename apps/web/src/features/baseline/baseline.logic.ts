@@ -1,4 +1,4 @@
-import { isEvaluable } from "../observation/observation.logic.ts";
+import { isEvaluable, isNumericObservation } from "../observation/observation.logic.ts";
 import type { Observation } from "../observation/observation.types.ts";
 import { err, ok, type Result } from "../../shared/result.ts";
 import type {
@@ -10,16 +10,10 @@ import type {
 
 const MAD_TO_SIGMA = 1.4826;
 
-type NumericObservation = Observation & { value: number };
-
 function median(values: number[]): number {
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
-}
-
-function isNumeric(observation: Observation): observation is NumericObservation {
-  return typeof observation.value === "number";
 }
 
 export function computeBaseline(
@@ -30,7 +24,7 @@ export function computeBaseline(
   const samples = observations
     .filter((o) => o.subjectId === options.subjectId && o.signal === options.signal)
     .filter(isEvaluable)
-    .filter(isNumeric)
+    .filter(isNumericObservation)
     .filter((o) => cutoff === undefined || Date.parse(o.observedAt) < cutoff)
     .sort((a, b) => Date.parse(a.observedAt) - Date.parse(b.observedAt));
 
@@ -73,7 +67,7 @@ export function baselineDelta(
   observation: Observation,
 ): Result<BaselineDelta, BaselineDeltaError> {
   if (baseline.status !== "ready") return err("baseline-insufficient");
-  if (!isEvaluable(observation) || !isNumeric(observation)) {
+  if (!isEvaluable(observation) || !isNumericObservation(observation)) {
     return err("observation-not-evaluable");
   }
   if (
