@@ -8,11 +8,14 @@ export function EarthConsole({ state }: { state: EarthState }) {
   const packets = new Map(state.queue.map((packet) => [packet.id, packet]));
 
   return (
-    <div className="space-y-10">
-      <LinkPanel link={state.link} />
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <LinkPanel link={state.link} />
+        <QueuePanel queue={state.queue} />
+      </div>
       <section aria-label="Propuestas de plan" className="space-y-3">
-        <h2 className="text-xl font-heading font-bold">Propuestas pendientes de revisión</h2>
-        <div className="space-y-3">
+        <h2 className="font-heading text-xl font-bold">Propuestas por revisar</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {state.proposals.map((proposal) => (
             <ProposalCard
               key={proposal.id}
@@ -22,7 +25,6 @@ export function EarthConsole({ state }: { state: EarthState }) {
           ))}
         </div>
       </section>
-      <QueuePanel queue={state.queue} />
     </div>
   );
 }

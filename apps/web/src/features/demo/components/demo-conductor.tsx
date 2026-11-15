@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
+
+import { SomaCard, type CardAction } from "@/shared/ui/soma-card";
 
 import { keyToAction, nextIndex, prevIndex, totalSeconds } from "../demo.logic";
 import type { DemoStep } from "../demo.script";
@@ -57,18 +58,33 @@ export function DemoConductor({ steps, raiseF3 }: Props) {
   }, [steps.length]);
 
   const planned = steps.slice(0, index).reduce((sum, s) => sum + s.durationSec, 0);
+  const last = index === steps.length - 1;
+
+  const actions: CardAction[] = [{ label: "Abrir pantalla", icon: "open_in_new", href: step.href, newTab: true }];
+  if (step.id === "safety-gate") {
+    actions.push({
+      label: pending ? "Generando alerta…" : "Disparar alerta F3",
+      icon: "emergency",
+      variant: "secondary",
+      disabled: pending,
+      onClick: () =>
+        startTransition(async () => {
+          const result = await raiseF3();
+          setAlertMessage(result.message);
+        }),
+    });
+  }
+  actions.push(
+    last
+      ? { label: "Reiniciar", icon: "restart_alt", variant: "secondary", onClick: () => go(0) }
+      : { label: "Siguiente", icon: "arrow_forward", variant: "secondary", onClick: () => go(nextIndex(index, steps.length)) },
+  );
 
   return (
-    <section aria-label="Controlador de la demo" className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-ink">
-        <span>
-          Paso {index + 1} de {steps.length}
-        </span>
-        <span>
-          Tiempo del paso {format(elapsed)} / {format(step.durationSec)} · Guion previsto{" "}
-          {format(planned)} de {format(totalSeconds(steps))}
-        </span>
-      </div>
+    <section aria-label="Controlador de la demo" className="space-y-4">
+      <p className="text-sm text-ink">
+        Paso {index + 1} de {steps.length}
+      </p>
 
       <div
         role="progressbar"
@@ -85,86 +101,57 @@ export function DemoConductor({ steps, raiseF3 }: Props) {
             onClick={() => go(i)}
             aria-label={`Ir al paso ${i + 1}: ${s.title}`}
             aria-current={i === index ? "step" : undefined}
-            className={`h-2 flex-1 rounded-full ${i <= index ? "bg-primary" : "bg-secondary"}`}
+            className={`h-2 flex-1 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring ${i <= index ? "bg-primary" : "bg-secondary"}`}
           />
         ))}
       </div>
 
-      <article className="space-y-4 rounded-2xl bg-card p-6">
-        <h2 className="font-heading text-2xl font-bold">{step.title}</h2>
-        <dl className="space-y-3 text-sm">
-          <div>
-            <dt className="font-semibold">En pantalla</dt>
-            <dd>{step.onScreen}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Qué decir</dt>
-            <dd>{step.say}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Principio</dt>
-            <dd>{step.principle}</dd>
-          </div>
-        </dl>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href={step.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block rounded-full bg-primary px-5 py-2 font-heading text-sm font-semibold text-primary-foreground"
-          >
-            Abrir pantalla ({step.href})
-          </Link>
-          {step.id === "safety-gate" && (
-            <button
-              type="button"
-              disabled={pending}
-              onClick={() =>
-                startTransition(async () => {
-                  const result = await raiseF3();
-                  setAlertMessage(result.message);
-                })
-              }
-              className="rounded-full bg-secondary px-5 py-2 font-heading text-sm font-semibold disabled:opacity-60"
-            >
-              {pending ? "Generando alerta…" : "Disparar alerta F3 (demostración)"}
-            </button>
-          )}
-        </div>
+      <SomaCard
+        key={step.id}
+        title={step.title}
+        line={step.say}
+        chip={`${format(elapsed)} / ${format(step.durationSec)}`}
+        tone={elapsed > step.durationSec ? "warn" : "info"}
+        label={`Paso ${index + 1}: ${step.title}`}
+        className="p-6"
+        actions={actions}
+        detail={
+          <dl className="space-y-3">
+            <div>
+              <dt className="font-semibold">En pantalla</dt>
+              <dd>{step.onScreen}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Principio</dt>
+              <dd>{step.principle}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Tiempo</dt>
+              <dd>
+                Guion previsto {format(planned)} de {format(totalSeconds(steps))}
+              </dd>
+            </div>
+          </dl>
+        }
+      >
         {alertMessage && (
           <p role="status" className="text-sm">
             {alertMessage}
           </p>
         )}
-      </article>
+      </SomaCard>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
           onClick={() => go(prevIndex(index))}
           disabled={index === 0}
-          className="rounded-full bg-card px-5 py-2 font-heading text-sm font-semibold disabled:opacity-50"
+          className="rounded-full bg-card px-5 py-2 font-heading text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
         >
           Anterior
         </button>
-        <button
-          type="button"
-          onClick={() => go(nextIndex(index, steps.length))}
-          disabled={index === steps.length - 1}
-          className="rounded-full bg-primary px-5 py-2 font-heading text-sm font-semibold text-primary-foreground disabled:opacity-50"
-        >
-          Siguiente
-        </button>
-        <button
-          type="button"
-          onClick={() => go(0)}
-          className="rounded-full bg-card px-5 py-2 font-heading text-sm font-semibold"
-        >
-          Reiniciar
-        </button>
+        <p className="text-xs text-ink">Atajos: → o espacio avanza, ← retrocede, R reinicia.</p>
       </div>
-      <p className="text-xs text-ink">Atajos: flecha derecha o espacio avanza, flecha izquierda retrocede, R reinicia.</p>
     </section>
   );
 }

@@ -10,10 +10,10 @@ export async function raiseDemoF3Alert(): Promise<{ ok: boolean; message: string
     memberId: "cm-01",
     memberLabel: "Tripulante cm-01",
     level: "F3",
-    title: "Regla crítica activada (demostración)",
+    title: "Regla crítica activada",
     action: "Seguir el protocolo aprobado y escalar al médico de a bordo.",
   });
-  if (!result.ok) return { ok: false, message: "No se pudo generar la alerta de demostración." };
+  if (!result.ok) return { ok: false, message: "No se pudo generar la alerta." };
   revalidatePath("/alertas");
   revalidatePath("/tierra");
   return { ok: true, message: "Alerta F3 generada y notificación en cola hacia Tierra." };
