@@ -30,12 +30,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       className={`${inter.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="min-h-full flex flex-col bg-background pb-32 text-foreground sm:pb-24">
         <SentryFileProvider>
-          <Suspense fallback={<div className="h-16" />}>
+          {children}
+          <Suspense fallback={null}>
             <SiteNav />
           </Suspense>
-          {children}
           <OnboardingGate />
         </SentryFileProvider>
       </body>

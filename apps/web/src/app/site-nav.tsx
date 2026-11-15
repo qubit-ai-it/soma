@@ -11,7 +11,7 @@ import { ROLES } from "@/features/roles/roles.types";
 import { Icon } from "@/shared/ui/icon";
 
 const PILL =
-  "inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-4 font-heading text-sm font-semibold outline-none transition-colors duration-[var(--duration-micro)] focus-visible:ring-2 focus-visible:ring-ring";
+  "inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-2 rounded-full px-0 font-heading text-sm font-semibold outline-none transition-colors duration-[var(--duration-micro)] focus-visible:ring-2 focus-visible:ring-ring sm:px-4";
 
 export function SiteNav() {
   const active = activeItemId(usePathname());
@@ -19,10 +19,10 @@ export function SiteNav() {
   const items = navItemsFor(role, DEMO_ACTORS.astronaut.memberId ?? NAV_ITEMS[0].id);
 
   return (
-    <header className="sticky top-0 z-40 bg-background/90 backdrop-blur">
+    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3">
       <nav
         aria-label="Navegación principal"
-        className="container-soma flex items-center gap-2 overflow-x-auto py-3"
+        className="pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-1 rounded-3xl bg-card/90 p-1.5 shadow-[0_18px_55px_-20px_rgb(255_255_255/0.14)] backdrop-blur"
       >
         {items.map((item) => {
           const isActive = item.id === active;
@@ -30,18 +30,20 @@ export function SiteNav() {
             <Link
               key={item.id}
               href={item.href}
+              aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
+              title={item.label}
               className={`${PILL} ${
-                isActive ? "bg-primary text-primary-foreground" : "bg-card hover:bg-secondary"
+                isActive ? "bg-primary text-primary-foreground" : "hover:bg-secondary"
               }`}
             >
               <Icon name={item.icon} />
-              {item.label}
+              <span className="hidden sm:inline">{item.label}</span>
             </Link>
           );
         })}
 
-        <label className={`${PILL} ml-auto bg-card`}>
+        <label className={`${PILL} bg-secondary px-3`} title="Rol activo">
           <Icon name="person" />
           <span className="sr-only">Rol activo</span>
           <select
@@ -61,13 +63,15 @@ export function SiteNav() {
 
         <button
           type="button"
+          aria-label="Guía"
+          title="Guía"
           onClick={() => window.dispatchEvent(new Event(ONBOARDING_OPEN_EVENT))}
-          className={`${PILL} bg-card hover:bg-secondary`}
+          className={`${PILL} hover:bg-secondary`}
         >
           <Icon name="help" />
-          Guía
+          <span className="hidden sm:inline">Guía</span>
         </button>
       </nav>
-    </header>
+    </div>
   );
 }
