@@ -18,17 +18,17 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "demo", label: "Demo", href: "/demo", icon: "play_circle" },
 ];
 
-const ORDER_BY_ROLE: Record<Role, readonly string[]> = {
-  astronaut: ["home", "report", "live", "xr", "sentry", "alerts", "earth", "demo"],
-  cmo: ["home", "report", "alerts", "live", "xr", "sentry", "earth", "demo"],
-  commander: ["home", "alerts", "report", "sentry", "demo", "live", "xr", "earth"],
-  earth: ["home", "earth", "alerts", "report", "sentry", "demo", "live", "xr"],
+// Sections each role can use, in display order
+const ITEMS_BY_ROLE: Record<Role, readonly string[]> = {
+  astronaut: ["home", "report", "live", "xr", "sentry", "alerts", "demo"],
+  cmo: ["home", "report", "alerts", "live", "xr", "sentry", "demo"],
+  commander: ["home", "alerts", "sentry", "demo"],
+  earth: ["home", "earth", "alerts", "demo"],
 };
 
 export function navItemsFor(role: Role, astronautMemberId: string): NavItem[] {
-  const order = ORDER_BY_ROLE[role];
-  return [...NAV_ITEMS]
-    .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
+  return ITEMS_BY_ROLE[role]
+    .flatMap((id) => NAV_ITEMS.filter((item) => item.id === id))
     .map((item) =>
       item.id === "report" && role === "astronaut"
         ? { ...item, href: `/reporte/${astronautMemberId}` }
