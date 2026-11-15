@@ -34,7 +34,7 @@ import { ChatView } from "./chat-view";
 import { HistoryView } from "./history-view";
 import { Sentry } from "./sentry";
 import { TasksView } from "./tasks-view";
-import { VoiceStage } from "./voice-stage";
+import { VoiceBackdrop } from "./voice-backdrop";
 
 const SLEEP_AFTER_MS = 45_000;
 const TASK_TICK_MS = 10_000;
@@ -112,6 +112,8 @@ export function SentryAssistant() {
 
   const sendRef = useRef<(text: string, images: string[]) => void>(() => {});
   const conversationRef = useRef(false);
+  const endRef = useRef<HTMLButtonElement>(null);
+  const toggleConversationRef = useRef<() => void>(() => {});
 
   const dictation = useDictation(LANG, {
     onText: (text) => setDraft(`${dictationBase.current}${text}`),
@@ -153,6 +155,16 @@ export function SentryAssistant() {
   useEffect(() => {
     tasksRef.current = tasks;
   }, [tasks]);
+
+  useEffect(() => {
+    if (!conversation) return;
+    endRef.current?.focus();
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") toggleConversationRef.current();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [conversation]);
 
   useEffect(() => {
     if (!conversation || sending || speaking || isListening) return;
@@ -242,6 +254,7 @@ export function SentryAssistant() {
 
   useEffect(() => {
     sendRef.current = send;
+    toggleConversationRef.current = toggleConversation;
     conversationRef.current = conversation;
   });
 
@@ -307,36 +320,63 @@ export function SentryAssistant() {
     if (id === current.id) startNew();
   }
 
-  if (conversation) {
-    const lastReply = current.messages.at(-1);
-    return (
-      <VoiceStage
-        mode={mode}
-        speaking={speaking}
-        status={speaking ? "Hablando…" : STATUS[mode]}
-        transcript={speaking && lastReply?.role === "assistant" ? lastReply.content : draft}
-        successSignal={successSignal}
-        errorSignal={errorSignal}
-        onEnd={toggleConversation}
-      />
-    );
-  }
+  const lastReply = current.messages.at(-1);
+  const spoken = speaking && lastReply?.role === "assistant" ? lastReply.content : draft;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
-      <aside className="flex items-center gap-4 rounded-md bg-card p-4 lg:flex-col lg:justify-center lg:p-8">
-        <Sentry
-          mode={mode}
-          successSignal={successSignal}
-          errorSignal={errorSignal}
-          className="w-24 shrink-0 lg:w-full lg:max-w-72"
-        />
-        <p aria-live="polite" className="font-heading text-lg font-bold lg:text-center">
-          {speaking ? "Hablando…" : STATUS[mode]}
-        </p>
+      <aside
+        role={conversation ? "dialog" : undefined}
+        aria-modal={conversation || undefined}
+        aria-label={conversation ? "Modo conversación" : undefined}
+        className={
+          conversation
+            ? "fixed inset-0 z-50 flex flex-col items-center justify-between bg-background px-5 py-10"
+            : "flex items-center gap-4 rounded-md bg-card p-4 lg:flex-col lg:justify-center lg:p-8"
+        }
+      >
+        {conversation && <VoiceBackdrop mode={mode} speaking={speaking} />}
+        {conversation && <div aria-hidden="true" />}
+        <div className={conversation ? "relative flex w-full flex-col items-center gap-6" : "contents"}>
+          <Sentry
+            mode={mode}
+            successSignal={successSignal}
+            errorSignal={errorSignal}
+            className={
+              conversation ? "w-[min(75vw,26rem)]" : "w-24 shrink-0 lg:w-full lg:max-w-72"
+            }
+          />
+          <p
+            aria-live="polite"
+            className={
+              conversation
+                ? "font-heading text-2xl font-bold"
+                : "font-heading text-lg font-bold lg:text-center"
+            }
+          >
+            {speaking ? "Hablando…" : STATUS[mode]}
+          </p>
+          {conversation && (
+            <p className="line-clamp-2 min-h-12 max-w-xl text-center text-ink">{spoken}</p>
+          )}
+        </div>
+        {conversation && (
+          <Button
+            ref={endRef}
+            variant="destructive"
+            size="icon-lg"
+            aria-label="Terminar conversación"
+            onClick={toggleConversation}
+            className="relative"
+          >
+            <Icon name="close" />
+          </Button>
+        )}
       </aside>
 
-      <section className="flex h-[36rem] flex-col gap-4 rounded-md bg-card p-4 lg:h-[42rem] lg:p-6">
+      <section
+        className={`flex h-[36rem] flex-col gap-4 rounded-md bg-card p-4 lg:h-[42rem] lg:p-6 ${conversation ? "hidden" : ""}`}
+      >
         <header className="flex flex-wrap items-center gap-2">
           <nav aria-label="Secciones" className="flex flex-1 flex-wrap gap-2">
             {VIEWS.map((v) => (
