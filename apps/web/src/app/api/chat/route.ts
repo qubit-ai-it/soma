@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createMiniMaxChat } from "@/features/pet/chat.client";
+import { createGeminiChat } from "@/features/pet/chat.client";
 import { getConfig } from "@/server/config";
 
 const bodySchema = z.object({
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "Chat is not configured" }, { status: 503 });
   }
 
-  const result = await createMiniMaxChat({ apiKey, baseUrl, model }).reply(
+  const result = await createGeminiChat({ apiKey, baseUrl, model }).reply(
     parsed.data.messages,
   );
   if (!result.ok) {

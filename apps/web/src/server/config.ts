@@ -24,9 +24,9 @@ const envSchema = z.object({
   OLLAMA_BASE_URL: z.url().default("http://localhost:11434"),
   OLLAMA_MODEL: z.string().default("medgemma1.5:4b"),
 
-  MINIMAX_API_KEY: optionalString,
-  MINIMAX_BASE_URL: z.url().default("https://api.minimax.io/v1"),
-  MINIMAX_MODEL: z.string().default("MiniMax-M3.1-Flash"),
+  GEMINI_API_KEY: optionalString,
+  GEMINI_BASE_URL: z.url().default("https://generativelanguage.googleapis.com/v1beta/openai"),
+  GEMINI_MODEL: z.string().default("gemini-3.5-flash-lite"),
 
   SPACE_WEATHER_PROVIDER: z.enum(["live", "fixture"]).default("fixture"),
   DONKI_BASE_URL: z.url().default("https://ccmc.gsfc.nasa.gov/DONKI/WS/get"),
@@ -69,9 +69,9 @@ function buildConfig(env: NodeJS.ProcessEnv) {
       ollama: { baseUrl: e.OLLAMA_BASE_URL, model: e.OLLAMA_MODEL },
     },
     chat: {
-      apiKey: e.MINIMAX_API_KEY,
-      baseUrl: e.MINIMAX_BASE_URL,
-      model: e.MINIMAX_MODEL,
+      apiKey: e.GEMINI_API_KEY,
+      baseUrl: e.GEMINI_BASE_URL,
+      model: e.GEMINI_MODEL,
     },
     spaceWeather: {
       provider: offline ? ("fixture" as const) : e.SPACE_WEATHER_PROVIDER,

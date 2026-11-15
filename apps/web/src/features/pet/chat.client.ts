@@ -9,7 +9,7 @@ export type ChatMessage = {
   imageCount?: number;
 };
 
-export type MiniMaxChatOptions = {
+export type GeminiChatOptions = {
   apiKey: string;
   baseUrl: string;
   model: string;
@@ -42,11 +42,11 @@ function toWireMessages(history: ChatMessage[]) {
   });
 }
 
-export type MiniMaxChat = {
+export type GeminiChat = {
   reply(history: ChatMessage[]): Promise<Result<string>>;
 };
 
-export function createMiniMaxChat(options: MiniMaxChatOptions): MiniMaxChat {
+export function createGeminiChat(options: GeminiChatOptions): GeminiChat {
   const doFetch = options.fetch ?? fetch;
   const timeoutMs = options.timeoutMs ?? DEFAULT_CHAT_TIMEOUT_MS;
   const url = `${options.baseUrl.replace(/\/+$/, "")}/chat/completions`;
@@ -73,16 +73,16 @@ export function createMiniMaxChat(options: MiniMaxChatOptions): MiniMaxChat {
         });
         if (!response.ok) {
           const detail = (await response.text().catch(() => "")).slice(0, 300);
-          return err(`MiniMax answered HTTP ${response.status}: ${detail}`);
+          return err(`Gemini answered HTTP ${response.status}: ${detail}`);
         }
         const body: unknown = await response.json();
         content = (body as { choices?: { message?: { content?: unknown } }[] } | null)
           ?.choices?.[0]?.message?.content;
       } catch (cause) {
-        return err(`MiniMax is unreachable, timed out or sent an unreadable body: ${String(cause)}`);
+        return err(`Gemini is unreachable, timed out or sent an unreadable body: ${String(cause)}`);
       }
       if (typeof content !== "string" || !content.trim()) {
-        return err("MiniMax response has no message content");
+        return err("Gemini response has no message content");
       }
       return ok(content.trim());
     },

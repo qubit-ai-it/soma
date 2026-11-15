@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { createMiniMaxChat, MAX_HISTORY_MESSAGES } from "./chat.client.ts";
+import { createGeminiChat, MAX_HISTORY_MESSAGES } from "./chat.client.ts";
 
 const base = { apiKey: "test-key", baseUrl: "https://example.test/v1/", model: "m" };
 
@@ -12,10 +12,10 @@ function fakeFetch(respond: () => Response, calls: { url: string; init: RequestI
   }) as typeof fetch;
 }
 
-describe("createMiniMaxChat", () => {
+describe("createGeminiChat", () => {
   it("posts to chat/completions with bearer auth and returns the reply", async () => {
     const calls: { url: string; init: RequestInit }[] = [];
-    const chat = createMiniMaxChat({
+    const chat = createGeminiChat({
       ...base,
       fetch: fakeFetch(
         () => Response.json({ choices: [{ message: { content: " hola " } }] }),
@@ -34,7 +34,7 @@ describe("createMiniMaxChat", () => {
 
   it("keeps only the latest history messages", async () => {
     const calls: { url: string; init: RequestInit }[] = [];
-    const chat = createMiniMaxChat({
+    const chat = createGeminiChat({
       ...base,
       fetch: fakeFetch(() => Response.json({ choices: [{ message: { content: "x" } }] }), calls),
     });
@@ -49,7 +49,7 @@ describe("createMiniMaxChat", () => {
 
   it("sends images of the last message as image_url parts only", async () => {
     const calls: { url: string; init: RequestInit }[] = [];
-    const chat = createMiniMaxChat({
+    const chat = createGeminiChat({
       ...base,
       fetch: fakeFetch(() => Response.json({ choices: [{ message: { content: "x" } }] }), calls),
     });
@@ -67,13 +67,13 @@ describe("createMiniMaxChat", () => {
   });
 
   it("returns an error on a non-2xx status", async () => {
-    const chat = createMiniMaxChat({ ...base, fetch: fakeFetch(() => new Response("no", { status: 401 })) });
+    const chat = createGeminiChat({ ...base, fetch: fakeFetch(() => new Response("no", { status: 401 })) });
     const result = await chat.reply([{ role: "user", content: "hi" }]);
     assert.equal(result.ok, false);
   });
 
   it("returns an error when the reply is empty", async () => {
-    const chat = createMiniMaxChat({
+    const chat = createGeminiChat({
       ...base,
       fetch: fakeFetch(() => Response.json({ choices: [{ message: { content: "  " } }] })),
     });
@@ -81,7 +81,7 @@ describe("createMiniMaxChat", () => {
   });
 
   it("returns an error when fetch throws", async () => {
-    const chat = createMiniMaxChat({
+    const chat = createGeminiChat({
       ...base,
       fetch: (async () => {
         throw new Error("down");
