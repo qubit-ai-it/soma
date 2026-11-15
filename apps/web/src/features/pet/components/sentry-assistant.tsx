@@ -34,6 +34,7 @@ import { ChatView } from "./chat-view";
 import { HistoryView } from "./history-view";
 import { Sentry } from "./sentry";
 import { TasksView } from "./tasks-view";
+import { VoiceStage } from "./voice-stage";
 
 const SLEEP_AFTER_MS = 45_000;
 const TASK_TICK_MS = 10_000;
@@ -291,6 +292,21 @@ export function SentryAssistant() {
   function deleteConversation(id: string) {
     setConversations((previous) => removeConversation(previous, id));
     if (id === current.id) startNew();
+  }
+
+  if (conversation) {
+    const lastReply = current.messages.at(-1);
+    return (
+      <VoiceStage
+        mode={mode}
+        speaking={speaking}
+        status={speaking ? "Hablando…" : STATUS[mode]}
+        transcript={speaking && lastReply?.role === "assistant" ? lastReply.content : draft}
+        successSignal={successSignal}
+        errorSignal={errorSignal}
+        onEnd={toggleConversation}
+      />
+    );
   }
 
   return (
