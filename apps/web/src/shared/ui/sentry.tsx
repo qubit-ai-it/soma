@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import {
-  RuntimeLoader,
   useRive,
   useViewModelInstanceColor,
   useViewModelInstanceEnum,
@@ -10,9 +9,15 @@ import {
 } from "@rive-app/react-canvas";
 
 import { hexToRgb, type SentryMode } from "../sentry.types";
+import { MASCOT_SRC } from "./rive-runtime";
+import { useSharedMascotFile } from "./sentry-file";
 
-RuntimeLoader.setWasmUrl("/rive/rive.wasm");
-RuntimeLoader.setWasmFallbackUrl("/rive/rive_fallback.wasm");
+const ARTBOARD = {
+  artboard: "Artboard 1",
+  stateMachine: "MascotController",
+  autoplay: true,
+  autoBind: true,
+};
 
 type Props = {
   mode?: SentryMode;
@@ -32,13 +37,14 @@ export function Sentry({
   className,
 }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { rive, RiveComponent } = useRive({
-    src: "/mascot/soma.riv",
-    artboard: "Artboard 1",
-    stateMachine: "MascotController",
-    autoplay: true,
-    autoBind: true,
-  });
+  const shared = useSharedMascotFile();
+  const { rive, RiveComponent } = useRive(
+    shared === null
+      ? { src: MASCOT_SRC, ...ARTBOARD }
+      : shared.riveFile
+        ? { riveFile: shared.riveFile, ...ARTBOARD }
+        : null,
+  );
 
   const vmi = rive?.viewModelInstance ?? null;
   const { setValue: setMode } = useViewModelInstanceEnum("mode", vmi);

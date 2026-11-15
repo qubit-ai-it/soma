@@ -5,6 +5,7 @@ import "material-symbols/outlined.css";
 import "./globals.css";
 
 import { OnboardingGate } from "@/features/onboarding/components/onboarding-gate";
+import { SentryFileProvider } from "@/shared/ui/sentry-file";
 import { SiteNav } from "./site-nav";
 
 const inter = Inter({
@@ -30,11 +31,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <Suspense fallback={<div className="h-16" />}>
-          <SiteNav />
-        </Suspense>
-        {children}
-        <OnboardingGate />
+        <SentryFileProvider>
+          <Suspense fallback={<div className="h-16" />}>
+            <SiteNav />
+          </Suspense>
+          {children}
+          <OnboardingGate />
+        </SentryFileProvider>
       </body>
     </html>
   );
