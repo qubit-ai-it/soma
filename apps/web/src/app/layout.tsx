@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { DM_Sans, Inter } from "next/font/google";
 import "material-symbols/outlined.css";
 import "./globals.css";
+
+import { OnboardingGate } from "@/features/onboarding/components/onboarding-gate";
+import { SiteNav } from "./site-nav";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -25,7 +29,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       className={`${inter.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">{children}</body>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        <Suspense fallback={<div className="h-16" />}>
+          <SiteNav />
+        </Suspense>
+        {children}
+        <OnboardingGate />
+      </body>
     </html>
   );
 }
