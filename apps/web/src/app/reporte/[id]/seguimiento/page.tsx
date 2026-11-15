@@ -36,16 +36,14 @@ async function Content({
   const followUp = await getFollowUp(member.id, scenarioId);
   if (!followUp) {
     return (
-      <p className="text-sm text-ink">
-        No hay un escenario de seguimiento de demostración para este tripulante.
-      </p>
+      <p className="text-sm text-ink">Sin escenario de seguimiento para este tripulante.</p>
     );
   }
 
   return (
     <div className="space-y-6">
-      <nav aria-label="Escenario de demostración" className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-ink">Escenario sintético:</span>
+      <nav aria-label="Escenario" className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-ink">Escenario:</span>
         {FOLLOWUP_SCENARIOS.map((s) => (
           <Link
             key={s.id}
@@ -61,7 +59,7 @@ async function Content({
           </Link>
         ))}
       </nav>
-      <FollowUpView title={followUp.title} contract={followUp.contract} result={followUp.result} />
+      <FollowUpView contract={followUp.contract} result={followUp.result} />
     </div>
   );
 }

@@ -39,12 +39,6 @@ async function Content({ params }: Pick<PageProps<"/reporte/[id]/plan">, "params
 
   return (
     <div className="space-y-8">
-      {checkpoint && (
-        <p className="text-xs text-ink">
-          Selección basada en la evaluación del motor determinista ({checkpoint.status}, checkpoint «
-          {checkpoint.label}»). Datos sintéticos y reglas de demostración.
-        </p>
-      )}
       <ImmediateStepsView steps={immediateSteps} />
       <CarePlanGenerator action={generatePlan.bind(null, member.id)} />
     </div>

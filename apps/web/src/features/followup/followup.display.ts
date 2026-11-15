@@ -1,25 +1,23 @@
 import type { FollowUpStatus, NotEvaluableReason } from "./followup.types.ts";
 
-export const FOLLOWUP_DISCLAIMER =
-  "Datos sintéticos de demostración. Los criterios son reglas de demostración del proyecto; no es un diagnóstico.";
+export const CONFIRMATION_BANNER = "Bajar de estado necesita confirmación humana";
 
-export const CONFIRMATION_BANNER =
-  "La mejoría no baja el estado de forma automática: hacen falta varias ventanas consecutivas y la confirmación del oficial médico a bordo o de Tierra.";
+export const CONFIRMATION_LINE = "Varias ventanas mejorando y el visto bueno médico. Nunca es automático.";
 
 const STATUS_LABELS: Record<FollowUpStatus, string> = {
-  improving: "Mejorando",
+  improving: "Mejora",
   stable: "Estable",
-  worsening: "Empeorando",
+  worsening: "Empeora",
   "not-evaluable": "No evaluable",
 };
 
 const REASON_LABELS: Record<NotEvaluableReason, string> = {
-  "baseline-insufficient": "El baseline congelado no tiene datos suficientes.",
-  "no-reference-deviation": "No había desviación inicial de la que recuperarse.",
-  "data-quality": "Faltan observaciones válidas en la ventana.",
-  "adherence-missing": "No hay registro de adherencia en la ventana.",
-  "adherence-low": "La adherencia al plan fue demasiado baja para evaluar el efecto.",
-  "adherence-changed": "La adherencia cambió mucho respecto a la ventana anterior.",
+  "baseline-insufficient": "Baseline sin datos suficientes.",
+  "no-reference-deviation": "No había desviación inicial.",
+  "data-quality": "Faltan observaciones válidas.",
+  "adherence-missing": "Sin registro de adherencia.",
+  "adherence-low": "Adherencia demasiado baja.",
+  "adherence-changed": "La adherencia cambió mucho.",
 };
 
 export const describeStatus = (status: FollowUpStatus): string => STATUS_LABELS[status];

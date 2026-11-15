@@ -3,16 +3,16 @@ import { describe, it } from "node:test";
 
 import {
   CONFIRMATION_BANNER,
+  CONFIRMATION_LINE,
   describeReason,
   describeStatus,
-  FOLLOWUP_DISCLAIMER,
 } from "./followup.display.ts";
 
 describe("follow-up labels", () => {
   it("names each status in Spanish with words, not only color", () => {
-    assert.equal(describeStatus("improving"), "Mejorando");
+    assert.equal(describeStatus("improving"), "Mejora");
     assert.equal(describeStatus("stable"), "Estable");
-    assert.equal(describeStatus("worsening"), "Empeorando");
+    assert.equal(describeStatus("worsening"), "Empeora");
     assert.equal(describeStatus("not-evaluable"), "No evaluable");
   });
 
@@ -30,11 +30,8 @@ describe("follow-up labels", () => {
   });
 
   it("states that improvement needs human confirmation to step the status down", () => {
-    assert.match(CONFIRMATION_BANNER, /confirmaci[oó]n/i);
-    assert.match(CONFIRMATION_BANNER, /no baja el estado/i);
-  });
-
-  it("labels the data as synthetic demonstration", () => {
-    assert.match(FOLLOWUP_DISCLAIMER, /sint[eé]tic/i);
+    assert.match(CONFIRMATION_BANNER, /bajar de estado/i);
+    assert.match(CONFIRMATION_BANNER, /confirmaci[oó]n humana/i);
+    assert.match(CONFIRMATION_LINE, /nunca es autom[aá]tico/i);
   });
 });
