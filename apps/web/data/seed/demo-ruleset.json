@@ -5,7 +5,8 @@
     { "id": "hrv-low", "signal": "hrv", "direction": "decrease", "minNormalizedDelta": 2, "minConsecutive": 1, "level": "F1" },
     { "id": "hrv-low-persistent", "signal": "hrv", "direction": "decrease", "minNormalizedDelta": 2, "minConsecutive": 3, "level": "F2" },
     { "id": "fatigue-high", "signal": "fatigue", "direction": "increase", "minNormalizedDelta": 2, "minConsecutive": 1, "level": "F1" },
-    { "id": "heart-rate-high", "signal": "heartRate", "direction": "increase", "minNormalizedDelta": 2, "minConsecutive": 1, "level": "F1" }
+    { "id": "heart-rate-high", "signal": "heartRate", "direction": "increase", "minNormalizedDelta": 2, "minConsecutive": 1, "level": "F1" },
+    { "id": "heart-rate-critical", "signal": "heartRate", "direction": "increase", "minNormalizedDelta": 8, "minConsecutive": 1, "level": "F3" }
   ],
   "convergence": [
     { "id": "conv-3", "minSignals": 3, "level": "F2" }

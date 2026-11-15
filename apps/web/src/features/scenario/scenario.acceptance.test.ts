@@ -55,6 +55,12 @@ describe("fatigue-sleep-hrv scenario data", () => {
     }
   });
 
+  it("never trips the critical F3 rule", () => {
+    for (const checkpoint of scenario.checkpoints) {
+      assert.ok(!statusAt(checkpoint.evaluatedAt).triggeredRules.includes("heart-rate-critical"));
+    }
+  });
+
   it("reaches F2 through persistence and multi-signal convergence", () => {
     const last = statusAt("2026-11-15T12:00:00Z");
     assert.ok(last.triggeredRules.includes("hrv-low-persistent"));

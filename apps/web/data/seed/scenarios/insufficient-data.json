@@ -1,0 +1,44 @@
+{
+  "id": "insufficient-data",
+  "title": "HRV sensor unavailable and a short baseline",
+  "description": "Synthetic demo scenario. The HRV sensor was unavailable for most of the baseline and stays unavailable, and one sleep reading is missing right after the baseline. Missing values stay missing: the result is not evaluable, not normal. All values are synthetic.",
+  "subjectId": "cm-01",
+  "startDate": "2026-11-01",
+  "baselineUntil": "2026-11-11T00:00:00Z",
+  "checkpoints": [
+    { "label": "Sensor gap", "evaluatedAt": "2026-11-11T12:00:00Z" },
+    { "label": "Short baseline", "evaluatedAt": "2026-11-12T12:00:00Z" },
+    { "label": "Still without HRV", "evaluatedAt": "2026-11-13T12:00:00Z" },
+    { "label": "No new HRV data", "evaluatedAt": "2026-11-14T12:00:00Z" },
+    { "label": "Not evaluable", "evaluatedAt": "2026-11-15T12:00:00Z" }
+  ],
+  "series": [
+    {
+      "signal": "sleepHours",
+      "unit": "h",
+      "source": "wearable-sim",
+      "device": "watch-sim",
+      "values": [7.1, 7.4, 7.2, 6.9, 7.3, 7.0, 7.5, 7.2, 7.1, 7.3, null, 7.2, 7.1, 7.0, 7.2]
+    },
+    {
+      "signal": "hrv",
+      "unit": "ms",
+      "source": "wearable-sim",
+      "device": "watch-sim",
+      "values": [null, 52, null, null, 50, null, null, null, 53, null, null, null, null, null, null]
+    },
+    {
+      "signal": "heartRate",
+      "unit": "bpm",
+      "source": "wearable-sim",
+      "device": "watch-sim",
+      "values": [61, 60, 62, 63, 60, 61, 62, 60, 61, 62, 62, 61, 62, 63, 61]
+    },
+    {
+      "signal": "fatigue",
+      "unit": "score",
+      "source": "self-report",
+      "values": [3, 2, 4, 3, 3, 2, 4, 3, 5, 3, 3, 4, 3, 3, 4]
+    }
+  ]
+}
