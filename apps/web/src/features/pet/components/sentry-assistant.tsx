@@ -250,8 +250,8 @@ export function SentryAssistant() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-start">
-      <aside className="flex items-center gap-4 rounded-md bg-card p-4 lg:sticky lg:top-8 lg:flex-col lg:p-8">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+      <aside className="flex items-center gap-4 rounded-md bg-card p-4 lg:flex-col lg:justify-center lg:p-8">
         <Sentry
           mode={mode}
           successSignal={successSignal}
