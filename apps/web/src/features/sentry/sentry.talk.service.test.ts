@@ -7,8 +7,8 @@ import { createSentryTalk } from "./sentry.talk.service.ts";
 
 const NOW = Date.parse("2026-11-16T19:00:00Z");
 const members = [
-  { id: "cm-01", label: "Tripulante cm-01" },
-  { id: "cm-02", label: "Tripulante cm-02" },
+  { id: "cm-01", label: "Crew member cm-01" },
+  { id: "cm-02", label: "Crew member cm-02" },
 ];
 
 function setup(over: Partial<Parameters<typeof createSentryTalk>[0]> = {}) {
@@ -67,7 +67,7 @@ describe("sentry talk", () => {
     stamp = 3;
     await talk.run(NOW, { force: true });
     const links = [...store.values()].filter((n) => n.kind === "link").map((n) => n.title);
-    assert.deepEqual(links, ["Enlace con Tierra perdido", "Enlace con Tierra restablecido"]);
+    assert.deepEqual(links, ["Earth link lost", "Earth link restored"]);
   });
 
   it("adds space weather only from real sources and survives a failing source", async () => {
@@ -80,7 +80,7 @@ describe("sentry talk", () => {
     };
     const { talk, store } = setup({ spaceWeather: async () => ok(live) });
     await talk.run(NOW, { force: true });
-    assert.ok([...store.values()].some((n) => n.title === "Tormenta geomagnética G2"));
+    assert.ok([...store.values()].some((n) => n.title === "Geomagnetic storm G2"));
 
     const broken = setup({
       spaceWeather: async () => {

@@ -13,16 +13,16 @@ import {
 } from "./simulation.ts";
 
 const prompt = [
-  "Eres MedGemma y coordinas un ejercicio ficticio dentro de una nave. Evalúa el pulso, SpO2, presión sistólica y diastólica y dosis acumulada. Las horas de sueño son un dato informativo: no generan alertas, tareas ni condiciones de cierre.",
-  "Cada lectura incluye su valor, rango y gravedad según el ejercicio. Usa las variaciones recientes y las combinaciones de lecturas para decidir. Una desviación leve y estable, como SpO2 93 %, es watch. Da prioridad a las lecturas críticas. Mientras haya una asignación crítica en tránsito, el plan actual debe seguir activo.",
-  "Elige un tripulante de los IDs permitidos. Devuelve los nombres de las señales fuera de rango que motivan la decisión. Si espera al equipo con las lecturas corregidas, conserva sus señales originales. Si procede cerrar o no hay caso, usa affectedCrewId null, signals [] y equipmentId null.",
-  "En un caso crítico, elige equipmentId de equipmentOptions del afectado cuando el equipo ayude a verificar o coordinar el ejercicio. Para SpO2 usa oxímetro, para presión usa tensiómetro, para dosis usa dosímetro. El desfibrilador se puede trasladar en el ejercicio de pulso cero. Usa null cuando no haga falta trasladar ningún instrumento o el caso esté en atención.",
-  "location indica el módulo o el pasillo numerado en el que está cada tripulante. El destino del aviso es esa ubicación exacta. La aplicación asigna las rutas y envía los mensajes según la decisión. No indiques tratamientos ni procedimientos.",
+  "You are MedGemma and you coordinate a fictional exercise aboard a spacecraft. Evaluate pulse, SpO2, systolic and diastolic pressure, and cumulative dose. Sleep hours are informational: they do not generate alerts, tasks, or closing conditions. Write in English.",
+  "Each reading includes its value, range, and severity for the exercise. Use recent changes and combinations of readings to decide. A mild, stable deviation, such as SpO2 93 %, is watch. Prioritize critical readings. While a critical assignment is in transit, the current plan must stay active.",
+  "Choose one crew member from the allowed IDs. Return the names of the out-of-range signals that drive the decision. If the case is waiting for equipment with corrected readings, keep its original signals. If it should be closed or there is no case, use affectedCrewId null, signals [] and equipmentId null.",
+  "In a critical case, choose equipmentId from the affected member's equipmentOptions when the equipment helps verify or coordinate the exercise. For SpO2 use the oximeter, for pressure use the blood pressure monitor, for dose use the dosimeter. The defibrillator can be moved in the zero-pulse exercise. Use null when no instrument needs to be moved or the case is already being attended.",
+  "location is the module or numbered corridor where each crew member is. The destination of the notice is that exact location. The application assigns the routes and sends the messages based on the decision. Do not state treatments or procedures.",
 ].join("\n");
 
 export async function evaluateSimulation(state: SimulationState) {
   const { url, model, authorization } = getConfig().chat;
-  if (!url) return err("Configura CHAT_OLLAMA_URL para activar MedGemma.");
+  if (!url) return err("Set CHAT_OLLAMA_URL to enable MedGemma.");
 
   const progress = incidentProgress(state);
   const { statuses, affectedIds } = incidentOptions(state, progress);
@@ -30,8 +30,8 @@ export async function evaluateSimulation(state: SimulationState) {
   const keepCurrentEquipment = previous?.status === "critical"
     && progress?.arrivals.some(({ arrived }) => !arrived) && !progress.severeFollowUp;
   const previousEquipment = previous?.equipmentId ?? (
-    previous?.equipmentId === undefined && previous?.instructions.some(({ via }) => via === equipment.desfibrilador.room)
-      ? "desfibrilador" : null
+    previous?.equipmentId === undefined && previous?.instructions.some(({ via }) => via === equipment.defibrillator.room)
+      ? "defibrillator" : null
   );
   const crew = state.crew.map((member) => {
     const readings = assessTelemetry(member.telemetry);
@@ -79,11 +79,11 @@ export async function evaluateSimulation(state: SimulationState) {
   });
 
   if (!response.ok) {
-    console.error("[simulacion]", response.error);
-    return err("MedGemma no respondió. Puedes reintentar el análisis.");
+    console.error("[simulation]", response.error);
+    return err("MedGemma did not respond. You can retry the analysis.");
   }
   const output = schema.safeParse(parseJson(response.value));
-  if (!output.success) return err("MedGemma devolvió un plan inválido. Puedes reintentar el análisis.");
+  if (!output.success) return err("MedGemma returned an invalid plan. You can retry the analysis.");
 
   const { status, affectedCrewId, signals, equipmentId } = output.data;
   const affected = crew.find(({ id }) => id === affectedCrewId);
@@ -108,7 +108,7 @@ export async function evaluateSimulation(state: SimulationState) {
   };
   return validIncidentTransition(state, decision)
     ? ok(decision)
-    : err("MedGemma devolvió una transición incompatible con el incidente. Puedes reintentar el análisis.");
+    : err("MedGemma returned a transition that is incompatible with the incident. You can retry the analysis.");
 }
 
 function parseJson(value: string): unknown {

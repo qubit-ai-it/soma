@@ -10,7 +10,7 @@ export type FlagCard = {
   tone: "warn" | "danger";
 };
 
-const number = new Intl.NumberFormat("es", { maximumFractionDigits: 1 });
+const number = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 });
 
 type Source = Pick<MissionMemberDTO, "flags" | "vitals" | "cumulativeDoseMsv">;
 
@@ -19,25 +19,25 @@ export function flagCards({ flags, vitals, cumulativeDoseMsv }: Source): FlagCar
   const detail: Record<CrewFlagCode, Omit<FlagCard, "code" | "title">> = {
     "low-spo2": {
       value: `${number.format(vitals.spo2Pct)} %`,
-      line: `Mínimo ${THRESHOLDS.minSpo2Pct} %`,
+      line: `Minimum ${THRESHOLDS.minSpo2Pct} %`,
       icon: "pulmonology",
       tone: "danger",
     },
     "high-heart-rate": {
-      value: `${number.format(vitals.heartRateBpm)} lpm`,
-      line: `Máximo ${THRESHOLDS.maxHeartRateBpm} lpm`,
+      value: `${number.format(vitals.heartRateBpm)} bpm`,
+      line: `Maximum ${THRESHOLDS.maxHeartRateBpm} bpm`,
       icon: "cardiology",
       tone: "danger",
     },
     "short-sleep": {
       value: `${number.format(vitals.sleepHours)} h`,
-      line: `Mínimo ${THRESHOLDS.minSleepHours} h`,
+      line: `Minimum ${THRESHOLDS.minSleepHours} h`,
       icon: "bedtime",
       tone: "warn",
     },
     "high-dose": {
       value: `${number.format(cumulativeDoseMsv)} mSv`,
-      line: `Máximo ${THRESHOLDS.maxDoseMsv} mSv`,
+      line: `Maximum ${THRESHOLDS.maxDoseMsv} mSv`,
       icon: "radiology",
       tone: "danger",
     },

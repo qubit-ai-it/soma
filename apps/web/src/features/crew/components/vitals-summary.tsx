@@ -10,7 +10,7 @@ import { flagCards } from "../crew.flags";
 
 import type { MissionMemberDTO } from "../crew.types";
 
-const MISSION_SENSORS = "Sensores de la misión";
+const MISSION_SENSORS = "Mission sensors";
 const SECTION_TITLE = "font-heading text-xl font-bold";
 
 export function VitalsSummary({ member }: { member: MissionMemberDTO }) {
@@ -22,23 +22,23 @@ export function VitalsSummary({ member }: { member: MissionMemberDTO }) {
     <div className="space-y-10">
       <section aria-labelledby="sensors" className="space-y-4">
         <h3 id="sensors" className={SECTION_TITLE}>
-          Dispositivos y sensores
+          Devices and sensors
         </h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
-            title="Frecuencia cardíaca"
-            value={`${member.vitals.heartRateBpm} lpm`}
+            title="Heart rate"
+            value={`${member.vitals.heartRateBpm} bpm`}
             icon="cardiology"
             source={MISSION_SENSORS}
           />
           <MetricCard title="SpO₂" value={`${member.vitals.spo2Pct} %`} icon="pulmonology" source={MISSION_SENSORS} />
-          <MetricCard title="Sueño" value={`${member.vitals.sleepHours} h`} icon="bedtime" source={MISSION_SENSORS} />
+          <MetricCard title="Sleep" value={`${member.vitals.sleepHours} h`} icon="bedtime" source={MISSION_SENSORS} />
           <MetricCard
-            title="Dosis acumulada"
+            title="Cumulative dose"
             value={`${member.cumulativeDoseMsv} mSv`}
-            line="Dosis personal"
+            line="Personal dose"
             icon="radiology"
-            source="Dosímetro personal"
+            source="Personal dosimeter"
           />
           {hasLive && <LiveReading escalate={escalateLiveAlert} />}
         </div>
@@ -46,16 +46,16 @@ export function VitalsSummary({ member }: { member: MissionMemberDTO }) {
 
       <section aria-labelledby="external" className="space-y-4">
         <h3 id="external" className={SECTION_TITLE}>
-          Información externa
+          External information
         </h3>
-        <Suspense fallback={<p className="text-sm text-muted-foreground">Cargando datos de NASA…</p>}>
+        <Suspense fallback={<p className="text-sm text-muted-foreground">Loading NASA data…</p>}>
           <ExternalSection />
         </Suspense>
       </section>
 
       <section aria-labelledby="flags" className="space-y-3">
         <h3 id="flags" className={SECTION_TITLE}>
-          Banderas
+          Flags
         </h3>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {cards.length > 0 ? (
@@ -70,7 +70,7 @@ export function VitalsSummary({ member }: { member: MissionMemberDTO }) {
               />
             ))
           ) : (
-            <MetricCard title="Banderas" value="Sin banderas" line="Todo dentro de rango" icon="check_circle" tone="ok" />
+            <MetricCard title="Flags" value="No flags" line="Everything within range" icon="check_circle" tone="ok" />
           )}
         </div>
       </section>

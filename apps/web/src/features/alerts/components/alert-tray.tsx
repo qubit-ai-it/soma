@@ -22,19 +22,19 @@ import { filterTray, trayItems, unreadCount, type TrayFilter } from "../alerts.t
 import type { Alert } from "../alerts.types";
 import { AlertDetailDialog } from "./alert-detail-dialog";
 
-const LEVEL_CHIP = { F3: "F3", F2: "F2", NOT_EVALUABLE: "No evaluable" } as const;
+const LEVEL_CHIP = { F3: "F3", F2: "F2", NOT_EVALUABLE: "Not evaluable" } as const;
 
 const STATUS_OPTIONS: { value: TrayFilter["status"]; label: string }[] = [
-  { value: "all", label: "Todas" },
-  { value: "open", label: "Sin leer" },
-  { value: "acknowledged", label: "Reconocidas" },
+  { value: "all", label: "All" },
+  { value: "open", label: "Unread" },
+  { value: "acknowledged", label: "Acknowledged" },
 ];
 
 const LEVEL_OPTIONS: { value: TrayFilter["level"]; label: string }[] = [
-  { value: "all", label: "Todos los niveles" },
+  { value: "all", label: "All levels" },
   { value: "F3", label: "F3" },
   { value: "F2", label: "F2" },
-  { value: "NOT_EVALUABLE", label: "No evaluable" },
+  { value: "NOT_EVALUABLE", label: "Not evaluable" },
 ];
 
 const CHIP_BASE =
@@ -124,12 +124,12 @@ export function AlertTray({ className }: { className?: string }) {
       }}
     >
       <Dialog.Trigger
-        aria-label={unread > 0 ? `Notificaciones, ${unread} sin leer` : "Notificaciones"}
-        title="Notificaciones"
+        aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+        title="Notifications"
         className={`relative ${className ?? ""}`}
       >
         <Icon name={unread > 0 ? "notifications_active" : "notifications"} />
-        <span className="hidden sm:inline">Notificaciones</span>
+        <span className="hidden sm:inline">Notifications</span>
         {unread > 0 && (
           <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-danger px-1 text-[11px] font-bold leading-5 text-foreground">
             {unread}
@@ -141,9 +141,9 @@ export function AlertTray({ className }: { className?: string }) {
         <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/50 transition-opacity duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0" />
         <Dialog.Popup className="fixed inset-y-0 right-0 z-50 flex w-[min(100vw,26rem)] flex-col bg-background text-foreground shadow-[-18px_0_55px_-20px_rgb(0_0_0/0.6)] outline-none transition-transform duration-200 data-[ending-style]:translate-x-full data-[starting-style]:translate-x-full">
           <header className="flex items-center justify-between gap-3 px-5 pb-3 pt-5">
-            <Dialog.Title className="font-heading text-xl font-bold">Notificaciones</Dialog.Title>
+            <Dialog.Title className="font-heading text-xl font-bold">Notifications</Dialog.Title>
             <Dialog.Close
-              aria-label="Cerrar notificaciones"
+              aria-label="Close notifications"
               className="grid size-10 place-items-center rounded-full bg-secondary outline-none transition-colors duration-[var(--duration-micro)] hover:bg-secondary/70 focus-visible:ring-2 focus-visible:ring-ring"
             >
               <Icon name="close" />
@@ -152,13 +152,13 @@ export function AlertTray({ className }: { className?: string }) {
 
           <div className="flex flex-col gap-2 px-5 pb-3">
             <FilterChips
-              label="Filtrar por estado"
+              label="Filter by status"
               options={STATUS_OPTIONS}
               value={filter.status}
               onChange={(status) => setFilter((current) => ({ ...current, status }))}
             />
             <FilterChips
-              label="Filtrar por nivel"
+              label="Filter by level"
               options={LEVEL_OPTIONS}
               value={filter.level}
               onChange={(level) => setFilter((current) => ({ ...current, level }))}
@@ -168,7 +168,7 @@ export function AlertTray({ className }: { className?: string }) {
           <div className="flex-1 overflow-y-auto px-5 pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {visible.length === 0 && feed.primary.length + feed.digest.length === 0 ? (
               <p className="py-6 text-base text-muted-foreground">
-                {items.length === 0 ? "Sin notificaciones." : "Ninguna notificación coincide con el filtro."}
+                {items.length === 0 ? "No notifications." : "No notification matches the filter."}
               </p>
             ) : (
               <ul className="flex flex-col gap-3">
@@ -182,7 +182,7 @@ export function AlertTray({ className }: { className?: string }) {
                       footer={timeLabel(n.createdAt)}
                       actions={
                         n.kind === "checkin"
-                          ? [{ label: "Responder", icon: "chat", href: "/pet" }]
+                          ? [{ label: "Reply", icon: "chat", href: "/pet" }]
                           : undefined
                       }
                     />
@@ -191,10 +191,10 @@ export function AlertTray({ className }: { className?: string }) {
                 {feed.digest.length > 0 && (
                   <li>
                     <SomaCard
-                      title={`Avisos menores (${feed.digest.length})`}
-                      chip="Resumen"
+                      title={`Minor notices (${feed.digest.length})`}
+                      chip="Summary"
                       tone="neutral"
-                      detailLabel="Ver avisos"
+                      detailLabel="View notices"
                       detail={
                         <ul className="space-y-2">
                           {feed.digest.map((n) => (
@@ -214,12 +214,12 @@ export function AlertTray({ className }: { className?: string }) {
                     <SomaCard
                       title={item.title}
                       line={item.line}
-                      chip={`${LEVEL_CHIP[item.level]} · ${item.status === "open" ? "Sin leer" : "Reconocida"}`}
+                      chip={`${LEVEL_CHIP[item.level]} · ${item.status === "open" ? "Unread" : "Acknowledged"}`}
                       tone={item.tone}
                       footer={`${item.memberLabel} · ${item.createdAt.slice(11, 16)} UTC`}
                       actions={[
                         {
-                          label: "Ver detalle",
+                          label: "View details",
                           icon: "visibility",
                           variant: "secondary",
                           onClick: () => setSelectedId(item.id),

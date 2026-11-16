@@ -168,7 +168,7 @@ export function OnboardingGate() {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Bienvenida a SOMA"
+      aria-label="Welcome to SOMA"
       className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background p-6"
     >
       <div className="flex w-full max-w-sm flex-col items-center gap-6 text-center">
@@ -181,7 +181,7 @@ export function OnboardingGate() {
 
         <div
           role="progressbar"
-          aria-label="Progreso de la bienvenida"
+          aria-label="Welcome progress"
           aria-valuemin={1}
           aria-valuemax={ONBOARDING_STEPS.length}
           aria-valuenow={index + 1}
@@ -201,7 +201,7 @@ export function OnboardingGate() {
         </div>
 
         {step.kind === "color" && (
-          <div role="radiogroup" aria-label="Color de Sentry" className="grid w-full grid-cols-5 justify-items-center gap-3">
+          <div role="radiogroup" aria-label="Sentry color" className="grid w-full grid-cols-5 justify-items-center gap-3">
             {SENTRY_PALETTE.map((entry) => {
               const selected = entry.value === settings.color;
               return (
@@ -252,12 +252,12 @@ export function OnboardingGate() {
                   className={`${ACTION} bg-secondary text-foreground hover:bg-secondary/70`}
                 >
                   <Icon name="bluetooth" className="mr-2" />
-                  {live.status === "connected" ? "Conectar otro" : "Conectar"}
+                  {live.status === "connected" ? "Connect another" : "Connect"}
                 </button>
                 {live.status === "connected" && live.deviceName && (
                   <p role="status" className="text-sm">
                     {live.deviceName}
-                    {live.readings.length > 0 && ` · ${live.readings[live.readings.length - 1].bpm} lpm`}
+                    {live.readings.length > 0 && ` · ${live.readings[live.readings.length - 1].bpm} bpm`}
                   </p>
                 )}
                 {bluetoothMessage && (
@@ -278,7 +278,7 @@ export function OnboardingGate() {
               onSelect={(id) => setSettings((prev) => ({ ...prev, xr: id }))}
             />
             <p role="status" className="text-sm text-ink">
-              {profile ? profile.label : "Buscando visor…"}
+              {profile ? profile.label : "Looking for headset…"}
             </p>
           </div>
         )}
@@ -291,14 +291,14 @@ export function OnboardingGate() {
                 onClick={finish}
                 className={`${ACTION} bg-primary text-primary-foreground hover:bg-primary/85`}
               >
-                Empezar
+                Get started
               </Link>
               <button
                 type="button"
                 onClick={goBack}
                 className={`${ACTION} bg-secondary text-foreground hover:bg-secondary/70`}
               >
-                Atrás
+                Back
               </button>
             </>
           ) : (
@@ -308,7 +308,7 @@ export function OnboardingGate() {
                 onClick={goNext}
                 className={`${ACTION} bg-primary text-primary-foreground hover:bg-primary/85`}
               >
-                Siguiente
+                Next
               </button>
               {index > 0 && (
                 <button
@@ -316,7 +316,7 @@ export function OnboardingGate() {
                   onClick={goBack}
                   className={`${ACTION} bg-secondary text-foreground hover:bg-secondary/70`}
                 >
-                  Atrás
+                  Back
                 </button>
               )}
               <button
@@ -324,7 +324,7 @@ export function OnboardingGate() {
                 onClick={finish}
                 className={`${ACTION} bg-secondary text-foreground hover:bg-secondary/70`}
               >
-                Saltar
+                Skip
               </button>
             </>
           )}

@@ -4,11 +4,11 @@ import { describe, it } from "node:test";
 import { logActionLabel, qualityLabel, statusLabel } from "./xr.display.ts";
 
 describe("xr display labels", () => {
-  it("labels every step status in Spanish", () => {
-    assert.equal(statusLabel("pending"), "Pendiente");
-    assert.equal(statusLabel("done"), "Hecho");
-    assert.equal(statusLabel("skipped"), "Omitido");
-    assert.equal(statusLabel("failed"), "Fallido");
+  it("labels every step status in English", () => {
+    assert.equal(statusLabel("pending"), "Pending");
+    assert.equal(statusLabel("done"), "Done");
+    assert.equal(statusLabel("skipped"), "Skipped");
+    assert.equal(statusLabel("failed"), "Failed");
   });
 
   it("labels every log action", () => {
@@ -18,9 +18,9 @@ describe("xr display labels", () => {
   });
 
   it("labels image quality", () => {
-    assert.equal(qualityLabel("valid"), "Válida");
-    assert.equal(qualityLabel("suspect"), "Dudosa");
-    assert.equal(qualityLabel("invalid"), "No válida");
-    assert.equal(qualityLabel("missing"), "Sin dato");
+    assert.equal(qualityLabel("valid"), "Valid");
+    assert.equal(qualityLabel("suspect"), "Doubtful");
+    assert.equal(qualityLabel("invalid"), "Not valid");
+    assert.equal(qualityLabel("missing"), "No data");
   });
 });

@@ -7,7 +7,7 @@ const Lungs = dynamic(() => import("@/shared/lungs").then((module) => module.Lun
   ssr: false,
   loading: () => (
     <div className="grid h-full place-items-center text-sm text-muted-foreground">
-      Cargando pulmones 3D…
+      Loading 3D lungs…
     </div>
   ),
 });
@@ -16,7 +16,7 @@ const Lungs = dynamic(() => import("@/shared/lungs").then((module) => module.Lun
 export function LungsViewer() {
   return (
     <div className="absolute inset-0">
-      <Lungs label="Modelo 3D de los pulmones" className="h-full rounded-none border-0" />
+      <Lungs label="3D lungs model" className="h-full rounded-none border-0" />
     </div>
   );
 }

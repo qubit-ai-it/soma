@@ -8,12 +8,12 @@
       },
       "alertId": "al-003",
       "subjectId": "cm-04",
-      "detail": "Nivel F2; destinatarios: astronaut, cmo",
+      "detail": "Level F2; recipients: astronaut, cmo",
       "id": "au-001",
       "seq": 1,
       "at": "2026-10-29T09:00:00.000Z",
       "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
-      "hash": "25631f739f0acef9f566d94081243c80f1162c4b068c42bdcded5e0cd9359986"
+      "hash": "c76f86300c98b0e464b24f3e9877a6abdf034cc5298cbcbe7776bce0f7b00d9f"
     },
     {
       "action": "alert_acknowledged",
@@ -27,8 +27,8 @@
       "id": "au-002",
       "seq": 2,
       "at": "2026-10-29T09:05:00.000Z",
-      "prevHash": "25631f739f0acef9f566d94081243c80f1162c4b068c42bdcded5e0cd9359986",
-      "hash": "b0eca9734af6a3bea1932e7c33997d0d1ee3bdd97461cde1f3dbc992a5c710e9"
+      "prevHash": "c76f86300c98b0e464b24f3e9877a6abdf034cc5298cbcbe7776bce0f7b00d9f",
+      "hash": "cca616dffad0b8ebbaa10c59ae8aa5672ac3440e622bfe6c7c807f50c99d04e8"
     },
     {
       "action": "alert_closed",
@@ -39,12 +39,12 @@
       },
       "alertId": "al-003",
       "subjectId": "cm-04",
-      "detail": "Valores confirmados tras repetir la medición.",
+      "detail": "Values confirmed after repeating the measurement.",
       "id": "au-003",
       "seq": 3,
       "at": "2026-10-29T10:20:00.000Z",
-      "prevHash": "b0eca9734af6a3bea1932e7c33997d0d1ee3bdd97461cde1f3dbc992a5c710e9",
-      "hash": "ecaafa3373d98e7acbc892c5f42fbe32452991d1570e8a0084df03fd6ee55222"
+      "prevHash": "cca616dffad0b8ebbaa10c59ae8aa5672ac3440e622bfe6c7c807f50c99d04e8",
+      "hash": "e6497abd82ee2a4ddde10771e5ddd6e3f86de25b25c620fafe9c5faa577517a7"
     },
     {
       "action": "alert_raised",
@@ -54,12 +54,12 @@
       },
       "alertId": "al-001",
       "subjectId": "cm-02",
-      "detail": "Nivel F2; destinatarios: astronaut, cmo",
+      "detail": "Level F2; recipients: astronaut, cmo",
       "id": "au-004",
       "seq": 4,
       "at": "2026-10-30T07:10:00.000Z",
-      "prevHash": "ecaafa3373d98e7acbc892c5f42fbe32452991d1570e8a0084df03fd6ee55222",
-      "hash": "a46da5f816e3fd7a914e4fb109f2efea65864d1ebb9bbd11b1aca235e8034597"
+      "prevHash": "e6497abd82ee2a4ddde10771e5ddd6e3f86de25b25c620fafe9c5faa577517a7",
+      "hash": "7d69581700fdcb547616175beb2f8f4cf21d80cb4915ed613fa35b5b522455e4"
     },
     {
       "action": "alert_raised",
@@ -69,12 +69,12 @@
       },
       "alertId": "al-002",
       "subjectId": "cm-03",
-      "detail": "Nivel F3; destinatarios: astronaut, cmo, commander, earth",
+      "detail": "Level F3; recipients: astronaut, cmo, commander, earth",
       "id": "au-005",
       "seq": 5,
       "at": "2026-10-30T08:30:00.000Z",
-      "prevHash": "a46da5f816e3fd7a914e4fb109f2efea65864d1ebb9bbd11b1aca235e8034597",
-      "hash": "4b44bf6ff03f6cb696c04f927191259bcbd7e474d41bfc610c4fb14e354f5436"
+      "prevHash": "7d69581700fdcb547616175beb2f8f4cf21d80cb4915ed613fa35b5b522455e4",
+      "hash": "895e675351cfe387b08c48ba871dbdf4c1232b58d22b152f6de53dc12f45da49"
     },
     {
       "action": "alert_escalated",
@@ -84,12 +84,12 @@
       },
       "alertId": "al-002",
       "subjectId": "cm-03",
-      "detail": "Notificación mínima (estado y acción) entregada a Tierra",
+      "detail": "Minimal notification (status and action) delivered to Earth",
       "id": "au-006",
       "seq": 6,
       "at": "2026-10-30T08:31:00.000Z",
-      "prevHash": "4b44bf6ff03f6cb696c04f927191259bcbd7e474d41bfc610c4fb14e354f5436",
-      "hash": "46aaea3c547bb5589fd0dbae67b70266ccb1e87c57ad0ee0644550a5a4f8309a"
+      "prevHash": "895e675351cfe387b08c48ba871dbdf4c1232b58d22b152f6de53dc12f45da49",
+      "hash": "a82f7b8a7bb0d9f437631aaff9e3bb8dbbb698690e706c6a20545a1c4bea105d"
     },
     {
       "action": "alert_acknowledged",
@@ -103,8 +103,8 @@
       "id": "au-007",
       "seq": 7,
       "at": "2026-10-30T08:34:00.000Z",
-      "prevHash": "46aaea3c547bb5589fd0dbae67b70266ccb1e87c57ad0ee0644550a5a4f8309a",
-      "hash": "ea3742392e229bd18071d007dd1110e6c0a08d80ee9a9fe49049f4cc74a70460"
+      "prevHash": "a82f7b8a7bb0d9f437631aaff9e3bb8dbbb698690e706c6a20545a1c4bea105d",
+      "hash": "7a24b4e8d8c405b25c33e0a36cb1563c42a106b10f76dce4ffe9d8dc37c1d568"
     },
     {
       "action": "plan_review",
@@ -114,13 +114,13 @@
         "role": "earth"
       },
       "subjectId": "cm-03",
-      "detail": "Propuesta de IA revisada por un médico de Tierra",
+      "detail": "AI proposal reviewed by an Earth physician",
       "aiProposal": {
         "proposalId": "pp-000",
-        "title": "Borrador de plan de hidratación y descanso",
+        "title": "Draft hydration and rest plan",
         "steps": [
-          "Aumentar la hidratación durante 48 h.",
-          "Reducir la carga de ejercicio un día."
+          "Increase hydration for 48 h.",
+          "Reduce the exercise load for one day."
         ],
         "provider": "simulated-medgemma",
         "version": "sim-2026.10"
@@ -128,17 +128,17 @@
       "humanDecision": {
         "decision": "modify",
         "steps": [
-          "Aumentar la hidratación durante 48 h.",
-          "Suspender el ejercicio intenso hasta nueva revisión."
+          "Increase hydration for 48 h.",
+          "Suspend intense exercise until further review."
         ],
-        "note": "Se endurece la restricción de ejercicio."
+        "note": "The exercise restriction is tightened."
       },
       "idempotencyKey": "plan-response:pp-000",
       "id": "au-008",
       "seq": 8,
       "at": "2026-10-30T11:00:00.000Z",
-      "prevHash": "ea3742392e229bd18071d007dd1110e6c0a08d80ee9a9fe49049f4cc74a70460",
-      "hash": "ac9f28282f116e75b569e204a810e9748727310e659fb9911dc69754d7be98ad"
+      "prevHash": "7a24b4e8d8c405b25c33e0a36cb1563c42a106b10f76dce4ffe9d8dc37c1d568",
+      "hash": "531fed15b48041031a319011e1b50e3b3f5eaba98248d149358e930d620a1a8a"
     }
   ]
 }

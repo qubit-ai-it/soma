@@ -17,8 +17,8 @@ export function randomCrewPositions(count: number): Point[] {
   });
 }
 const roomCorners: Record<RoomId, readonly [number, number]> = {
-  mando: [13, 19], pasillo: [10, 13], laboratorio: [13, 19],
-  habitat: [13, 17], medica: [9, 12], ingenieria: [12, 17],
+  command: [13, 19], corridor: [10, 13], laboratory: [13, 19],
+  habitat: [13, 17], medical: [9, 12], engineering: [12, 17],
 };
 
 export function roomFloor(room: RoomId) {
@@ -38,9 +38,9 @@ function doorway(room: RoomId, towards: RoomId): Point {
 }
 
 const links = [
-  ["mando", "pasillo"], ["pasillo", "laboratorio"],
-  ["habitat", "medica"], ["medica", "ingenieria"],
-  ["mando", "habitat"], ["pasillo", "medica"], ["laboratorio", "ingenieria"],
+  ["command", "corridor"], ["corridor", "laboratory"],
+  ["habitat", "medical"], ["medical", "engineering"],
+  ["command", "habitat"], ["corridor", "medical"], ["laboratory", "engineering"],
 ] as const satisfies readonly (readonly [RoomId, RoomId])[];
 
 export const corridorFloors = links.map(([from, to], index) => {
@@ -56,11 +56,11 @@ const corridorsById = new Map(corridorFloors.map((floor) => [floor.id, floor]));
 
 export const locationNames = Object.fromEntries([
   ...Object.entries(rooms),
-  ...corridorFloors.map(({ id, number }) => [id, `Pasillo ${number}`]),
+  ...corridorFloors.map(({ id, number }) => [id, `Corridor ${number}`]),
 ]) as Record<LocationId, string>;
 
 export function isCorridor(id: LocationId): id is CorridorId {
-  return id.startsWith("pasillo-");
+  return id.startsWith("corridor-");
 }
 
 function floorCenter({ left, top, width, height }: DeckFloor): Point {

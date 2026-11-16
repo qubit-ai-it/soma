@@ -79,13 +79,13 @@ describe("F3 notification", () => {
     const result = buildF3Notification({
       level: "F3",
       subjectId: "cm-02",
-      action: "Evaluación médica inmediata",
+      action: "Immediate medical evaluation",
       issuedAt: "2026-10-31T06:00:00Z",
     });
     assert.ok(result.ok);
     assert.deepEqual(result.value, {
       status: "F3",
-      action: "Evaluación médica inmediata",
+      action: "Immediate medical evaluation",
       subjectRef: "cm-02",
       issuedAt: "2026-10-31T06:00:00Z",
     });

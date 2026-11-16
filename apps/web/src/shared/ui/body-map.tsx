@@ -152,8 +152,8 @@ export const bodyMapRegions: readonly BodyMapRegion[] = [
 ]
 
 const viewLabels: Record<BodyMapView, string> = {
-  front: "Frontal",
-  back: "Posterior",
+  front: "Front",
+  back: "Back",
 }
 
 // The middle of a path's bounding box, close enough for arrow key
@@ -221,7 +221,7 @@ export function BodyMap({
   regions = bodyMapRegions,
   views = ["front", "back"],
   name,
-  label = "Mapa corporal",
+  label = "Body map",
   severity,
   showSummary = true,
   className,
@@ -250,8 +250,8 @@ export function BodyMap({
       {...props}
     >
       <p id={helpId} className="sr-only">
-        Cada vista es una parada de tabulación. Las flechas mueven entre zonas;
-        Espacio o Enter seleccionan o quitan la zona enfocada.
+        Each view is a tab stop. Arrow keys move between regions;
+        Space or Enter selects or clears the focused region.
       </p>
       <div
         className="grid gap-4"
@@ -284,7 +284,7 @@ export function BodyMap({
               <svg
                 viewBox={`0 0 ${width} ${height}`}
                 role="group"
-                aria-label={`Vista ${viewLabels[view].toLowerCase()} del cuerpo`}
+                aria-label={`${viewLabels[view]} view of the body`}
                 aria-describedby={helpId}
                 className="h-auto w-full max-w-48 touch-manipulation overflow-visible"
               >
@@ -399,8 +399,8 @@ export function BodyMap({
           className="text-sm text-muted-foreground"
         >
           {chosen.length === 0
-            ? "Ninguna zona seleccionada"
-            : `${chosen.length} ${chosen.length === 1 ? "zona seleccionada" : "zonas seleccionadas"}`}
+            ? "No region selected"
+            : `${chosen.length} ${chosen.length === 1 ? "region selected" : "regions selected"}`}
         </p>
         {chosen.length > 0 && (
           <ul aria-labelledby={statusId} className="flex flex-wrap gap-1.5">
@@ -409,7 +409,7 @@ export function BodyMap({
                 <Button
                   variant="secondary"
                   size="xs"
-                  aria-label={`Quitar ${region.label}`}
+                  aria-label={`Remove ${region.label}`}
                   onClick={() => toggle(region.id)}
                 >
                   {region.label}
@@ -423,7 +423,7 @@ export function BodyMap({
                 size="xs"
                 onClick={() => onValueChange([])}
               >
-                Quitar todas
+                Clear all
               </Button>
             </li>
           </ul>

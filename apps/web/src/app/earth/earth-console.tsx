@@ -28,8 +28,8 @@ export function EarthConsole({
         <QueuePanel queue={state.queue} />
       </div>
       {plans.length > 0 && (
-        <section aria-label="Planes por revisar" className="space-y-3">
-          <h2 className="font-heading text-xl font-bold">Planes por revisar</h2>
+        <section aria-label="Plans to review" className="space-y-3">
+          <h2 className="font-heading text-xl font-bold">Plans to review</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {plans.map((plan) => (
               <PlanReviewCard key={`${plan.id}:${plan.revision}:${plan.reviews.length}`} plan={plan} />
@@ -38,8 +38,8 @@ export function EarthConsole({
         </section>
       )}
       {reports.length > 0 && (
-        <section aria-label="Reportes de seguimiento" className="space-y-3">
-          <h2 className="font-heading text-xl font-bold">Reportes de seguimiento</h2>
+        <section aria-label="Follow-up reports" className="space-y-3">
+          <h2 className="font-heading text-xl font-bold">Follow-up reports</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {reports.map((item) => (
               <FollowUpReportCard
@@ -52,8 +52,8 @@ export function EarthConsole({
           </div>
         </section>
       )}
-      <section aria-label="Propuestas de plan" className="space-y-3">
-        <h2 className="font-heading text-xl font-bold">Propuestas por revisar</h2>
+      <section aria-label="Plan proposals" className="space-y-3">
+        <h2 className="font-heading text-xl font-bold">Proposals to review</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {state.proposals.map((proposal) => (
             <ProposalCard

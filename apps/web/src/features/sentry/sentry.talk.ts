@@ -24,8 +24,8 @@ export function checkinNotification(memberId: string, nowMs: number): NewNotific
     dedupeKey: `checkin:sleep:${memberId}:${utcDay(nowMs)}`,
     kind: "checkin",
     priority: "normal",
-    title: "¿Cómo dormiste?",
-    body: "Cuéntaselo a Sentry en el chat.",
+    title: "How did you sleep?",
+    body: "Tell Sentry in the chat.",
     memberId,
     audience: [memberKey(memberId)],
     payload: { topic: "sleep" },
@@ -41,14 +41,14 @@ export function latestShiftBoundary(nowMs: number): number {
 }
 
 function alertSummary(alerts: readonly Alert[]): string {
-  if (alerts.length === 0) return "sin alertas";
+  if (alerts.length === 0) return "no alerts";
   const count = (level: Alert["level"]) => alerts.filter((a) => a.level === level).length;
   const parts = [
     count("F3") && `${count("F3")} F3`,
     count("F2") && `${count("F2")} F2`,
-    count("NOT_EVALUABLE") && `${count("NOT_EVALUABLE")} no evaluable`,
+    count("NOT_EVALUABLE") && `${count("NOT_EVALUABLE")} not evaluable`,
   ].filter(Boolean);
-  return `${alerts.length} ${alerts.length === 1 ? "alerta" : "alertas"} (${parts.join(", ")})`;
+  return `${alerts.length} ${alerts.length === 1 ? "alert" : "alerts"} (${parts.join(", ")})`;
 }
 
 export function shiftNotifications(
@@ -62,7 +62,7 @@ export function shiftNotifications(
     return at >= boundaryMs - SHIFT_MS && at < boundaryMs;
   });
   const statusName = (status: Status | null | undefined) =>
-    status === "NOT_EVALUABLE" ? "no evaluable" : (status ?? "sin evaluar");
+    status === "NOT_EVALUABLE" ? "not evaluable" : (status ?? "not evaluated");
 
   const tally = new Map<string, number>();
   for (const member of members) {
@@ -75,8 +75,8 @@ export function shiftNotifications(
     dedupeKey: `shift:${boundaryMs}:crew`,
     kind: "summary",
     priority: "normal",
-    title: "Cambio de turno",
-    body: `Turno anterior: ${alertSummary(previous)}. Ahora: ${now}.`,
+    title: "Shift change",
+    body: `Previous shift: ${alertSummary(previous)}. Now: ${now}.`,
     audience: [roleKey("cmo"), roleKey("commander")],
     payload: { boundaryAt: new Date(boundaryMs).toISOString() },
   };
@@ -86,8 +86,8 @@ export function shiftNotifications(
       dedupeKey: `shift:${boundaryMs}:${member.id}`,
       kind: "summary",
       priority: "low",
-      title: "Cambio de turno",
-      body: `Tu turno anterior: ${alertSummary(previous.filter((a) => a.memberId === member.id))}. Ahora: ${statusName(statuses[member.id])}.`,
+      title: "Shift change",
+      body: `Your previous shift: ${alertSummary(previous.filter((a) => a.memberId === member.id))}. Now: ${statusName(statuses[member.id])}.`,
       memberId: member.id,
       audience: [memberKey(member.id)],
       payload: { boundaryAt: new Date(boundaryMs).toISOString() },
@@ -107,8 +107,8 @@ export function linkNotification(
     dedupeKey: `link:${current.status}:${current.updatedAt}`,
     kind: "link",
     priority: lost ? "high" : "normal",
-    title: lost ? "Enlace con Tierra perdido" : "Enlace con Tierra restablecido",
-    body: lost ? "Sin enlace decide el médico de a bordo." : "Se enviarán los paquetes en cola.",
+    title: lost ? "Earth link lost" : "Earth link restored",
+    body: lost ? "Without a link, the onboard physician decides." : "Queued packets will be sent.",
     audience: [roleKey("cmo"), roleKey("commander")],
     payload: { status: current.status },
   };
@@ -129,7 +129,7 @@ const SCALE_PRIORITY = (scale: number) => (scale >= 3 ? "high" : scale === 2 ? "
 export function spaceWeatherNotifications(snapshot: SpaceWeatherSnapshot, nowMs: number): NewNotification[] {
   if (snapshot.source.mode === "mock") return [];
   const bucket = Math.floor(nowMs / SPACE_WEATHER_WINDOW_MS);
-  const origin = `${snapshot.source.provider} · ${snapshot.source.mode === "live" ? "en vivo" : "caché"}`;
+  const origin = `${snapshot.source.provider} · ${snapshot.source.mode === "live" ? "live" : "cache"}`;
   const out: NewNotification[] = [];
 
   if (snapshot.kpIndex !== null) {
@@ -139,7 +139,7 @@ export function spaceWeatherNotifications(snapshot: SpaceWeatherSnapshot, nowMs:
         dedupeKey: `spaceweather:G${scale}:${bucket}`,
         kind: "space_weather",
         priority: SCALE_PRIORITY(scale),
-        title: `Tormenta geomagnética G${scale}`,
+        title: `Geomagnetic storm G${scale}`,
         body: `Kp ${snapshot.kpIndex} · ${origin}`,
         audience: [CREW_ALL],
         payload: { scale: `G${scale}`, kp: snapshot.kpIndex, provider: snapshot.source.provider, mode: snapshot.source.mode },
@@ -153,7 +153,7 @@ export function spaceWeatherNotifications(snapshot: SpaceWeatherSnapshot, nowMs:
         dedupeKey: `spaceweather:S${scale}:${bucket}`,
         kind: "space_weather",
         priority: SCALE_PRIORITY(scale),
-        title: `Protones solares S${scale}`,
+        title: `Solar protons S${scale}`,
         body: `${snapshot.protonFluxPfu10Mev} pfu · ${origin}`,
         audience: [CREW_ALL],
         payload: { scale: `S${scale}`, pfu: snapshot.protonFluxPfu10Mev, provider: snapshot.source.provider, mode: snapshot.source.mode },

@@ -85,8 +85,8 @@ export function createFollowUpFlow(deps: Deps) {
         dedupeKey: `followup-start:${record.id}`,
         kind: "followup",
         priority: "normal",
-        title: "Seguimiento iniciado",
-        body: `${deps.labelFor(plan.subjectId)}: ${contract.windows.length} ventanas de revisión`,
+        title: "Follow-up started",
+        body: `${deps.labelFor(plan.subjectId)}: ${contract.windows.length} review windows`,
         memberId: plan.subjectId,
         audience: [roleKey("cmo")],
         payload: { followUpId: record.id, planId: plan.id },
@@ -132,7 +132,7 @@ export function createFollowUpFlow(deps: Deps) {
       dedupeKey: `followup-window:${record.id}:${report.windowId}`,
       kind: "followup",
       priority: report.status === "worsening" ? "high" : "normal",
-      title: `${report.label} cerrada`,
+      title: `${report.label} closed`,
       body: `${label}: ${describeStatus(report.status)}${reason ? `. ${describeReason(reason)}` : ""}`,
       memberId: record.subjectId,
       audience: report.status === "worsening" ? [roleKey("cmo"), roleKey("commander")] : [roleKey("cmo")],
@@ -182,8 +182,8 @@ export function createFollowUpFlow(deps: Deps) {
         dedupeKey: `followup-done:${record.id}`,
         kind: "followup",
         priority: "normal",
-        title: "Seguimiento completo",
-        body: `${deps.labelFor(record.subjectId)}: todas las ventanas cerradas`,
+        title: "Follow-up complete",
+        body: `${deps.labelFor(record.subjectId)}: all windows closed`,
         memberId: record.subjectId,
         audience: [roleKey("cmo")],
         payload: { followUpId: record.id },
@@ -213,7 +213,7 @@ export function createFollowUpFlow(deps: Deps) {
     return { created, reported, skipped: false };
   }
 
-  const VERB: Record<FollowUpDecision, string> = { ack: "vio el reporte", comment: "comentó" };
+  const VERB: Record<FollowUpDecision, string> = { ack: "saw the report", comment: "commented" };
 
   async function earthFeedback(input: {
     followUpId: string;
@@ -223,10 +223,10 @@ export function createFollowUpFlow(deps: Deps) {
     reviewerId: string;
   }): Promise<Result<{ responseId: string }>> {
     const record = await deps.followups.get(input.followUpId);
-    if (!record) return err("Seguimiento no encontrado.");
-    if (!record.reports.some((r) => r.windowId === input.windowId)) return err("Esa ventana no tiene reporte.");
+    if (!record) return err("Follow-up not found.");
+    if (!record.reports.some((r) => r.windowId === input.windowId)) return err("That window has no report.");
     const note = input.note.trim();
-    if (input.decision === "comment" && note.length < 3) return err("Escribe una nota para comentar.");
+    if (input.decision === "comment" && note.length < 3) return err("Write a note to comment.");
 
     const responseId = makeId();
     await deps.enqueue({
@@ -284,7 +284,7 @@ export function createFollowUpFlow(deps: Deps) {
         dedupeKey: `earth-response:${feedback.responseId}`,
         kind: "earth_response",
         priority: "normal",
-        title: "Tierra respondió",
+        title: "Earth responded",
         body: `${deps.labelFor(record.subjectId)}: ${label} · ${VERB[feedback.decision]}`,
         memberId: record.subjectId,
         audience: [roleKey("cmo"), roleKey("commander")],

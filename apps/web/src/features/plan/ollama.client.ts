@@ -16,7 +16,7 @@ export const DEFAULT_OLLAMA_TIMEOUT_MS = 60_000;
 const SYSTEM_PROMPT = [
   "You draft a short, generic care routine for a spaceflight crew member.",
   "Your output is a preliminary draft for a flight surgeon to review, never a diagnosis or a prescription.",
-  "Do not name medications or doses. Write in Spanish.",
+  "Do not name medications or doses. Write in English.",
   "State in `uncertainty` what the draft does not know.",
 ].join(" ");
 

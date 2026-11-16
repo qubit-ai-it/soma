@@ -25,7 +25,7 @@ export function getFollowUpFlow(): FollowUpFlow {
     observations: getObservationsRepository(),
     notifications: getNotificationsRepository(),
     enqueue: (input) => getEcosystem().earth.enqueue(input),
-    labelFor: (subjectId) => `Tripulante ${subjectId}`,
+    labelFor: (subjectId) => `Crew member ${subjectId}`,
     timing,
   });
   return cache.somaFollowUp;

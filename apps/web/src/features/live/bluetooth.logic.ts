@@ -64,7 +64,7 @@ export async function connectHeartRate(
     await characteristic.startNotifications();
 
     return ok({
-      name: device.name ?? "Dispositivo",
+      name: device.name ?? "Device",
       stop: () => {
         characteristic.removeEventListener("characteristicvaluechanged", listener);
         void characteristic.stopNotifications().catch(() => {});

@@ -12,7 +12,7 @@ describe("describeSource", () => {
 
   it("flags Laya as an uncalibrated local fallback", () => {
     const meta = describeSource({ provider: "laya", mode: "live", calibrated: false });
-    assert.equal(meta.badge, "respaldo local · sin calibrar");
+    assert.equal(meta.badge, "local fallback · uncalibrated");
     assert.equal(meta.detail, "laya · live");
   });
 

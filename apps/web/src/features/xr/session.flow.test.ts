@@ -29,12 +29,12 @@ describe("applyAction", () => {
     assert.equal(result.value.currentIndex, 1);
   });
 
-  it("rejects skipping a required step with a Spanish message", () => {
+  it("rejects skipping a required step with a clear message", () => {
     const state = startSession(procedure, "practice", AT);
     const result = applyAction(procedure, state, { type: "skip" }, AT);
     assert.ok(!result.ok);
     assert.equal(result.error, "step-not-skippable");
-    assert.match(describeMachineError(result.error), /opcional/);
+    assert.match(describeMachineError(result.error), /optional/);
   });
 
   it("fails a step with a note", () => {

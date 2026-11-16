@@ -14,23 +14,23 @@ export type ExternalCard = {
 };
 
 const EVENT_LABELS: Record<SpaceWeatherEvent["type"], string> = {
-  FLR: "Llamarada",
-  CME: "Eyección de masa coronal",
-  SEP: "Tormenta de protones",
-  GST: "Tormenta geomagnética",
+  FLR: "Flare",
+  CME: "Coronal mass ejection",
+  SEP: "Proton storm",
+  GST: "Geomagnetic storm",
 };
 
 const DONKI = "DONKI by NASA";
 const SWPC = "NOAA SWPC";
 const RADLAB = "RadLab by NASA";
 
-const number = new Intl.NumberFormat("es", { maximumFractionDigits: 1 });
-const date = new Intl.DateTimeFormat("es", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+const number = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 });
+const date = new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 
 // A figure from a fixture or a cached copy must say so
 function credit(name: string, source: SourceInfo): string {
   if (source.mode === "mock") return `${name} · Demo`;
-  if (source.mode === "cache") return `${name} · Última lectura`;
+  if (source.mode === "cache") return `${name} · Last reading`;
   return name;
 }
 
@@ -65,9 +65,9 @@ export function spaceWeatherCards(snapshot: SpaceWeatherSnapshot): ExternalCard[
     const labels = [...new Set(events.map((event) => EVENT_LABELS[event.type]))];
     cards.push({
       id: "solar-events",
-      title: "Actividad solar · 7 días",
-      value: events.length === 1 ? "1 evento" : `${events.length} eventos`,
-      line: labels.length > 0 ? labels.join(", ") : "Sin eventos recientes",
+      title: "Solar activity · 7 days",
+      value: events.length === 1 ? "1 event" : `${events.length} events`,
+      line: labels.length > 0 ? labels.join(", ") : "No recent events",
       icon: "sunny",
       tone: eventsTone(events),
       source: credit(DONKI, source),
@@ -76,9 +76,9 @@ export function spaceWeatherCards(snapshot: SpaceWeatherSnapshot): ExternalCard[
   if (xrayClass !== null) {
     cards.push({
       id: "xray",
-      title: "Rayos X solares",
-      value: `Clase ${xrayClass}`,
-      line: "Flujo de rayos X de GOES",
+      title: "Solar X-rays",
+      value: `Class ${xrayClass}`,
+      line: "GOES X-ray flux",
       icon: "light_mode",
       tone: xrayTone(xrayClass),
       source: credit(SWPC, source),
@@ -87,9 +87,9 @@ export function spaceWeatherCards(snapshot: SpaceWeatherSnapshot): ExternalCard[
   if (kpIndex !== null) {
     cards.push({
       id: "geomagnetic",
-      title: "Actividad geomagnética",
+      title: "Geomagnetic activity",
       value: `Kp ${number.format(kpIndex)}`,
-      line: "Índice planetario",
+      line: "Planetary index",
       icon: "storm",
       tone: kpTone(kpIndex),
       source: credit(SWPC, source),
@@ -98,9 +98,9 @@ export function spaceWeatherCards(snapshot: SpaceWeatherSnapshot): ExternalCard[
   if (protonFluxPfu10Mev !== null) {
     cards.push({
       id: "protons",
-      title: "Protones solares",
+      title: "Solar protons",
       value: `${number.format(protonFluxPfu10Mev)} pfu`,
-      line: "Flujo de protones sobre 10 MeV",
+      line: "Proton flux above 10 MeV",
       icon: "flare",
       tone: protonTone(protonFluxPfu10Mev),
       source: credit(SWPC, source),
@@ -123,9 +123,9 @@ export function radiationCard(window: RadiationWindow): ExternalCard | null {
 
   return {
     id: "ambient-radiation",
-    title: "Radiación ambiental",
+    title: "Ambient radiation",
     value: `${number.format(mean)} µGy/h`,
-    line: `${prefix}promedio 24 h al ${date.format(lastMs)}`,
+    line: `${prefix}24 h average as of ${date.format(lastMs)}`,
     icon: "radioactive",
     tone: "neutral",
     source: credit(RADLAB, window.source),

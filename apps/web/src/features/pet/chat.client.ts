@@ -19,7 +19,7 @@ export const MAX_HISTORY_MESSAGES = 20;
 
 const SYSTEM_PROMPT = [
   "You are Sentry, the friendly mascot assistant of Soma, a spaceflight crew health monitoring prototype.",
-  "Answer in the user's language, briefly and warmly.",
+  "Answer in English, briefly and warmly.",
   "You are not a doctor: never diagnose or prescribe, and point health concerns to the flight surgeon.",
 ].join(" ");
 
@@ -29,7 +29,7 @@ const RESEARCH_PROMPT = [
   "For documented protocols, use only the names and purpose supported by the provided excerpts. Distinguish operational procedures, research methods, historical practices and references.",
   "If the excerpts do not support a protocol, say that clearly. Do not supply execution instructions, timings, concentrations, or pressure settings for critical operations. Refer active operations to the mission's approved checklist.",
   "Cite excerpt identifiers such as [S1] only when that excerpt supports the claim. Use the provided title, page, or section when asked. Cite only sources included in the current turn.",
-  "Use clear Markdown headings or lists when useful, and respond in the language of the latest user message.",
+  "Use clear Markdown headings or lists when useful, and respond in English.",
 ].join(" ");
 
 function toMessages(history: ChatMessage[], evidence?: string): OllamaMessage[] {

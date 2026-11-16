@@ -18,13 +18,13 @@ export const DEFAULT_SETTINGS: Settings = { source: "mission", xr: "none", color
 export type SetupOption<T extends string> = { id: T; label: string; line: string; icon: string };
 
 export const SOURCE_OPTIONS: readonly SetupOption<SourceId>[] = [
-  { id: "mission", label: "Datos de misión", line: "Usa los datos de la tripulación.", icon: "groups" },
-  { id: "bluetooth", label: "Reloj o banda", line: "Empareja por Bluetooth.", icon: "watch" },
+  { id: "mission", label: "Mission data", line: "Use the crew data.", icon: "groups" },
+  { id: "bluetooth", label: "Watch or band", line: "Pair over Bluetooth.", icon: "watch" },
 ];
 
 export const XR_OPTIONS: readonly SetupOption<XrId>[] = [
-  { id: "quest", label: "Meta Quest", line: "Guía los procedimientos en el visor.", icon: "view_in_ar" },
-  { id: "none", label: "Sin visor", line: "Los pasos se ven en pantalla.", icon: "devices" },
+  { id: "quest", label: "Meta Quest", line: "Guides procedures in the headset.", icon: "view_in_ar" },
+  { id: "none", label: "No headset", line: "Steps appear on screen.", icon: "devices" },
 ];
 
 function pick<T extends string>(ids: readonly T[], value: unknown, fallback: T): T {

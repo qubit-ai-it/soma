@@ -1,33 +1,33 @@
 import { z } from "zod";
 
-export const roomIdSchema = z.enum(["mando", "pasillo", "laboratorio", "habitat", "medica", "ingenieria"]);
+export const roomIdSchema = z.enum(["command", "corridor", "laboratory", "habitat", "medical", "engineering"]);
 export type RoomId = z.infer<typeof roomIdSchema>;
 
 export const rooms = {
-  mando: "Mando",
-  pasillo: "Pasillo central",
-  laboratorio: "Laboratorio",
-  habitat: "Hábitat",
-  medica: "Área médica",
-  ingenieria: "Ingeniería",
+  command: "Command",
+  corridor: "Central corridor",
+  laboratory: "Laboratory",
+  habitat: "Habitat",
+  medical: "Medical area",
+  engineering: "Engineering",
 } satisfies Record<RoomId, string>;
 
 export const roomIds = roomIdSchema.options;
 
-export const corridorIds = ["pasillo-1", "pasillo-2", "pasillo-3", "pasillo-4", "pasillo-5", "pasillo-6", "pasillo-7"] as const;
+export const corridorIds = ["corridor-1", "corridor-2", "corridor-3", "corridor-4", "corridor-5", "corridor-6", "corridor-7"] as const;
 const corridorIdSchema = z.enum(corridorIds);
 export type CorridorId = z.infer<typeof corridorIdSchema>;
 export const locationIdSchema = z.union([roomIdSchema, corridorIdSchema]);
 export type LocationId = z.infer<typeof locationIdSchema>;
 
-export const equipmentIds = ["desfibrilador", "oximetro", "tensiometro", "dosimetro"] as const;
+export const equipmentIds = ["defibrillator", "oximeter", "bloodPressureMonitor", "dosimeter"] as const;
 export const equipmentIdSchema = z.enum(equipmentIds);
 export type EquipmentId = z.infer<typeof equipmentIdSchema>;
 export const equipment = {
-  desfibrilador: { label: "Desfibrilador", room: "medica" },
-  oximetro: { label: "Oxímetro", room: "medica" },
-  tensiometro: { label: "Tensiómetro", room: "medica" },
-  dosimetro: { label: "Dosímetro", room: "ingenieria" },
+  defibrillator: { label: "Defibrillator", room: "medical" },
+  oximeter: { label: "Oximeter", room: "medical" },
+  bloodPressureMonitor: { label: "Blood pressure monitor", room: "medical" },
+  dosimeter: { label: "Dosimeter", room: "engineering" },
 } satisfies Record<EquipmentId, { label: string; room: RoomId }>;
 
 export const pointSchema = z.object({ x: z.number().min(0).max(100), y: z.number().min(0).max(100) });
@@ -63,12 +63,12 @@ export type SimCrew = {
 };
 
 export const telemetryLabels: Record<keyof Telemetry, string> = {
-  heartRateBpm: "Pulso · lpm",
+  heartRateBpm: "Pulse · bpm",
   spo2Pct: "SpO₂ · %",
-  systolic: "Presión sistólica · mmHg",
-  diastolic: "Presión diastólica · mmHg",
-  sleepHours: "Sueño · h",
-  cumulativeDoseMsv: "Dosis · mSv",
+  systolic: "Systolic pressure · mmHg",
+  diastolic: "Diastolic pressure · mmHg",
+  sleepHours: "Sleep · h",
+  cumulativeDoseMsv: "Dose · mSv",
 };
 
 export const updateSchema = z.discriminatedUnion("kind", [

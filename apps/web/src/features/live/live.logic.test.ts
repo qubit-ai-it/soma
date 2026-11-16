@@ -24,7 +24,7 @@ function bins(values: number[], startBin = 0): Reading[] {
 const BASELINE = [70, 72, 71, 73, 69, 72];
 const endOfBin = (n: number) => T0 + n * BIN_MS;
 const run = (values: number[], completeBins = values.length) =>
-  evaluateLive(bins(values), "Banda de pecho", endOfBin(completeBins));
+  evaluateLive(bins(values), "Chest strap", endOfBin(completeBins));
 
 describe("binReadings", () => {
   it("takes the median of each complete bin", () => {
@@ -105,7 +105,7 @@ describe("evaluateLive status", () => {
 
   it("is deterministic for the same readings and time", () => {
     const a = run([...BASELINE, 78]);
-    const b = evaluateLive([...bins([...BASELINE, 78])].reverse(), "Banda de pecho", endOfBin(7));
+    const b = evaluateLive([...bins([...BASELINE, 78])].reverse(), "Chest strap", endOfBin(7));
     assert.deepEqual(a, b);
   });
 });

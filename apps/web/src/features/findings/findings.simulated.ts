@@ -4,14 +4,14 @@ import type { FindingsProvider } from "./findings.port.ts";
 export const SIMULATED_PROVIDER_NAME = "simulated-medgemma";
 
 const FINDINGS = [
-  "La imagen muestra una estructura central de contorno definido, con ecogenicidad homogénea. No se detectan artefactos de movimiento evidentes.",
-  "Se observa una región central bien delimitada y tejido circundante de textura uniforme. La profundidad del campo parece adecuada.",
-  "El plano capturado incluye la estructura de interés en el centro, con bordes visibles. Se sugiere que el médico compare con una captura previa.",
+  "The image shows a central structure with a defined outline and homogeneous echogenicity. No obvious motion artifacts are detected.",
+  "A well-delimited central region and surrounding tissue of uniform texture are observed. The field depth appears adequate.",
+  "The captured plane includes the structure of interest in the center, with visible edges. The physician is advised to compare it with a previous capture.",
 ];
 
 const UNCERTAINTY = [
-  "Resultado preliminar: la confianza del análisis no está establecida y debe revisarlo un médico.",
-  "Descripción preliminar de la imagen. Los límites del análisis son desconocidos; requiere revisión del médico.",
+  "Preliminary result: the confidence of the analysis is not established and a physician must review it.",
+  "Preliminary description of the image. The limits of the analysis are unknown; physician review is required.",
 ];
 
 function hash(text: string): number {

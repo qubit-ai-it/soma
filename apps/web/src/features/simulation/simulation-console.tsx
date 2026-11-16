@@ -19,10 +19,10 @@ import styles from "./simulation.module.css";
 
 const endpoint = "/api/simulation";
 const statusLabel = {
-  nominal: "Todo está bien", watch: "Un tripulante necesita atención",
-  critical: "Peligro: un tripulante necesita ayuda", resolved: "El tripulante ya está fuera de peligro",
+  nominal: "Everything is fine", watch: "A crew member needs attention",
+  critical: "Danger: a crew member needs help", resolved: "The crew member is out of danger",
 };
-const timeLabel = new Intl.DateTimeFormat("es-PE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+const timeLabel = new Intl.DateTimeFormat("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 const crewColor = (id: SimCrew["id"]) => `var(${crewColorTokens[crewIds.indexOf(id)]})`;
 const bodySignals: Record<keyof typeof ZONE_REGION_IDS, (keyof Telemetry)[]> = {
   head: [],
@@ -76,9 +76,9 @@ function TelemetryInput({ name, value, reference, disabled, onChange }: {
       />
       <span className={styles.normalRange} data-outside={reference?.outside ?? false}>
         {reference ? <>Normal: <strong>{reference.min}–{reference.max}</strong></>
-          : "Informativo · sin alerta"}
+          : "Informational · no alert"}
       </span>
-      {invalid && <small role="alert">Ingresa un valor válido entre {range.minValue} y {range.maxValue}.</small>}
+      {invalid && <small role="alert">Enter a valid value between {range.minValue} and {range.maxValue}.</small>}
     </label>
   );
 }
@@ -100,20 +100,20 @@ function CrewDetails({ member, locked, canEdit, onClose, onUpdate }: {
   }));
 
   return (
-    <section className={styles.details} aria-label={`Telemetría de ${member.name}`}>
+    <section className={styles.details} aria-label={`Telemetry for ${member.name}`}>
       <header className={styles.cardHeader}>
         <div>
           <h3><Dot color={crewColor(member.id)} /> {member.name}</h3>
           <p>{locationNames[locationAt(member.position)]}</p>
         </div>
-        <Button type="button" variant="outline" size="icon-sm" onClick={onClose} aria-label="Cerrar ficha">
+        <Button type="button" variant="outline" size="icon-sm" onClick={onClose} aria-label="Close profile">
           <Icon name="close" />
         </Button>
       </header>
       {locked && <p className={styles.dangerHelp}>{canEdit
-        ? "Los dos compañeros ya llegaron. Puedes actualizar las lecturas, pero aún no mover al tripulante."
-        : "En peligro: no lo muevas ni cambies sus lecturas hasta que dos compañeros aparezcan como «Ya llegó»."}</p>}
-      {canEdit && <p className={styles.analysisHelp}>Al cambiar un valor, la IA revisa la situación. Una lectura fuera del rango puede generar una alerta; el sueño es informativo.</p>}
+        ? "Both teammates have arrived. You can update the readings, but not move the crew member yet."
+        : "In danger: do not move them or change their readings until two teammates show as \"Arrived\"."}</p>}
+      {canEdit && <p className={styles.analysisHelp}>When you change a value, the AI reviews the situation. A reading outside the range can raise an alert; sleep is informational.</p>}
       <div className={styles.fields}>
         {(Object.keys(telemetryLabels) as (keyof Telemetry)[]).map((name) => {
           const reading = readings.find(({ signal }) => signal === name);
@@ -124,8 +124,8 @@ function CrewDetails({ member, locked, canEdit, onClose, onUpdate }: {
         })}
       </div>
       <details className={styles.bodyDetails}>
-        <summary>Ver mapa corporal</summary>
-        <BodyMap className="max-h-72 overflow-auto pt-3" label="Mapa corporal simulado" views={["front"]}
+        <summary>View body map</summary>
+        <BodyMap className="max-h-72 overflow-auto pt-3" label="Simulated body map" views={["front"]}
           value={regions} onValueChange={setRegions} severity={severity} showSummary={false} />
       </details>
     </section>
@@ -148,10 +148,10 @@ function CrewChat({ person, messages, selected, onSelect }: {
       <button type="button" onClick={onSelect} className={styles.chatHeader}>
         <Dot color={crewColor(person.id)} />
         <span><strong>{person.name}</strong><small>{locationNames[locationAt(person.position)]}</small></span>
-        {thread.length > 0 && <span className={styles.count} aria-label={`${thread.length} mensajes`}>{thread.length}</span>}
+        {thread.length > 0 && <span className={styles.count} aria-label={`${thread.length} messages`}>{thread.length}</span>}
       </button>
-      <div className={styles.thread} role="log" aria-label={`Mensajes para ${person.name}`}>
-        {thread.length === 0 && <p className={styles.empty}>Sin instrucciones</p>}
+      <div className={styles.thread} role="log" aria-label={`Messages for ${person.name}`}>
+        {thread.length === 0 && <p className={styles.empty}>No instructions</p>}
         {thread.slice().reverse().map(({ id, message, at }) => (
           <div key={id} className={styles.message}>
             <span>MedGemma <time dateTime={at}>{timeLabel.format(new Date(at))}</time></span>
@@ -217,8 +217,8 @@ export function SimulationConsole() {
         accept(await response.json());
       } catch {
         setError(update.kind === "reset"
-          ? "No se pudo reiniciar la situación. Inténtalo de nuevo."
-          : "No se pudo guardar el cambio. Inténtalo de nuevo.");
+          ? "Could not restart the situation. Try again."
+          : "Could not save the change. Try again.");
       }
     });
     return writes.current;
@@ -273,19 +273,19 @@ export function SimulationConsole() {
   return (
     <main className={`container-soma ${styles.console}`}>
       <header className={styles.top}>
-        <Link href="/mission" className={styles.home}><Icon name="arrow_back" /> Panel de misión</Link>
-        <h1 className="text-display">Simulación de tripulación</h1>
+        <Link href="/mission" className={styles.home}><Icon name="arrow_back" /> Mission dashboard</Link>
+        <h1 className="text-display">Crew simulation</h1>
         <SimulationGuide />
       </header>
 
-      {connectionError && <p role="alert" className={styles.error}>Se perdió la conexión con el simulador. Reconectando…</p>}
-      {!state ? <p role="status">Cargando el simulador…</p> : (
+      {connectionError && <p role="alert" className={styles.error}>Lost connection to the simulator. Reconnecting…</p>}
+      {!state ? <p role="status">Loading the simulator…</p> : (
         <>
           <div className={styles.workspace}>
             <section className={styles.mapCard}>
               <header className={styles.sectionHeader}>
                 <div className={styles.mapTitleRow}>
-                  <h2 className="text-headline">Plano de la nave</h2>
+                  <h2 className="text-headline">Ship layout</h2>
                   <Button type="button" variant="destructive" size="sm"
                     disabled={resetting}
                     onClick={() => {
@@ -294,12 +294,12 @@ export function SimulationConsole() {
                       cancelDrag();
                       void save({ kind: "reset" }).finally(() => setResetting(false));
                     }}>
-                    {resetting ? "Reiniciando…" : "Reiniciar situación"}
+                    {resetting ? "Restarting…" : "Restart situation"}
                   </Button>
                 </div>
-                <p>Haz clic para ver lecturas; arrastra para mover.</p>
+                <p>Click to see readings; drag to move.</p>
               </header>
-              <div ref={map} className={styles.map} aria-label="Plano de la nave">
+              <div ref={map} className={styles.map} aria-label="Ship layout">
                 <div className={styles.rooms} aria-hidden="true">
                   {corridorFloors.map((floor) => (
                     <div className={styles.corridor} key={floor.id} style={floorStyle(floor)} title={locationNames[floor.id]}>
@@ -332,8 +332,8 @@ export function SimulationConsole() {
                     <button key={id} type="button"
                       className={styles.marker} data-critical={critical} data-locked={critical} data-corridor={isCorridor(location)} data-selected={selected === id}
                       style={{ "--marker-color": crewColor(id), color: crewColor(id), left: `${position.x}%`, top: `${position.y}%` } as CSSProperties}
-                      aria-label={`${name}, ${locationNames[location]}${critical ? ", en peligro: no se puede mover hasta que mejore" : ""}`} aria-expanded={selected === id}
-                      title={critical ? "Está en peligro. Revisa sus lecturas; no puedes moverlo hasta que mejore." : "Arrastra para mover o haz clic para ver sus lecturas."}
+                      aria-label={`${name}, ${locationNames[location]}${critical ? ", in danger: cannot be moved until they improve" : ""}`} aria-expanded={selected === id}
+                      title={critical ? "In danger. Check their readings; you cannot move them until they improve." : "Drag to move or click to see their readings."}
                       onPointerDown={(event) => startDrag(event, id, critical)}
                       onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={cancelDrag}
                       onClick={(event) => { if (critical || event.detail === 0) setSelected(id); }}
@@ -363,47 +363,47 @@ export function SimulationConsole() {
             <aside className={styles.overview}>
               <div className={styles.analysis} aria-live="polite">
                 <header className={styles.analysisHeader}>
-                  <h2 className="text-headline">Evaluación</h2>
+                  <h2 className="text-headline">Evaluation</h2>
                   <span className={styles.model}><Dot color="var(--signal)" /> MedGemma</span>
                 </header>
                 {otherAlerts.length > 0 && (
                   <div className={styles.decision} data-status="critical">
-                    <strong>{incidentStatus === "critical" ? "Otro tripulante también necesita ayuda" : "Hay una lectura de peligro"}</strong>
-                    <p>Abre su ficha y revisa la lectura. No lo muevas.</p>
+                    <strong>{incidentStatus === "critical" ? "Another crew member also needs help" : "There is a danger reading"}</strong>
+                    <p>Open their profile and check the reading. Do not move them.</p>
                     {otherAlerts.map(({ id, name }) => (
                       <p key={id}>{name} · {criticalReadings.get(id)?.map(({ signal, value }) => `${telemetryLabels[signal]} ${value}`).join(", ")}</p>
                     ))}
                   </div>
                 )}
-                {state.phase === "pending" && <p className={styles.pending}><Dot color="var(--signal)" /> Comprobando cómo está la tripulación…</p>}
+                {state.phase === "pending" && <p className={styles.pending}><Dot color="var(--signal)" /> Checking how the crew is doing…</p>}
                 {state.error && <p className={styles.error}>{state.error}</p>}
                 {decision && (otherAlerts.length === 0 || decision.status !== "nominal") && (
                   <div className={styles.decision} data-status={awaitingReview ? "pending" : incidentStatus}>
-                    <strong>{awaitingReview ? "Comprobando si ya está mejor" : statusLabel[incidentStatus ?? decision.status]}</strong>
+                    <strong>{awaitingReview ? "Checking whether they are better" : statusLabel[incidentStatus ?? decision.status]}</strong>
                     {affected && <p>{affected.name} · {locationNames[locationAt(affected.position)]}</p>}
                     {affected && incidentStatus === "critical" &&
                       <p className={styles.actionHelp}>{canEditTelemetry(state, affected)
-                        ? "Los dos llegaron. Abre la ficha y actualiza sus lecturas."
-                        : "Mueve a los dos compañeros según sus chats. Después podrás cambiar las lecturas."}</p>}
+                        ? "Both have arrived. Open the profile and update their readings."
+                        : "Move the two teammates according to their chats. Then you can change the readings."}</p>}
                     {affected && incidentStatus === "watch" &&
-                      <p className={styles.actionHelp}>Revisa las lecturas de {affected.name}.</p>}
+                      <p className={styles.actionHelp}>Check the readings of {affected.name}.</p>}
                     {incidentStatus === "resolved" &&
-                      <p className={styles.actionHelp}>Sus lecturas mejoraron. Ya puedes moverlo.</p>}
+                      <p className={styles.actionHelp}>Their readings improved. You can move them now.</p>}
                     {decision.equipmentId && decision.instructions.some(({ via }) => via !== null) && (
-                      <p>Equipo necesario: {equipment[decision.equipmentId].label}</p>
+                      <p>Equipment needed: {equipment[decision.equipmentId].label}</p>
                     )}
                     {progress && (
                       <div className={styles.incidentProgress}>
                         {progress.arrivals.length > 0 && (
                           <>
-                            <p>Ayuda en camino: {arrived} de {progress.arrivals.length} llegaron.</p>
+                            <p>Help on the way: {arrived} of {progress.arrivals.length} have arrived.</p>
                             <ul>
                               {progress.arrivals.map((arrival) => (
                                 <li key={arrival.crewId}>
                                   <Dot color={crewColor(arrival.crewId)} />
                                   <span>{state.crew.find(({ id }) => id === arrival.crewId)?.name}</span>
-                                  <span data-arrived={arrival.arrived}>{arrival.arrived ? "Ya llegó"
-                                    : arrival.pickup ? `Debe recoger equipo en ${rooms[arrival.pickup]}` : `Debe ir a ${locationNames[arrival.destination]}`}</span>
+                                  <span data-arrived={arrival.arrived}>{arrival.arrived ? "Arrived"
+                                    : arrival.pickup ? `Must pick up equipment in ${rooms[arrival.pickup]}` : `Must go to ${locationNames[arrival.destination]}`}</span>
                                 </li>
                               ))}
                             </ul>
@@ -411,9 +411,9 @@ export function SimulationConsole() {
                         )}
                         {progress.readings.length > 0 && (
                           <details className={styles.readingDetails}>
-                            <summary>Ver lecturas</summary>
+                            <summary>View readings</summary>
                             {progress.readings.map(({ signal, value, min, max, corrected }) => (
-                              <p key={signal} className={styles.metric}>{telemetryLabels[signal]} <strong>{value}</strong> · {corrected ? "Bien" : `Meta: ${min}–${max}`}</p>
+                              <p key={signal} className={styles.metric}>{telemetryLabels[signal]} <strong>{value}</strong> · {corrected ? "Good" : `Target: ${min}–${max}`}</p>
                             ))}
                           </details>
                         )}
@@ -421,14 +421,14 @@ export function SimulationConsole() {
                     )}
                   </div>
                 )}
-                {state.phase === "idle" && <p>Mueve a alguien o cambia una lectura para comenzar.</p>}
+                {state.phase === "idle" && <p>Move someone or change a reading to begin.</p>}
                 {state.phase === "error" && <Button type="button" variant="outline" size="sm" className="justify-self-start"
-                  onClick={() => void save({ kind: "retry" })}>Reintentar análisis</Button>}
+                  onClick={() => void save({ kind: "retry" })}>Retry analysis</Button>}
               </div>
             </aside>
           </div>
-          <section aria-label="Chats de la tripulación" className={styles.comms}>
-            <h2>Chats de la tripulación</h2>
+          <section aria-label="Crew chats" className={styles.comms}>
+            <h2>Crew chats</h2>
             <div className={styles.chatGrid}>
               {state.crew.map((person) => (
                 <CrewChat key={person.id} person={person} messages={state.messages}

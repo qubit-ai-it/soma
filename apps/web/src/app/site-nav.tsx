@@ -24,7 +24,7 @@ export function SiteNav() {
       className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3"
     >
       <nav
-        aria-label="Navegación principal"
+        aria-label="Main navigation"
         className="pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-1 rounded-3xl bg-card/90 p-1.5 shadow-[0_18px_55px_-20px_rgb(255_255_255/0.14)] backdrop-blur"
       >
         {items.map((item) => {
@@ -47,9 +47,9 @@ export function SiteNav() {
           );
         })}
 
-        <label className={`${PILL} bg-secondary px-3`} title="Rol activo">
+        <label className={`${PILL} bg-secondary px-3`} title="Active role">
           <Icon name="person" />
-          <span className="sr-only">Rol activo</span>
+          <span className="sr-only">Active role</span>
           <select
             value={role}
             onChange={(event) => {

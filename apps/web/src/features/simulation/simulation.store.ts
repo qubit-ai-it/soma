@@ -24,8 +24,8 @@ async function initialState(): Promise<SimulationState> {
       const member = crew.find((candidate) => candidate.id === id);
       return {
         id,
-        name: member?.name ?? `Tripulante ${index + 1}`,
-        role: member?.role ?? "Oficial de sistemas",
+        name: member?.name ?? `Crew member ${index + 1}`,
+        role: member?.role ?? "Systems officer",
         position: startPositions[index],
         updatedAt: null,
         telemetry: {

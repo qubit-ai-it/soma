@@ -30,7 +30,7 @@ describe("assessImageQuality", () => {
   it("rejects a tiny image", () => {
     const result = assessImageQuality(patched({ width: 64, height: 64 }));
     assert.equal(result.state, "invalid");
-    assert.match(result.reason ?? "", /pequeña/);
+    assert.match(result.reason ?? "", /small/);
   });
 
   it("rejects an almost empty file", () => {
@@ -40,19 +40,19 @@ describe("assessImageQuality", () => {
   it("rejects a black image", () => {
     const result = assessImageQuality(patched({ meanBrightness: 8 }));
     assert.equal(result.state, "invalid");
-    assert.match(result.reason ?? "", /oscura/);
+    assert.match(result.reason ?? "", /dark/);
   });
 
   it("rejects a washed out image", () => {
     const result = assessImageQuality(patched({ meanBrightness: 245 }));
     assert.equal(result.state, "invalid");
-    assert.match(result.reason ?? "", /sobreexpuesta/);
+    assert.match(result.reason ?? "", /overexposed/);
   });
 
   it("rejects a flat image without contrast", () => {
     const result = assessImageQuality(patched({ contrast: 2 }));
     assert.equal(result.state, "invalid");
-    assert.match(result.reason ?? "", /contraste/);
+    assert.match(result.reason ?? "", /contrast/);
   });
 
   it("marks a borderline dim image as suspect", () => {
@@ -127,10 +127,10 @@ describe("captureToObservation", () => {
   it("carries the quality reason and is not evaluable when poor", () => {
     const obs = captureToObservation({
       ...base,
-      assessment: { state: "invalid", reason: "Imagen oscura" },
+      assessment: { state: "invalid", reason: "Dark image" },
       synthetic: true,
     });
-    assert.deepEqual(obs.quality, { state: "invalid", reason: "Imagen oscura" });
+    assert.deepEqual(obs.quality, { state: "invalid", reason: "Dark image" });
     assert.ok(observationSchema.safeParse(obs).success);
     assert.equal(isEvaluable(obs), false);
   });

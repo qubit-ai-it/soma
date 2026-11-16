@@ -2,19 +2,12 @@ export type GuardrailResult = { allowed: true } | { allowed: false; reason: stri
 
 type Rule = { reason: string; pattern: RegExp };
 
-const SUBJECT = "(?:el|la)?\\s*(?:paciente|astronauta|tripulante|tripulacion|usted)";
 const EN_SUBJECT = "(?:you|the patient|patient|the crew member|crew member|the astronaut)";
 
-const DIAGNOSIS = "Contiene un diagnóstico: SOMA solo emite hallazgos preliminares.";
-const PRESCRIPTION = "Contiene una prescripción: SOMA no prescribe tratamientos.";
+const DIAGNOSIS = "Contains a diagnosis: SOMA only issues preliminary findings.";
+const PRESCRIPTION = "Contains a prescription: SOMA does not prescribe treatments.";
 
 const RULES: Rule[] = [
-  { reason: DIAGNOSIS, pattern: new RegExp(`\\b${SUBJECT}\\s+(?:tiene|padece|sufre|presenta un cuadro de)\\b`) },
-  { reason: DIAGNOSIS, pattern: /\busted\s+sufre\b/ },
-  { reason: DIAGNOSIS, pattern: /\bse\s+(?:diagnostica|confirma el diagnostico)\b/ },
-  { reason: DIAGNOSIS, pattern: /\bse\s+confirma\s+(?:el|un)\s+diagnostico\b/ },
-  { reason: DIAGNOSIS, pattern: /\bdiagnostico\s+(?:es|de|definitivo|confirmado)\b/ },
-  { reason: DIAGNOSIS, pattern: /\bdiagnosticad[oa]\b/ },
   {
     reason: DIAGNOSIS,
     pattern: new RegExp(`\\b${EN_SUBJECT}\\s+(?:has|have|suffers? from|is suffering from)\\b`),
@@ -23,8 +16,6 @@ const RULES: Rule[] = [
   { reason: DIAGNOSIS, pattern: /\b(?:is|was|been)\s+diagnosed\b/ },
   { reason: DIAGNOSIS, pattern: /\bconfirms?\s+(?:a|the)\s+diagnosis\b/ },
 
-  { reason: PRESCRIPTION, pattern: /\b(?:receta|recetar|recetado|prescribe|prescribir|prescripcion)\b/ },
-  { reason: PRESCRIPTION, pattern: /\b(?:tomar|tome|administre|administrar|inyecte|inyectar|ingiera)\b/ },
   { reason: PRESCRIPTION, pattern: /\b\d+(?:[.,]\d+)?\s?(?:mg|mcg|ml|ui)\b/ },
   { reason: PRESCRIPTION, pattern: /\b(?:prescribes?|prescribed|prescription|dosage|administer)\b/ },
   { reason: PRESCRIPTION, pattern: /\b(?:take|should take|must take)\s+(?:\d|the|some|an?\b)/ },

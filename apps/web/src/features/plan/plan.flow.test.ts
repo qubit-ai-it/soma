@@ -30,7 +30,7 @@ function memoryPlans(): PlansRepository & { rows: PlanRecord[] } {
     list: async (options = {}) => rows.filter((p) => !options.statuses || options.statuses.includes(p.status)),
     update: async (id, fn) => {
       const index = rows.findIndex((p) => p.id === id);
-      if (index < 0) return err("Plan no encontrado.");
+      if (index < 0) return err("Plan not found.");
       const result = fn(rows[index]);
       if (result.ok) rows[index] = result.value;
       return result;
@@ -66,10 +66,10 @@ function setup(link: "connected" | "disconnected" = "connected", failDraft = fal
     },
     draft: async (evaluation) =>
       failDraft
-        ? err("sin fuente")
+        ? err("no source")
         : evaluation.status === "F3"
         ? ok({ steps: ["Protocolo A"], uncertainty: "Protocolo", source: { provider: "protocolos aprobados", mode: "live" } })
-        : ok({ steps: ["Paso 1", "Paso 2", "Paso 3"], uncertainty: "Sin validar", source: { provider: "ollama", mode: "live" } }),
+        : ok({ steps: ["Step 1", "Step 2", "Step 3"], uncertainty: "Not validated", source: { provider: "ollama", mode: "live" } }),
     enqueue: async (input: Omit<NewPacket, "id">) => {
       const existing = queue.find((p) => p.idempotencyKey === input.idempotencyKey);
       if (existing) return { packet: existing, duplicate: true };
@@ -86,7 +86,7 @@ function setup(link: "connected" | "disconnected" = "connected", failDraft = fal
       return { packet, duplicate: false };
     },
     linkStatus: async () => linkState,
-    labelFor: (s) => `Tripulante ${s}`,
+    labelFor: (s) => `Crew member ${s}`,
     now: () => NOW,
     makeId: (() => {
       let n = 0;
@@ -177,8 +177,8 @@ describe("plan flow", () => {
     assert.equal(await flow.reconcile(state()), 0);
 
     const earthNote = notes.find((n) => n.kind === "earth_response");
-    assert.equal(earthNote?.title, "Tierra respondió");
-    assert.equal(earthNote?.body, "Tripulante cm-02: aprobó el plan");
+    assert.equal(earthNote?.title, "Earth responded");
+    assert.equal(earthNote?.body, "Crew member cm-02: approved the plan");
     assert.deepEqual(earthNote?.audience, ["role:cmo", "role:commander"]);
     const review = entries.find((e) => e.action === "plan_review");
     assert.deepEqual(review?.actor, { kind: "human", id: "demo-earth-md-01", role: "earth" });
@@ -190,11 +190,11 @@ describe("plan flow", () => {
     const plan = (await flow.onEvaluationSaved(evaluation("F2")))!;
     await flow.submit({ planId: plan.id, actor: cmo });
     deliver(queue[0].idempotencyKey);
-    await flow.earthRespond({ planId: plan.id, decision: "changes", note: "Falta hidratación", steps: ["Hidratar", "Descansar"], reviewerId: "demo-earth-md-01" });
+    await flow.earthRespond({ planId: plan.id, decision: "changes", note: "Needs hydration", steps: ["Hydrate", "Rest"], reviewerId: "demo-earth-md-01" });
     deliver(queue[1].idempotencyKey);
     await flow.reconcile(state());
     assert.equal(plans.rows[0].status, "changes_requested");
-    assert.deepEqual(plans.rows[0].steps, ["Hidratar", "Descansar"]);
+    assert.deepEqual(plans.rows[0].steps, ["Hydrate", "Rest"]);
     const again = await flow.submit({ planId: plan.id, actor: cmo });
     assert.ok(again.ok && again.value.revision === 2);
     assert.equal(queue[2].idempotencyKey, `plan-review-request:${plan.id}:2`);

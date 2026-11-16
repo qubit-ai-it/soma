@@ -51,17 +51,17 @@ export function resolveDeviceProfile(caps: XrCapabilities): DeviceProfile {
   if (immersive && QUEST_PATTERN.test(caps.userAgent)) {
     return {
       kind: "quest",
-      label: "Meta Quest detectado",
-      detail: "WebXR disponible. Los recursos del procedimiento son locales.",
+      label: "Meta Quest detected",
+      detail: "WebXR available. The procedure assets are local.",
     };
   }
 
   const detail = !caps.secureContext
-    ? "WebXR requiere un contexto seguro (HTTPS o localhost). El procedimiento sigue disponible en pantalla."
+    ? "WebXR requires a secure context (HTTPS or localhost). The procedure is still available on screen."
     : !caps.hasXr
-      ? "Este navegador no expone WebXR. El procedimiento sigue disponible en pantalla."
+      ? "This browser does not expose WebXR. The procedure is still available on screen."
       : !immersive
-        ? "WebXR no reporta sesiones inmersivas disponibles. El procedimiento sigue disponible en pantalla."
-        : "Dispositivo con WebXR, pero no es un Meta Quest. El procedimiento se muestra en pantalla.";
-  return { kind: "simulated", label: "Visor no detectado", detail };
+        ? "WebXR reports no immersive sessions available. The procedure is still available on screen."
+        : "Device with WebXR, but it is not a Meta Quest. The procedure is shown on screen.";
+  return { kind: "simulated", label: "Headset not detected", detail };
 }

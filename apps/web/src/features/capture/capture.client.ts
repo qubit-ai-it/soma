@@ -10,7 +10,7 @@ export type ReadCapture = {
 };
 
 export async function readCapture(file: File): Promise<Result<ReadCapture>> {
-  if (!file.type.startsWith("image/")) return err("El archivo no es una imagen.");
+  if (!file.type.startsWith("image/")) return err("The file is not an image.");
 
   try {
     const bitmap = await createImageBitmap(file);
@@ -21,7 +21,7 @@ export async function readCapture(file: File): Promise<Result<ReadCapture>> {
     const context = canvas.getContext("2d", { willReadFrequently: true });
     if (context === null) {
       bitmap.close();
-      return err("El navegador no pudo procesar la imagen.");
+      return err("The browser could not process the image.");
     }
     context.drawImage(bitmap, 0, 0, width, height);
     bitmap.close();
@@ -42,6 +42,6 @@ export async function readCapture(file: File): Promise<Result<ReadCapture>> {
       assessment: assessImageQuality(measures),
     });
   } catch {
-    return err("No se pudo leer la imagen.");
+    return err("Could not read the image.");
   }
 }

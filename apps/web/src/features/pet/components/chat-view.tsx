@@ -10,10 +10,10 @@ import { MAX_ATTACHMENTS } from "../image";
 import { ChatReplyView } from "./chat-reply";
 
 export const QUICK_ACTIONS = [
-  "Dame un resumen de la misión",
-  "Sugiere una rutina de descanso",
-  "Explica los niveles de riesgo",
-  "¿Qué puedes hacer?",
+  "Give me a mission summary",
+  "Suggest a rest routine",
+  "Explain the risk levels",
+  "What can you do?",
 ] as const;
 
 type Props = {
@@ -78,12 +78,12 @@ export function ChatView({
           >
             {m.images?.map((src, n) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={n} src={src} alt="Imagen adjunta" className="max-h-40 rounded-md object-cover" />
+              <img key={n} src={src} alt="Attached image" className="max-h-40 rounded-md object-cover" />
             ))}
             {!m.images && m.imageCount ? (
               <span className="flex items-center gap-1 text-xs opacity-70">
                 <Icon name="image" />
-                {m.imageCount} {m.imageCount === 1 ? "imagen adjunta" : "imágenes adjuntas"}
+                {m.imageCount} {m.imageCount === 1 ? "image attached" : "images attached"}
               </span>
             ) : null}
             {m.role === "assistant" ? (
@@ -91,7 +91,7 @@ export function ChatView({
             ) : <p className="whitespace-pre-wrap break-words">{m.content}</p>}
           </div>
         ))}
-        {sending && <p className="self-start text-sm text-ink">Sentry está pensando…</p>}
+        {sending && <p className="self-start text-sm text-ink">Sentry is thinking…</p>}
         {failure && (
           <p role="alert" className="self-start text-sm text-destructive">
             {failure}
@@ -118,10 +118,10 @@ export function ChatView({
           {attachments.map((src, i) => (
             <li key={i} className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`Adjunto ${i + 1}`} className="size-14 rounded-md object-cover" />
+              <img src={src} alt={`Attachment ${i + 1}`} className="size-14 rounded-md object-cover" />
               <button
                 type="button"
-                aria-label={`Quitar adjunto ${i + 1}`}
+                aria-label={`Remove attachment ${i + 1}`}
                 onClick={() => onRemoveAttachment(i)}
                 className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground"
               >
@@ -138,7 +138,7 @@ export function ChatView({
           type="button"
           variant="outline"
           size="icon"
-          aria-label="Adjuntar imagen"
+          aria-label="Attach image"
           disabled={attachments.length >= MAX_ATTACHMENTS}
           onClick={() => fileRef.current?.click()}
         >
@@ -149,7 +149,7 @@ export function ChatView({
             type="button"
             variant={dictation.listening ? "default" : "outline"}
             size="icon"
-            aria-label={dictation.listening ? "Detener dictado" : "Dictar por voz"}
+            aria-label={dictation.listening ? "Stop dictation" : "Dictate by voice"}
             aria-pressed={dictation.listening}
             onClick={onToggleDictation}
           >
@@ -160,15 +160,15 @@ export function ChatView({
           value={draft}
           onChange={(e) => onDraftChange(e.target.value)}
           maxLength={4000}
-          placeholder="Escribe un mensaje…"
-          aria-label="Mensaje para Sentry"
+          placeholder="Write a message…"
+          aria-label="Message for Sentry"
           className="h-12 min-w-0 flex-1 rounded-full bg-secondary px-5 text-sm outline-none transition-colors duration-[var(--duration-micro)] placeholder:text-ink focus-visible:ring-2 focus-visible:ring-ring"
         />
-        <Button type="submit" size="icon-lg" aria-label="Enviar" disabled={!canSend}>
+        <Button type="submit" size="icon-lg" aria-label="Send" disabled={!canSend}>
           <Icon name="send" />
         </Button>
       </form>
-      <p className="text-xs text-ink">Sentry no es un médico: no diagnostica ni receta.</p>
+      <p className="text-xs text-ink">Sentry is not a doctor: it does not diagnose or prescribe.</p>
     </div>
   );
 }

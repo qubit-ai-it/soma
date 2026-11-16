@@ -1,9 +1,9 @@
 {
   "steps": [
-    "Revisar las señales marcadas y repetir las mediciones tras un periodo de reposo.",
-    "Mantener la hidratación y la rutina de sueño programadas.",
-    "Registrar cualquier cambio en el siguiente check-in.",
-    "Pedir al cirujano de vuelo que revise la tendencia."
+    "Review the flagged signals and repeat the measurements after a rest period.",
+    "Keep the scheduled hydration and sleep routine.",
+    "Record any change at the next check-in.",
+    "Ask the flight surgeon to review the trend."
   ],
-  "uncertainty": "Plan genérico: no usa las señales del tripulante y no está validado por un médico."
+  "uncertainty": "Generic plan: it does not use the crew member's signals and is not validated by a physician."
 }

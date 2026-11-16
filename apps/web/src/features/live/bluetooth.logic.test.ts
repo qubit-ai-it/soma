@@ -81,14 +81,14 @@ describe("connectHeartRate", () => {
   });
 
   it("returns the device name, streams readings and stops cleanly", async () => {
-    const fake = fakeDevice("Banda de pecho");
+    const fake = fakeDevice("Chest strap");
     const readings: number[] = [];
     const result = await connectHeartRate({ requestDevice: async () => fake.device }, (bpm) =>
       readings.push(bpm),
     );
     assert.ok(result.ok);
     if (!result.ok) return;
-    assert.equal(result.value.name, "Banda de pecho");
+    assert.equal(result.value.name, "Chest strap");
 
     fake.emit([0, 70]);
     fake.emit([0, 72]);
@@ -103,6 +103,6 @@ describe("connectHeartRate", () => {
   it("falls back to a generic name for an unnamed device", async () => {
     const fake = fakeDevice();
     const result = await connectHeartRate({ requestDevice: async () => fake.device }, () => {});
-    assert.ok(result.ok && result.value.name === "Dispositivo");
+    assert.ok(result.ok && result.value.name === "Device");
   });
 });

@@ -56,7 +56,7 @@ describe("createLiveSpaceWeather", () => {
       result.value.events?.map((e) => e.type),
       ["CME", "FLR", "GST"],
     );
-    assert.match(result.value.events?.find((e) => e.type === "GST")?.summary ?? "", /Kp máx. 6/);
+    assert.match(result.value.events?.find((e) => e.type === "GST")?.summary ?? "", /max Kp 6/);
     assert.equal(result.value.source.mode, "live");
     assert.ok(calls.some((url) => url.includes("startDate=2026-11-08&endDate=2026-11-15")));
   });

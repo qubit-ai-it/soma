@@ -61,7 +61,7 @@ describe("postgres follow-ups repository", { skip: !hasDirectDatabase }, () => {
     const repo = createPostgresFollowUpsRepository(pool);
     const report = {
       windowId: "w1",
-      label: "Ventana 1",
+      label: "Window 1",
       start: "2026-11-16T12:00:00.000Z",
       end: "2026-11-19T12:00:00.000Z",
       status: "not-evaluable" as const,

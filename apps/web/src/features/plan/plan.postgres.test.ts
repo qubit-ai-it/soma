@@ -56,10 +56,10 @@ describe("plan review cycle on postgres", { skip: !hasDirectDatabase }, () => {
       plans: plans(),
       audit: audit(),
       notifications: notifications(),
-      draft: async () => ok({ steps: ["Hidratar", "Descansar", "Medir de nuevo"], uncertainty: "Borrador", source: { provider: "ollama", mode: "live" } }),
+      draft: async () => ok({ steps: ["Hydrate", "Rest", "Measure again"], uncertainty: "Draft", source: { provider: "ollama", mode: "live" } }),
       enqueue: (input) => earth.enqueue(input),
       linkStatus: async () => (await earth.getState()).link.status,
-      labelFor: (id) => `Tripulante ${id}`,
+      labelFor: (id) => `Crew member ${id}`,
     });
     await earth.setLink({ status: "connected", latencyMs: 40, ackLoss: false });
   });
@@ -84,7 +84,7 @@ describe("plan review cycle on postgres", { skip: !hasDirectDatabase }, () => {
     assert.equal(done?.status, "approved");
     assert.equal(done?.decided?.via, "earth");
     const notice = (await notifications().listFor({ role: "cmo" })).find((n) => n.kind === "earth_response");
-    assert.equal(notice?.title, "Tierra respondió");
+    assert.equal(notice?.title, "Earth responded");
     assert.deepEqual((await flow.awaitingEarth(await earth.getState())).map((p) => p.id), []);
 
     const entries = await audit().list();
@@ -99,7 +99,7 @@ describe("plan review cycle on postgres", { skip: !hasDirectDatabase }, () => {
     const plan = (await flow.onEvaluationSaved(evaluation("ev-b", "cm-03")))!;
     await flow.submit({ planId: plan.id, actor: cmo });
     await earth.flush({ force: true });
-    await flow.earthRespond({ planId: plan.id, decision: "changes", note: "Falta hidratación", steps: ["Hidratar mucho", "Descansar"], reviewerId: "demo-earth-md-01" });
+    await flow.earthRespond({ planId: plan.id, decision: "changes", note: "Needs hydration", steps: ["Hydrate a lot", "Rest"], reviewerId: "demo-earth-md-01" });
 
     await earth.setLink({ status: "disconnected", latencyMs: 40, ackLoss: false });
     await earth.flush({ force: true });
@@ -110,7 +110,7 @@ describe("plan review cycle on postgres", { skip: !hasDirectDatabase }, () => {
     await earth.flush({ force: true });
     const back = await plans().get(plan.id);
     assert.equal(back?.status, "changes_requested");
-    assert.deepEqual(back?.steps, ["Hidratar mucho", "Descansar"]);
+    assert.deepEqual(back?.steps, ["Hydrate a lot", "Rest"]);
     assert.equal(back?.reviews.length, 1);
     const notices = (await notifications().listFor({ role: "commander" })).filter((n) => n.kind === "earth_response");
     assert.equal(notices.length, 2);

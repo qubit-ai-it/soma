@@ -61,7 +61,7 @@ export function exportAudit(entries: readonly AuditEntry[], exportedAt: string):
   return JSON.stringify(
     {
       exportedAt,
-      note: "Solo se agregan entradas; la cadena de hashes detecta ediciones.",
+      note: "Entries are append-only; the hash chain detects edits.",
       count: entries.length,
       chainValid: verifyChain(entries).valid,
       entries,

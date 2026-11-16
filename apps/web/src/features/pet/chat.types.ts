@@ -1,4 +1,4 @@
-export const IMAGE_ONLY_PROMPT = "Describe esta imagen.";
+export const IMAGE_ONLY_PROMPT = "Describe this image.";
 
 export type ResearchSource = {
   id: string;

@@ -19,7 +19,7 @@ const MIN = 60_000;
 describe("createTask", () => {
   it("falls back to the capture label when the name is blank", () => {
     const task = createTask("t", 0, { name: "  ", kind: "spo2", intervalMinutes: 5 });
-    assert.equal(task.name, "Saturación de oxígeno");
+    assert.equal(task.name, "Oxygen saturation");
     assert.equal(task.enabled, true);
   });
 
@@ -51,7 +51,7 @@ describe("captures", () => {
     const task = createTask("t", 0, { name: "x", kind: "heart_rate", intervalMinutes: 1 });
     const run = runTask(task, "r", 5, 0.5);
     assert.equal(run.synthetic, true);
-    assert.equal(run.unit, "lpm");
+    assert.equal(run.unit, "bpm");
   });
 
   it("caps the run log, newest first", () => {

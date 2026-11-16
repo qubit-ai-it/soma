@@ -13,25 +13,16 @@ function blocked(text: string): string {
 describe("checkFindings", () => {
   it("allows a descriptive preliminary finding", () => {
     const text =
-      "La imagen muestra una estructura central de contorno regular. No se realizaron mediciones automáticas.";
+      "The image shows a central structure with a regular outline. No automatic measurements were taken.";
     assert.deepEqual(checkFindings(text), { allowed: true });
   });
 
   it("allows a text that denies being a diagnosis", () => {
     assert.equal(
-      checkFindings("Estos hallazgos no son un diagnóstico y requieren revisión del médico.").allowed,
+      checkFindings("These findings are not a diagnosis and require physician review.").allowed,
       true,
     );
     assert.equal(checkFindings("This is not a diagnosis; a physician must review it.").allowed, true);
-  });
-
-  it("blocks Spanish diagnostic statements", () => {
-    blocked("El paciente tiene una colecistitis aguda.");
-    blocked("El astronauta padece litiasis.");
-    blocked("Usted sufre de una hernia.");
-    blocked("Se diagnostica apendicitis.");
-    blocked("El diagnóstico es neumotórax.");
-    blocked("Se confirma el diagnóstico de trombosis.");
   });
 
   it("blocks English diagnostic statements", () => {
@@ -42,13 +33,6 @@ describe("checkFindings", () => {
     blocked("Findings confirm a diagnosis of thrombosis.");
   });
 
-  it("blocks Spanish prescriptions", () => {
-    blocked("Se recomienda tomar ibuprofeno cada 8 horas.");
-    blocked("Se receta paracetamol.");
-    blocked("Debe administrar 500 mg de amoxicilina.");
-    blocked("Inyecte la dosis indicada.");
-  });
-
   it("blocks English prescriptions", () => {
     blocked("Take 400 mg of ibuprofen twice a day.");
     blocked("I prescribe antibiotics.");
@@ -57,12 +41,12 @@ describe("checkFindings", () => {
   });
 
   it("is case and accent insensitive", () => {
-    blocked("EL PACIENTE TIENE UNA HERNIA");
-    blocked("el diagnostico es neumotorax");
+    blocked("THE PATIENT HAS A HERNIA");
+    blocked("the diagnosis is pneumothorax");
   });
 
   it("returns a reason that names the kind of violation", () => {
-    assert.match(blocked("El paciente tiene una hernia."), /diagn/i);
-    assert.match(blocked("Se receta paracetamol."), /prescrip/i);
+    assert.match(blocked("The patient has a hernia."), /diagn/i);
+    assert.match(blocked("I prescribe paracetamol."), /prescrip/i);
   });
 });

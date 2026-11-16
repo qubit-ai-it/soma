@@ -14,9 +14,9 @@ import { createAlertService } from "./alerts.service.ts";
 const CWD = process.cwd();
 const base = {
   memberId: "cm-05",
-  memberLabel: "Tripulante cm-05 (sintético)",
+  memberLabel: "Crew member cm-05 (synthetic)",
   title: "t",
-  action: "Evaluación médica inmediata",
+  action: "Immediate medical evaluation",
 };
 
 describe("alert service", () => {
@@ -86,7 +86,7 @@ describe("alert service", () => {
     const before = (await audit.list()).length;
     const ack = await service.acknowledge({ alertId: "al-001", actorId: "demo-cmo-01", role: "cmo" });
     assert.ok(ack.ok);
-    const closed = await service.close({ alertId: "al-001", actorId: "demo-commander-01", role: "commander", note: "Resuelto" });
+    const closed = await service.close({ alertId: "al-001", actorId: "demo-commander-01", role: "commander", note: "Resolved" });
     assert.ok(closed.ok);
     const entries = (await audit.list()).slice(before);
     assert.deepEqual(entries.map((e) => [e.action, e.actor.id]), [
@@ -110,7 +110,7 @@ describe("alert service", () => {
 
   it("does not close by itself: close needs prior acknowledgement and a note", async () => {
     const { service, alerts } = setup();
-    assert.equal((await service.close({ alertId: "al-001", actorId: "demo-cmo-01", role: "cmo", note: "ok ya" })).ok, false);
+    assert.equal((await service.close({ alertId: "al-001", actorId: "demo-cmo-01", role: "cmo", note: "ok" })).ok, false);
     await service.acknowledge({ alertId: "al-001", actorId: "demo-cmo-01", role: "cmo" });
     assert.equal((await service.close({ alertId: "al-001", actorId: "demo-cmo-01", role: "cmo", note: " " })).ok, false);
     assert.equal((await alerts.get("al-001"))?.status, "acknowledged");

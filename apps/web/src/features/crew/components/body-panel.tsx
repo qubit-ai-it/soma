@@ -31,7 +31,7 @@ export function BodyPanel({
       ...region,
       label: reading
         ? `${reading.label}: ${SEVERITY_META[reading.severity].label}`
-        : "Sin señales asociadas",
+        : "No associated signals",
     };
   });
 
@@ -44,7 +44,7 @@ export function BodyPanel({
   return (
     <div>
       <BodyMap
-        label={`Mapa corporal de ${memberName}`}
+        label={`Body map of ${memberName}`}
         regions={regions}
         value={value}
         onValueChange={handleChange}
@@ -82,7 +82,7 @@ export function BodyPanel({
           </div>
         ) : (
           <p className="text-ink">
-            Toca una zona para ver el detalle.
+            Tap a zone to see the details.
           </p>
         )}
       </div>

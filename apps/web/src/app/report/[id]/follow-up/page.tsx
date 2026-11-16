@@ -17,7 +17,7 @@ export default function FollowUpPage({
   searchParams,
 }: PageProps<"/report/[id]/follow-up">) {
   return (
-    <Suspense fallback={<p className="text-ink">Cargando seguimiento…</p>}>
+    <Suspense fallback={<p className="text-ink">Loading follow-up…</p>}>
       <Content params={params} searchParams={searchParams} />
     </Suspense>
   );
@@ -31,9 +31,9 @@ async function Content({
   const member = await getMissionMember(id);
   if (!member) notFound();
 
-  const { escenario } = await searchParams;
+  const { scenario } = await searchParams;
   const scenarioId: FollowUpScenarioId =
-    escenario === "followup-worsening" ? "followup-worsening" : "followup-recovery";
+    scenario === "followup-worsening" ? "followup-worsening" : "followup-recovery";
 
   const stored = await getStoredFollowUp(member.id);
   const followUp = await getFollowUp(member.id, scenarioId);
@@ -41,20 +41,20 @@ async function Content({
     return stored ? (
       <StoredFollowUpView record={stored.record} nowMs={stored.nowMs} />
     ) : (
-      <p className="text-sm text-ink">Sin escenario de seguimiento para este tripulante.</p>
+      <p className="text-sm text-ink">No follow-up scenario for this crew member.</p>
     );
   }
 
   return (
     <div className="space-y-6">
       {stored && <StoredFollowUpView record={stored.record} nowMs={stored.nowMs} />}
-      {stored && <h2 className="font-heading text-lg font-bold">Escenarios de ejemplo</h2>}
-      <nav aria-label="Escenario" className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-ink">Escenario:</span>
+      {stored && <h2 className="font-heading text-lg font-bold">Sample scenarios</h2>}
+      <nav aria-label="Scenario" className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-ink">Scenario:</span>
         {FOLLOWUP_SCENARIOS.map((s) => (
           <Link
             key={s.id}
-            href={`/report/${member.id}/follow-up?escenario=${s.id}`}
+            href={`/report/${member.id}/follow-up?scenario=${s.id}`}
             aria-current={s.id === scenarioId ? "page" : undefined}
             className={
               s.id === scenarioId

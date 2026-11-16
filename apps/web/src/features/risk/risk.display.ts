@@ -14,7 +14,7 @@ export function describeSource(source: {
   const detail = `${source.provider} · ${source.mode}`;
   if (source.mode === "mock") return { badge: null, detail };
   if (source.provider === "laya" && !source.calibrated) {
-    return { badge: "respaldo local · sin calibrar", detail };
+    return { badge: "local fallback · uncalibrated", detail };
   }
   return { badge: null, detail };
 }

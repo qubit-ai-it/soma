@@ -13,7 +13,7 @@ describe("parseSettings", () => {
   });
 
   it("keeps valid values, including the paired device name", () => {
-    const raw = { source: "bluetooth", xr: "quest", color: "#7C3AED", device: "Banda de pecho" };
+    const raw = { source: "bluetooth", xr: "quest", color: "#7C3AED", device: "Chest strap" };
     assert.deepEqual(parseSettings(raw), raw);
   });
 

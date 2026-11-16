@@ -5,17 +5,17 @@ export const SEVERITY_META: Record<
   { label: string; badge: string; swatch: string }
 > = {
   ok: {
-    label: "Todo bien",
+    label: "All good",
     badge: "bg-ok/15 text-ok",
     swatch: "bg-ok",
   },
   "possible-risk": {
-    label: "Posible riesgo",
+    label: "Possible risk",
     badge: "bg-warn/15 text-warn",
     swatch: "bg-warn",
   },
   risky: {
-    label: "Riesgoso",
+    label: "Risky",
     badge: "bg-danger/15 text-danger",
     swatch: "bg-danger",
   },

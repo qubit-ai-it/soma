@@ -2,45 +2,45 @@
   "procedures": [
     {
       "id": "ultrasound-capture-demo",
-      "title": "Captura guiada de ultrasonido",
-      "description": "Procedimiento de referencia para el flujo XR. Debe ser curado y aprobado por un médico.",
+      "title": "Guided ultrasound capture",
+      "description": "Reference procedure for the XR flow. It must be curated and approved by a physician.",
       "steps": [
         {
           "id": "check-equipment",
-          "title": "Revisa el equipo",
-          "instruction": "Confirma que la sonda, el gel y la tableta están al alcance y que la sonda tiene batería."
+          "title": "Check the equipment",
+          "instruction": "Confirm that the probe, gel and tablet are within reach and that the probe has battery."
         },
         {
           "id": "stabilize",
-          "title": "Estabiliza tu posición",
-          "instruction": "Asegura los pies o un anclaje para que ambas manos queden libres y tu cuerpo no flote."
+          "title": "Stabilize your position",
+          "instruction": "Secure your feet or an anchor so both hands stay free and your body does not float."
         },
         {
           "id": "apply-gel",
-          "title": "Aplica el gel",
-          "instruction": "Aplica una capa fina de gel sobre la zona marcada en el diagrama corporal de tu visor."
+          "title": "Apply the gel",
+          "instruction": "Apply a thin layer of gel over the area marked on the body diagram in your headset."
         },
         {
           "id": "locate-landmark",
-          "title": "Ubica la referencia",
-          "instruction": "Apoya la sonda sobre la referencia resaltada en tu visor y mantén un contacto suave y estable."
+          "title": "Locate the landmark",
+          "instruction": "Place the probe on the landmark highlighted in your headset and keep gentle, steady contact."
         },
         {
           "id": "adjust-image",
-          "title": "Ajusta la imagen",
-          "instruction": "Ajusta la profundidad y la ganancia hasta que la estructura quede centrada y nítida.",
+          "title": "Adjust the image",
+          "instruction": "Adjust depth and gain until the structure is centered and sharp.",
           "optional": true
         },
         {
           "id": "capture-image",
-          "title": "Captura la imagen",
-          "instruction": "Quédate quieto y captura la imagen. Haz una segunda captura si la primera se movió."
+          "title": "Capture the image",
+          "instruction": "Hold still and capture the image. Take a second capture if the first one moved."
         },
         {
           "id": "review-quality",
-          "title": "Revisa la calidad de la imagen",
-          "instruction": "Compara la imagen con la guía de calidad. Si no se ve con claridad, marca este paso como fallido y repite la captura.",
-          "safetyNote": "La calidad de la imagen es parte de la evidencia. Una imagen deficiente no debe usarse para una evaluación."
+          "title": "Review the image quality",
+          "instruction": "Compare the image with the quality guide. If it is not clearly visible, mark this step as failed and repeat the capture.",
+          "safetyNote": "Image quality is part of the evidence. A poor image must not be used for an assessment."
         }
       ]
     }

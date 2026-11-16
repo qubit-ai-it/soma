@@ -21,7 +21,7 @@ export function ImmediateStepsView({ steps }: { steps: ImmediateStep[] }) {
       <h2 className="font-heading text-2xl font-bold">{IMMEDIATE_STEPS_TITLE}</h2>
 
       {steps.length === 0 ? (
-        <p className="text-base text-muted-foreground">Sin desviación: no hay pasos pre-aprobados.</p>
+        <p className="text-base text-muted-foreground">No deviation: there are no pre-approved steps.</p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {groupByProtocol(steps).map((group) => {
@@ -33,7 +33,7 @@ export function ImmediateStepsView({ steps }: { steps: ImmediateStep[] }) {
                 line={group.steps[0].text}
                 chip={APPROVED_CHIP}
                 tone="ok"
-                detailLabel="Ver pasos"
+                detailLabel="View steps"
                 detail={
                   <>
                     <ol className="list-decimal space-y-1 pl-5">
@@ -42,9 +42,9 @@ export function ImmediateStepsView({ steps }: { steps: ImmediateStep[] }) {
                       ))}
                     </ol>
                     <p>
-                      {approval.approvedBy} · versión {approval.version} · {approval.approvedAt.slice(0, 10)}
+                      {approval.approvedBy} · version {approval.version} · {approval.approvedAt.slice(0, 10)}
                     </p>
-                    <p>Seleccionado por: {matchedBy.join(", ")}</p>
+                    <p>Selected by: {matchedBy.join(", ")}</p>
                   </>
                 }
               />

@@ -4,15 +4,15 @@ export type NotificationKind = Notification["kind"];
 export type Tone = "ok" | "warn" | "danger" | "info" | "neutral";
 
 export const KIND_LABEL: Record<NotificationKind, string> = {
-  alert: "Alerta",
+  alert: "Alert",
   checkin: "Check-in",
-  reminder: "Recordatorio",
-  summary: "Turno",
-  link: "Enlace",
-  space_weather: "Clima espacial",
-  earth_response: "Tierra",
+  reminder: "Reminder",
+  summary: "Shift",
+  link: "Link",
+  space_weather: "Space weather",
+  earth_response: "Earth",
   plan: "Plan",
-  followup: "Seguimiento",
+  followup: "Follow-up",
 };
 
 export function toneFor(priority: Notification["priority"]): Tone {

@@ -18,11 +18,11 @@ async function draftFor(evaluation: StoredEvaluation): Promise<Result<PlanDraft>
     const steps = selectProtocols(evaluation, library.protocols).flatMap(({ protocol }) =>
       protocol.steps.map((step) => step.text),
     );
-    if (steps.length === 0) return err("Sin protocolos aplicables.");
+    if (steps.length === 0) return err("No applicable protocols.");
     return ok({
       steps,
-      uncertainty: "Pasos de protocolos aprobados. En F3 la IA no redacta.",
-      source: { provider: "protocolos aprobados", mode: "live" },
+      uncertainty: "Steps from approved protocols. At F3 the AI does not draft.",
+      source: { provider: "approved protocols", mode: "live" },
     });
   }
   const drafted = await getServices().planner.draft({
@@ -45,7 +45,7 @@ export function getPlanFlow(): PlanFlow {
     draft: draftFor,
     enqueue: (input) => getEcosystem().earth.enqueue(input),
     linkStatus: async () => (await getEcosystem().earth.getState()).link.status,
-    labelFor: (subjectId) => `Tripulante ${subjectId}`,
+    labelFor: (subjectId) => `Crew member ${subjectId}`,
     concernsFor: (evaluation) => evaluation.triggeredRules.map((id) => RULE_LABEL[id] ?? id),
   });
   return cache.somaPlanFlow;

@@ -9,7 +9,7 @@ export type Conversation = {
 };
 
 export const MAX_CONVERSATIONS = 30;
-export const NEW_CONVERSATION_TITLE = "Nueva conversación";
+export const NEW_CONVERSATION_TITLE = "New conversation";
 const TITLE_MAX = 48;
 
 export function createConversation(id: string, now: number, greeting: ChatMessage): Conversation {

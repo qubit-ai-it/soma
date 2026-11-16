@@ -4,7 +4,7 @@ import type { CarePlanDTO } from "../plan.types";
 export function CarePlanDetail({ plan }: { plan: CarePlanDTO }) {
   return (
     <>
-      <p>Estado: {describeValidation(plan.validation)}</p>
+      <p>Status: {describeValidation(plan.validation)}</p>
       <ol className="list-decimal space-y-1 pl-5">
         {plan.steps.map((step, index) => (
           <li key={index} className="whitespace-pre-wrap">
@@ -12,8 +12,8 @@ export function CarePlanDetail({ plan }: { plan: CarePlanDTO }) {
           </li>
         ))}
       </ol>
-      <p className="whitespace-pre-wrap">Incertidumbre: {plan.uncertainty}</p>
-      <p>No es un diagnóstico. No inicies estos pasos sin validación médica.</p>
+      <p className="whitespace-pre-wrap">Uncertainty: {plan.uncertainty}</p>
+      <p>This is not a diagnosis. Do not start these steps without medical validation.</p>
     </>
   );
 }

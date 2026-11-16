@@ -2,80 +2,65 @@ import type { Status } from "../rules/rules.types.ts";
 import type { LimitationView } from "./evaluation.types.ts";
 
 export const SIGNAL_LABEL: Record<string, string> = {
-  sleepHours: "Sueño",
-  hrv: "Variabilidad cardíaca (HRV)",
-  heartRate: "Frecuencia cardíaca",
-  fatigue: "Fatiga autorreportada",
+  sleepHours: "Sleep",
+  hrv: "Heart rate variability (HRV)",
+  heartRate: "Heart rate",
+  fatigue: "Self-reported fatigue",
 };
 
 export const RULE_LABEL: Record<string, string> = {
-  "sleep-low": "Sueño por debajo de su baseline",
-  "hrv-low": "HRV por debajo de su baseline",
-  "hrv-low-persistent": "HRV baja de forma persistente",
-  "fatigue-high": "Fatiga por encima de su baseline",
-  "heart-rate-high": "Frecuencia cardíaca por encima de su baseline",
-  "heart-rate-critical": "Frecuencia cardíaca en rango crítico",
-  "conv-3": "Tres o más señales desviadas a la vez",
-  "hr-high": "Frecuencia cardíaca por encima de su baseline",
-  "hr-high-persistent": "Frecuencia cardíaca alta de forma persistente",
-  "hr-critical": "Frecuencia cardíaca en rango crítico",
+  "sleep-low": "Sleep below its baseline",
+  "hrv-low": "HRV below its baseline",
+  "hrv-low-persistent": "HRV persistently low",
+  "fatigue-high": "Fatigue above its baseline",
+  "heart-rate-high": "Heart rate above its baseline",
+  "heart-rate-critical": "Heart rate in critical range",
+  "conv-3": "Three or more signals deviating at once",
+  "hr-high": "Heart rate above its baseline",
+  "hr-high-persistent": "Heart rate persistently high",
+  "hr-critical": "Heart rate in critical range",
 };
 
 export const STATUS_COPY: Record<Status, { name: string; summary: string }> = {
-  F0: { name: "F0", summary: "Todo dentro de lo habitual" },
-  F1: { name: "F1", summary: "Desviación leve" },
-  F2: { name: "F2", summary: "Desviación persistente" },
-  F3: { name: "F3", summary: "Regla crítica activada" },
-  NOT_EVALUABLE: { name: "NO EVALUABLE", summary: "Faltan datos para evaluar" },
+  F0: { name: "F0", summary: "Everything within the usual range" },
+  F1: { name: "F1", summary: "Mild deviation" },
+  F2: { name: "F2", summary: "Persistent deviation" },
+  F3: { name: "F3", summary: "Critical rule triggered" },
+  NOT_EVALUABLE: { name: "NOT EVALUABLE", summary: "Not enough data to evaluate" },
 };
 
 export const NOT_EVALUABLE_MESSAGE =
-  "NO EVALUABLE no es F0: sin datos no hay evaluación.";
+  "NOT EVALUABLE is not F0: without data there is no evaluation.";
 
 export const SCENARIO_COPY: Record<string, { title: string; description: string }> = {
   "fatigue-sleep-hrv": {
-    title: "Sueño reducido, HRV en descenso y fatiga",
+    title: "Reduced sleep, falling HRV and fatigue",
     description:
-      "Sueño corto, HRV a la baja. Termina en F2.",
+      "Short sleep, falling HRV. Ends at F2.",
   },
   "critical-f3": {
-    title: "Pico de frecuencia cardíaca",
+    title: "Heart rate spike",
     description:
-      "Salto abrupto de una señal. Termina en F3.",
+      "Abrupt jump in one signal. Ends at F3.",
   },
   "insufficient-data": {
-    title: "Sensor de HRV sin datos",
+    title: "HRV sensor without data",
     description:
-      "HRV sin datos. Termina en NO EVALUABLE.",
+      "No HRV data. Ends at NOT EVALUABLE.",
   },
-};
-
-export const CHECKPOINT_LABEL: Record<string, string> = {
-  "Baseline stable": "Baseline estable",
-  "Normal variation": "Variación normal",
-  "Early deviation": "Desviación temprana",
-  "Deviation continues": "La desviación continúa",
-  "Persistent and converging": "Persistente y convergente",
-  Sustained: "Sostenida",
-  "Critical spike": "Pico crítico",
-  "Sensor gap": "Hueco del sensor",
-  "Short baseline": "Baseline corto",
-  "Still without HRV": "Aún sin HRV",
-  "No new HRV data": "Sin datos nuevos de HRV",
-  "Not evaluable": "No evaluable",
 };
 
 export const PROVENANCE_LABEL: Record<string, string> = {
   real: "Real",
-  historical: "Histórico",
-  synthetic: "Sintético",
+  historical: "Historical",
+  synthetic: "Synthetic",
 };
 
 export const QUALITY_LABEL: Record<string, string> = {
-  valid: "Válida",
-  suspect: "Dudosa",
-  invalid: "Inválida",
-  missing: "Sin dato",
+  valid: "Valid",
+  suspect: "Doubtful",
+  invalid: "Invalid",
+  missing: "No data",
 };
 
 export function formatNumber(value: number, digits = 1): string {
@@ -96,26 +81,26 @@ export function translateLimitation(
   if (kind === "insufficient-baseline" && signal) {
     const text =
       reason === "mixed-units"
-        ? `${name}: el baseline mezcla unidades distintas y no es comparable.`
-        : `${name}: el baseline tiene menos de ${minBaselineObservations} observaciones válidas.`;
+        ? `${name}: the baseline mixes different units and is not comparable.`
+        : `${name}: the baseline has fewer than ${minBaselineObservations} valid observations.`;
     return { code, signal, text };
   }
   if (kind === "zero-variability" && signal) {
     return {
       code,
       signal,
-      text: `${name}: el baseline no tiene variabilidad, así que no se puede normalizar la desviación.`,
+      text: `${name}: the baseline has no variability, so the deviation cannot be normalized.`,
     };
   }
   if (kind === "stale-data" && signal) {
-    return { code, signal, text: `${name}: sin datos recientes.` };
+    return { code, signal, text: `${name}: no recent data.` };
   }
   if (kind === "no-recent-observations" && signal) {
     return {
       code,
       signal,
-      text: `${name}: no hay observaciones válidas posteriores al baseline.`,
+      text: `${name}: no valid observations after the baseline.`,
     };
   }
-  return { code, signal: signal ?? null, text: `Limitación no reconocida (${code}).` };
+  return { code, signal: signal ?? null, text: `Unrecognized limitation (${code}).` };
 }

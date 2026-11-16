@@ -3,97 +3,97 @@
   "protocols": [
     {
       "id": "sleep-schedule-adjustment",
-      "title": "Ajuste del horario de sueño",
-      "summary": "Proteger una ventana de sueño más larga cuando el sueño baja respecto al baseline.",
+      "title": "Sleep schedule adjustment",
+      "summary": "Protect a longer sleep window when sleep drops relative to baseline.",
       "steps": [
-        { "id": "sleep-1", "text": "Reservar una ventana de sueño de al menos 8 horas en el próximo ciclo." },
-        { "id": "sleep-2", "text": "Mantener la hora de acostarse estable durante los próximos 3 días." },
-        { "id": "sleep-3", "text": "Reducir la luz intensa y las pantallas en la hora previa a dormir." },
-        { "id": "sleep-4", "text": "Registrar al despertar cuántas horas se durmió y cómo se siente el descanso." }
+        { "id": "sleep-1", "text": "Reserve a sleep window of at least 8 hours in the next cycle." },
+        { "id": "sleep-2", "text": "Keep a steady bedtime for the next 3 days." },
+        { "id": "sleep-3", "text": "Reduce bright light and screens in the hour before sleep." },
+        { "id": "sleep-4", "text": "On waking, record how many hours were slept and how rested you feel." }
       ],
       "triggers": { "ruleIds": ["sleep-low"], "signals": ["sleepHours"] },
       "approval": {
-        "approvedBy": "Panel médico de Tierra",
+        "approvedBy": "Earth medical panel",
         "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "No es orientación clínica",
+        "source": "Not clinical guidance",
         "demonstration": true
       }
     },
     {
       "id": "workload-adjustment",
-      "title": "Ajuste de carga de trabajo",
-      "summary": "Aliviar la carga cuando la fatiga sube o la variabilidad cardíaca cae.",
+      "title": "Workload adjustment",
+      "summary": "Ease the load when fatigue rises or heart rate variability falls.",
       "steps": [
-        { "id": "workload-1", "text": "Posponer las tareas no esenciales de las próximas 24 horas." },
-        { "id": "workload-2", "text": "Dividir las tareas largas en bloques cortos con pausas." },
-        { "id": "workload-3", "text": "Evitar tareas críticas en la franja de mayor cansancio informada." },
-        { "id": "workload-4", "text": "Avisar al comandante del ajuste de carga, sin detalle clínico." }
+        { "id": "workload-1", "text": "Postpone non-essential tasks for the next 24 hours." },
+        { "id": "workload-2", "text": "Split long tasks into short blocks with breaks." },
+        { "id": "workload-3", "text": "Avoid critical tasks during the time of day with the most reported tiredness." },
+        { "id": "workload-4", "text": "Tell the commander about the workload adjustment, without clinical detail." }
       ],
       "triggers": {
         "ruleIds": ["fatigue-high", "hrv-low-persistent"],
         "signals": ["fatigue"]
       },
       "approval": {
-        "approvedBy": "Panel médico de Tierra",
+        "approvedBy": "Earth medical panel",
         "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "No es orientación clínica",
+        "source": "Not clinical guidance",
         "demonstration": true
       }
     },
     {
       "id": "hydration-and-rest",
-      "title": "Hidratación y descanso",
-      "summary": "Medidas de apoyo general mientras se observa la evolución.",
+      "title": "Hydration and rest",
+      "summary": "General supportive measures while the trend is monitored.",
       "steps": [
-        { "id": "hydration-1", "text": "Beber agua de forma regular y registrar el consumo del día." },
-        { "id": "hydration-2", "text": "Hacer una pausa de descanso de 20 minutos a media jornada." },
-        { "id": "hydration-3", "text": "Hacer una comida completa a horas regulares." }
+        { "id": "hydration-1", "text": "Drink water regularly and record the day's intake." },
+        { "id": "hydration-2", "text": "Take a 20-minute rest break mid-shift." },
+        { "id": "hydration-3", "text": "Eat a full meal at regular times." }
       ],
       "triggers": { "ruleIds": ["hrv-low", "heart-rate-high"], "signals": ["hrv", "heartRate"] },
       "approval": {
-        "approvedBy": "Panel médico de Tierra",
+        "approvedBy": "Earth medical panel",
         "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "No es orientación clínica",
+        "source": "Not clinical guidance",
         "demonstration": true
       }
     },
     {
       "id": "repeat-measurement",
-      "title": "Repetir la medición",
-      "summary": "Confirmar la desviación con una segunda medición en condiciones controladas.",
+      "title": "Repeat the measurement",
+      "summary": "Confirm the deviation with a second measurement under controlled conditions.",
       "steps": [
-        { "id": "repeat-1", "text": "Descansar 15 minutos antes de medir." },
-        { "id": "repeat-2", "text": "Repetir las mediciones con el mismo dispositivo y la misma postura." },
-        { "id": "repeat-3", "text": "Comprobar que el dispositivo está bien colocado y cargado." },
-        { "id": "repeat-4", "text": "Registrar el resultado como nueva observación." }
+        { "id": "repeat-1", "text": "Rest for 15 minutes before measuring." },
+        { "id": "repeat-2", "text": "Repeat the measurements with the same device and the same posture." },
+        { "id": "repeat-3", "text": "Check that the device is worn correctly and charged." },
+        { "id": "repeat-4", "text": "Record the result as a new observation." }
       ],
       "triggers": { "ruleIds": [], "signals": [], "anyEvaluable": true },
       "approval": {
-        "approvedBy": "Panel médico de Tierra",
+        "approvedBy": "Earth medical panel",
         "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "No es orientación clínica",
+        "source": "Not clinical guidance",
         "demonstration": true
       }
     },
     {
       "id": "notify-medical-officer",
-      "title": "Avisar al oficial médico a bordo",
-      "summary": "Poner la evidencia en manos del oficial médico cuando la desviación es persistente o converge.",
+      "title": "Notify the onboard medical officer",
+      "summary": "Put the evidence in the medical officer's hands when the deviation is persistent or converging.",
       "steps": [
-        { "id": "notify-1", "text": "Compartir con el oficial médico a bordo el resumen de evidencia del motor." },
-        { "id": "notify-2", "text": "Acordar con el oficial médico a bordo el siguiente punto de revisión." },
-        { "id": "notify-3", "text": "Dejar constancia de la notificación en la línea de tiempo." }
+        { "id": "notify-1", "text": "Share the engine's evidence summary with the onboard medical officer." },
+        { "id": "notify-2", "text": "Agree the next review point with the onboard medical officer." },
+        { "id": "notify-3", "text": "Record the notification in the timeline." }
       ],
       "triggers": { "ruleIds": ["conv-3"], "signals": [], "minStatus": "F2" },
       "approval": {
-        "approvedBy": "Panel médico de Tierra",
+        "approvedBy": "Earth medical panel",
         "version": "1.0.0",
         "approvedAt": "2026-10-01T00:00:00Z",
-        "source": "No es orientación clínica",
+        "source": "Not clinical guidance",
         "demonstration": true
       }
     }

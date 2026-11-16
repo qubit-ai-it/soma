@@ -20,7 +20,7 @@ export function SentryEvaluationCard({ evaluation, nowMs }: { evaluation: Stored
   const limitations = evaluation.limitations.map((code) => translateLimitation(code, MIN_BASELINE).text);
   const signals = evaluation.evidence.flatMap((e) =>
     e.kind === "signal"
-      ? [`${signalLabel(e.signal)}: línea base ${Math.round(e.baseline.center)} (${e.baseline.sampleCount} observaciones)`]
+      ? [`${signalLabel(e.signal)}: baseline ${Math.round(e.baseline.center)} (${e.baseline.sampleCount} observations)`]
       : [],
   );
 
@@ -31,7 +31,7 @@ export function SentryEvaluationCard({ evaluation, nowMs }: { evaluation: Stored
       chip={copy.name}
       tone={TONE[evaluation.status]}
       footer={generatedBy(evaluation.evaluatedAt, nowMs)}
-      detailLabel="Ver evidencia"
+      detailLabel="View evidence"
       detail={
         rules.length + limitations.length + signals.length > 0 ? (
           <ul className="list-disc space-y-1 pl-5">

@@ -94,7 +94,7 @@ function setup(options: { plans?: PlanRecord[]; blocks?: number } = {}) {
     enqueue: async (input) => {
       if (!packets.some((p) => p.idempotencyKey === input.idempotencyKey)) packets.push(input);
     },
-    labelFor: (s) => `Tripulante ${s}`,
+    labelFor: (s) => `Crew member ${s}`,
     timing: () => ({ windowDays: 60 / 86_400, windowCount: 3, referenceDays: 60 / 86_400 }),
     makeId: () => "x1",
   });
@@ -109,7 +109,7 @@ describe("follow-up flow", () => {
     assert.equal(rows[0].contract.planStartedAt, approvedAt);
     assert.equal(rows[0].contract.windows.length, 3);
     assert.deepEqual(rows[0].contract.targets, [{ signal: "heartRate", expectedDirection: "decrease" }]);
-    assert.equal(notes[0].title, "Seguimiento iniciado");
+    assert.equal(notes[0].title, "Follow-up started");
     assert.deepEqual(notes[0].audience, ["role:cmo"]);
     assert.equal((await flow.sync(sec(111), { force: true })).created, 0);
     assert.equal(rows.length, 1);
@@ -146,7 +146,7 @@ describe("follow-up flow", () => {
     assert.equal((await flow.sync(sec(290), { force: true })).reported, 2);
     assert.deepEqual(rows[0].reports.map((r) => r.windowId), ["w1", "w2", "w3"]);
     assert.equal(rows[0].status, "closed");
-    assert.equal(notes.at(-1)?.title, "Seguimiento completo");
+    assert.equal(notes.at(-1)?.title, "Follow-up complete");
     assert.equal((await flow.sync(sec(400), { force: true })).reported, 0);
   });
 
@@ -157,9 +157,9 @@ describe("follow-up flow", () => {
     assert.equal(rows[0].reports[0].status, "not-evaluable");
     assert.ok(rows[0].reports[0].reasons.includes("adherence-missing"));
     assert.equal(rows[0].reports[0].escalate, false);
-    const window = notes.find((n) => n.title === "Ventana 1 cerrada");
-    assert.ok(window?.body?.startsWith("Tripulante cm-02: No evaluable. "));
-    assert.ok((window?.body?.length ?? 0) > "Tripulante cm-02: No evaluable. ".length);
+    const window = notes.find((n) => n.title === "Window 1 closed");
+    assert.ok(window?.body?.startsWith("Crew member cm-02: Not evaluable. "));
+    assert.ok((window?.body?.length ?? 0) > "Crew member cm-02: Not evaluable. ".length);
     assert.deepEqual(window?.audience, ["role:cmo"]);
   });
 
@@ -205,17 +205,17 @@ describe("follow-up feedback from Earth", () => {
     assert.equal((await flow.earthFeedback({ ...base, followUpId: "nope", decision: "ack", note: "" })).ok, false);
     assert.equal((await flow.earthFeedback({ ...base, windowId: "w3", decision: "ack", note: "" })).ok, false);
     assert.equal((await flow.earthFeedback({ ...base, decision: "comment", note: "  " })).ok, false);
-    const sent = await flow.earthFeedback({ ...base, decision: "comment", note: "Medir de noche" });
+    const sent = await flow.earthFeedback({ ...base, decision: "comment", note: "Measure at night" });
     assert.ok(sent.ok);
     const packet = packets.at(-1)!;
     assert.equal(packet.kind, "followup_feedback");
     assert.equal(packet.direction, "to_station");
-    assert.equal(packet.payload.note, "Medir de noche");
+    assert.equal(packet.payload.note, "Measure at night");
   });
 
   it("applies feedback only after delivery, once, and tells the CMO and the commander", async () => {
     const { flow, rows, packets, notes, reportKey, followUpId } = await withClosedWindow();
-    await flow.earthFeedback({ followUpId, windowId: "w1", decision: "comment", note: "Medir de noche", reviewerId: "demo-earth-md-01" });
+    await flow.earthFeedback({ followUpId, windowId: "w1", decision: "comment", note: "Measure at night", reviewerId: "demo-earth-md-01" });
     const feedbackKey = packets.at(-1)!.idempotencyKey;
 
     assert.equal(await flow.reconcile(stateOf(packets, [reportKey])), 0);
@@ -225,10 +225,10 @@ describe("follow-up feedback from Earth", () => {
     assert.equal(await flow.reconcile(delivered), 1);
     assert.equal(await flow.reconcile(delivered), 0);
     assert.equal(rows[0].reports[0].feedback.length, 1);
-    assert.equal(rows[0].reports[0].feedback[0].note, "Medir de noche");
+    assert.equal(rows[0].reports[0].feedback[0].note, "Measure at night");
 
-    const notice = notes.find((n) => n.title === "Tierra respondió");
-    assert.equal(notice?.body, "Tripulante cm-02: Ventana 1 · comentó");
+    const notice = notes.find((n) => n.title === "Earth responded");
+    assert.equal(notice?.body, "Crew member cm-02: Window 1 · commented");
     assert.deepEqual(notice?.audience, ["role:cmo", "role:commander"]);
     assert.deepEqual(await flow.awaitingFeedback(delivered), []);
   });

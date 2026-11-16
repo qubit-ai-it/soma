@@ -30,7 +30,7 @@ function Spark({ bins }: { bins: readonly Bin[] }) {
   return (
     <svg
       role="img"
-      aria-label={`Últimas ${recent.length} lecturas: entre ${Math.round(min)} y ${Math.round(max)} lpm`}
+      aria-label={`Last ${recent.length} readings: between ${Math.round(min)} and ${Math.round(max)} bpm`}
       viewBox={`0 0 ${SPARK.width} ${SPARK.height}`}
       className="h-12 w-full text-signal"
     >
@@ -61,7 +61,7 @@ export function LiveReading({ escalate }: { escalate: Escalate }) {
     status === "F3" && evaluated.latestBpm !== null
       ? [
           {
-            label: "Escalar a Tierra",
+            label: "Escalate to Earth",
             icon: "emergency",
             disabled: pending,
             onClick: () =>
@@ -75,11 +75,11 @@ export function LiveReading({ escalate }: { escalate: Escalate }) {
 
   return (
     <MetricCard
-      title="Frecuencia cardíaca en vivo"
-      value={evaluated.latestBpm === null ? "— lpm" : `${Math.round(evaluated.latestBpm)} lpm`}
+      title="Live heart rate"
+      value={evaluated.latestBpm === null ? "— bpm" : `${Math.round(evaluated.latestBpm)} bpm`}
       line={view.line}
       icon="cardiology"
-      source={live.deviceName ?? "Reloj o banda"}
+      source={live.deviceName ?? "Watch or band"}
       tone={view.tone}
       actions={actions}
     >

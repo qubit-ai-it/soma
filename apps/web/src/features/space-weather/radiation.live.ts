@@ -64,13 +64,13 @@ export function createLiveRadiation({
         continue;
       }
       const parsed = table.safeParse(response.value);
-      if (!parsed.success) return err("RadLab: formato inesperado");
+      if (!parsed.success) return err("RadLab: unexpected format");
       const window = latestDay(parsed.data.data);
       if (window) {
         return ok({ ...window, source: { ...window.source, fetchedAt: new Date(now()).toISOString() } });
       }
     }
-    return err("RadLab no tiene datos recientes");
+    return err("RadLab has no recent data");
   }
 
   return { getWindow: withCache(ttlMs, load, now) };

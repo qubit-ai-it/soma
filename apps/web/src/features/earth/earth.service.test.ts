@@ -53,7 +53,7 @@ describe("earth service", () => {
     const auditBefore = (await audit.list()).length;
     await service.setLink({ status: "disconnected" });
     const reviewed = await service.review(
-      { proposalId: "pp-001", decision: "modify", steps: ["Dormir 8 h"], note: "Más descanso" },
+      { proposalId: "pp-001", decision: "modify", steps: ["Sleep 8 h"], note: "More rest" },
       "demo-earth-md-01",
     );
     assert.ok(reviewed.ok);
@@ -80,8 +80,8 @@ describe("earth service", () => {
     assert.equal(entry.aiProposal?.steps.length, 3);
     assert.deepEqual(entry.humanDecision, {
       decision: "modify",
-      note: "Más descanso",
-      steps: ["Dormir 8 h"],
+      note: "More rest",
+      steps: ["Sleep 8 h"],
     });
   });
 
@@ -104,7 +104,7 @@ describe("earth service", () => {
 
   it("refuses a second review of the same proposal", async () => {
     const { service } = setup();
-    const first = await service.review({ proposalId: "pp-003", decision: "reject", note: "No procede" }, "demo-earth-md-01");
+    const first = await service.review({ proposalId: "pp-003", decision: "reject", note: "Not applicable" }, "demo-earth-md-01");
     assert.ok(first.ok);
     const second = await service.review({ proposalId: "pp-003", decision: "approve", note: "" }, "demo-earth-md-01");
     assert.equal(second.ok, false);
@@ -118,7 +118,7 @@ describe("earth service", () => {
       idempotencyKey: "alert-notify:al-9",
       kind: "alert_notification" as const,
       direction: "to_earth" as const,
-      payload: { alertId: "al-9", status: "F3", action: "Evaluación inmediata", subjectRef: "cm-03", issuedAt: "2026-10-31T06:00:00.000Z" },
+      payload: { alertId: "al-9", status: "F3", action: "Immediate evaluation", subjectRef: "cm-03", issuedAt: "2026-10-31T06:00:00.000Z" },
     };
     const results = await Promise.all([service.enqueue(input), service.enqueue(input)]);
     assert.equal(results.filter((r) => r.duplicate).length, 1);

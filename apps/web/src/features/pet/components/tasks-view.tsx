@@ -24,7 +24,7 @@ type Props = {
   onRunNow: (id: string) => void;
 };
 
-const time = new Intl.DateTimeFormat("es", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+const time = new Intl.DateTimeFormat("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
 const field =
   "h-10 rounded-full bg-secondary px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -46,15 +46,15 @@ export function TasksView({ tasks, runs, onCreate, onToggle, onDelete, onRunNow 
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Nombre de la tarea"
-          aria-label="Nombre de la tarea"
+          placeholder="Task name"
+          aria-label="Task name"
           maxLength={60}
           className={`${field} min-w-40 flex-1`}
         />
         <select
           value={kind}
           onChange={(e) => setKind(e.target.value as CaptureKind)}
-          aria-label="Dato a capturar"
+          aria-label="Data to capture"
           className={field}
         >
           {CAPTURE_KINDS.map((k) => (
@@ -66,46 +66,46 @@ export function TasksView({ tasks, runs, onCreate, onToggle, onDelete, onRunNow 
         <select
           value={interval}
           onChange={(e) => setInterval(Number(e.target.value))}
-          aria-label="Frecuencia"
+          aria-label="Frequency"
           className={field}
         >
           {INTERVAL_OPTIONS.map((m) => (
             <option key={m} value={m}>
-              Cada {m} min
+              Every {m} min
             </option>
           ))}
         </select>
         <Button type="submit">
           <Icon name="add" />
-          Programar
+          Schedule
         </Button>
       </form>
 
       <section className="flex flex-col gap-2">
-        <h3 className="text-base">Tareas programadas</h3>
-        {tasks.length === 0 && <p className="text-sm text-ink">Todavía no programaste ninguna tarea.</p>}
+        <h3 className="text-base">Scheduled tasks</h3>
+        {tasks.length === 0 && <p className="text-sm text-ink">You have not scheduled any tasks yet.</p>}
         <ul className="flex flex-col gap-2">
           {tasks.map((t) => (
             <li key={t.id} className="flex flex-wrap items-center gap-2 rounded-md bg-secondary px-4 py-3">
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{t.name}</p>
                 <p className="text-xs text-ink">
-                  {kindInfo(t.kind).label} · cada {t.intervalMinutes} min ·{" "}
-                  {t.enabled ? `próxima ${time.format(nextRunAt(t))}` : "en pausa"}
+                  {kindInfo(t.kind).label} · every {t.intervalMinutes} min ·{" "}
+                  {t.enabled ? `next ${time.format(nextRunAt(t))}` : "paused"}
                 </p>
               </div>
-              <Button variant="ghost" size="icon-sm" aria-label="Ejecutar ahora" onClick={() => onRunNow(t.id)}>
+              <Button variant="ghost" size="icon-sm" aria-label="Run now" onClick={() => onRunNow(t.id)}>
                 <Icon name="bolt" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon-sm"
-                aria-label={t.enabled ? "Pausar" : "Reanudar"}
+                aria-label={t.enabled ? "Pause" : "Resume"}
                 onClick={() => onToggle(t.id)}
               >
                 <Icon name={t.enabled ? "pause" : "play_circle"} />
               </Button>
-              <Button variant="ghost" size="icon-sm" aria-label="Eliminar tarea" onClick={() => onDelete(t.id)}>
+              <Button variant="ghost" size="icon-sm" aria-label="Delete task" onClick={() => onDelete(t.id)}>
                 <Icon name="delete" />
               </Button>
             </li>
@@ -114,8 +114,8 @@ export function TasksView({ tasks, runs, onCreate, onToggle, onDelete, onRunNow 
       </section>
 
       <section className="flex flex-col gap-2">
-        <h3 className="text-base">Últimas capturas</h3>
-        {runs.length === 0 && <p className="text-sm text-ink">Sin capturas aún.</p>}
+        <h3 className="text-base">Latest captures</h3>
+        {runs.length === 0 && <p className="text-sm text-ink">No captures yet.</p>}
         <ul className="flex flex-col">
           {runs.slice(0, 10).map((r, i) => (
             <li

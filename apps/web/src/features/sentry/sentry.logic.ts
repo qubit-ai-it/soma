@@ -58,19 +58,19 @@ export function shouldRaise(
 export function alertCopy(level: Alert["level"]): { title: string; action: string } {
   if (level === "F3") {
     return {
-      title: "Alerta F3: se requiere acción inmediata",
-      action: "Evaluación médica inmediata y notificación a Tierra",
+      title: "F3 alert: immediate action required",
+      action: "Immediate medical evaluation and notification to Earth",
     };
   }
   if (level === "F2") {
     return {
-      title: "Frecuencia cardíaca sostenida sobre su línea base",
-      action: "Revisión por el médico de a bordo",
+      title: "Heart rate sustained above its baseline",
+      action: "Review by the onboard physician",
     };
   }
   return {
-    title: "No hay datos suficientes para evaluar",
-    action: "Revisar el sensor o reportar a mano",
+    title: "Not enough data to evaluate",
+    action: "Check the sensor or report manually",
   };
 }
 
@@ -80,8 +80,8 @@ export function clinicalDetailFor(evaluation: Evaluation): string | undefined {
   const delta = signal.normalizedDeltas[signal.normalizedDeltas.length - 1];
   const center = Math.round(signal.baseline.center);
   return delta === undefined
-    ? `Línea base de ${center} bpm.`
-    : `Desviación de ${delta.toFixed(1)} sobre su línea base de ${center} bpm.`;
+    ? `Baseline of ${center} bpm.`
+    : `Deviation of ${delta.toFixed(1)} above its baseline of ${center} bpm.`;
 }
 
 export function staleMinutes(lastObservedAt: string, nowMs: number): number {

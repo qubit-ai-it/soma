@@ -3,7 +3,7 @@ import { SEVERITY_META } from "./severity";
 
 export function SeverityLegend() {
   return (
-    <ul aria-label="Leyenda de gravedad" className="mb-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+    <ul aria-label="Severity legend" className="mb-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
       {(Object.keys(SEVERITY_META) as Severity[]).map((key) => (
         <li key={key} className="flex items-center gap-2">
           <span

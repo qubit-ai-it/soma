@@ -9,7 +9,7 @@ export function CrewSummaryList({
   crew,
   hrefFor,
   riskSlots = {},
-  heading = "Tripulación",
+  heading = "Crew",
 }: {
   crew: CrewSummaryDTO[];
   hrefFor: (id: string) => string;
@@ -39,14 +39,14 @@ export function CrewSummaryList({
               <p className="mt-auto text-sm text-muted-foreground">
                 {member.primarySignal
                   ? `${member.primarySignal.label}: ${member.primarySignal.value} ${member.primarySignal.unit} (${SEVERITY_META[member.primarySignal.severity].label})`
-                  : "Sin señales fuera de rango"}
+                  : "No signals out of range"}
               </p>
             </Link>
           </li>
         ))}
       </ul>
       <p className="mt-6 text-xs text-ink">
-        No es orientación médica.
+        This is not medical guidance.
       </p>
     </section>
   );

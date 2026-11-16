@@ -151,7 +151,7 @@ const STAGE_TONE = new Color("#e4e3dc")
 const FADE_MS = 450
 // A model without the item's structures is the wrong file, not a network
 // problem, so its message does not suggest checking the connection.
-const MISMATCH = "El modelo no contiene las estructuras esperadas."
+const MISMATCH = "The model does not contain the expected structures."
 
 // Faded parts blend towards the stage, so its tone follows the theme: the
 // theme's --muted, resolved through a canvas because three.js cannot parse
@@ -311,7 +311,7 @@ async function loadModel(
     data.byteLength < 12 ||
     new DataView(data).getUint32(0, true) !== 0x46546c67
   )
-    throw new Error("El archivo del modelo falta o no es un GLB válido.")
+    throw new Error("The model file is missing or is not a valid GLB.")
   return (await new GLTFLoader().parseAsync(data, "")).scene
 }
 
@@ -435,10 +435,10 @@ export function OrganViewer({
           request,
           error:
             abort.signal.reason === "timeout"
-              ? "La descarga tardó demasiado."
+              ? "The download took too long."
               : reason instanceof Error
                 ? reason.message
-                : "No se pudo leer el modelo.",
+                : "Could not read the model.",
         })
       })
       .finally(() => clearTimeout(timeout))
@@ -801,8 +801,8 @@ export function OrganViewer({
       }
     : graphicsFailed
       ? {
-          title: "Vista 3D no disponible",
-          text: "WebGL no pudo iniciar o se interrumpió. Reintenta o usa un navegador con aceleración por hardware.",
+          title: "3D view unavailable",
+          text: "WebGL could not start or was interrupted. Try again or use a browser with hardware acceleration.",
         }
       : null
 
@@ -837,8 +837,8 @@ export function OrganViewer({
       }}
     >
       <p id={instructions} className="sr-only">
-        Arrastra o usa las flechas para girar, y usa la rueda, el gesto de pellizco o las
-        teclas más y menos para acercar. Haz clic en una estructura para seleccionarla.
+        Drag or use the arrow keys to rotate, and use the wheel, the pinch gesture or the
+        plus and minus keys to zoom. Click a structure to select it.
       </p>
       {message ? (
         <div className="absolute inset-0 flex items-center justify-center p-6">
@@ -865,7 +865,7 @@ export function OrganViewer({
         >
           <Progress
             value={progress}
-            aria-label={`Cargando modelo: ${model.name.toLowerCase()}`}
+            aria-label={`Loading model: ${model.name.toLowerCase()}`}
             className="w-40"
           />
           <p className="text-muted-foreground">{progress}% · Loading anatomy</p>
@@ -875,12 +875,12 @@ export function OrganViewer({
         <TooltipProvider>
           <div
             role="toolbar"
-            aria-label="Controles de vista"
+            aria-label="View controls"
             className="absolute top-2 right-2 flex items-center gap-0.5 rounded-lg border bg-background/90 p-1 shadow-sm backdrop-blur"
           >
             <Select
               items={[
-                { label: "Vista libre", value: null },
+                { label: "Free view", value: null },
                 ...model.views.map(({ name }) => ({
                   label: name,
                   value: name,
@@ -891,7 +891,7 @@ export function OrganViewer({
                 if (next) engine.setView(next)
               }}
             >
-              <SelectTrigger aria-label="Vista" className="border-transparent">
+              <SelectTrigger aria-label="View" className="border-transparent">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -904,13 +904,13 @@ export function OrganViewer({
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <ToolbarButton label="Acercar" onClick={() => engine.zoom(0.85)}>
+            <ToolbarButton label="Zoom in" onClick={() => engine.zoom(0.85)}>
               <Icon name="add" />
             </ToolbarButton>
-            <ToolbarButton label="Alejar" onClick={() => engine.zoom(1.18)}>
+            <ToolbarButton label="Zoom out" onClick={() => engine.zoom(1.18)}>
               <Icon name="remove" />
             </ToolbarButton>
-            <ToolbarButton label="Restablecer vista" onClick={() => engine.reset()}>
+            <ToolbarButton label="Reset view" onClick={() => engine.reset()}>
               <Icon name="restart_alt" />
             </ToolbarButton>
           </div>
@@ -921,7 +921,7 @@ export function OrganViewer({
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-3 text-center text-xs text-muted-foreground"
         >
-          Arrastra para girar · Rueda o pellizco para acercar
+          Drag to rotate · Wheel or pinch to zoom
         </p>
       )}
       {attribution && (
@@ -931,7 +931,7 @@ export function OrganViewer({
               <Button
                 variant="ghost"
                 size="icon-xs"
-                aria-label="Crédito del modelo"
+                aria-label="Model credit"
                 className="absolute right-2 bottom-2 text-muted-foreground"
               />
             }
@@ -941,7 +941,7 @@ export function OrganViewer({
           <PopoverContent
             side="top"
             align="end"
-            aria-label="Crédito del modelo"
+            aria-label="Model credit"
             className="w-64 text-xs"
           >
             <a

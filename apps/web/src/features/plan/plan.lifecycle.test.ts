@@ -12,8 +12,8 @@ const plan = (over: Partial<PlanRecord> = {}): PlanRecord => ({
   level: "F2",
   status: "draft",
   revision: 1,
-  steps: ["Descansar", "Medir de nuevo"],
-  uncertainty: "Borrador sin validar",
+  steps: ["Rest", "Measure again"],
+  uncertainty: "Unvalidated draft",
   source: { provider: "ollama", mode: "live" },
   concerns: [],
   reviews: [],
@@ -65,13 +65,13 @@ describe("plan lifecycle", () => {
   it("requests changes and replaces the steps only when Earth proposes new ones", () => {
     const withSteps = applyEarthResponse(
       plan({ status: "in_review" }),
-      review({ decision: "changes", note: "Falta hidratación", steps: ["Hidratar", "Descansar"] }),
+      review({ decision: "changes", note: "Needs hydration", steps: ["Hydrate", "Rest"] }),
       NOW,
     );
     assert.equal(withSteps.plan.status, "changes_requested");
-    assert.deepEqual(withSteps.plan.steps, ["Hidratar", "Descansar"]);
+    assert.deepEqual(withSteps.plan.steps, ["Hydrate", "Rest"]);
     const noSteps = applyEarthResponse(plan({ status: "in_review" }), review({ decision: "changes", note: "x" }), NOW);
-    assert.deepEqual(noSteps.plan.steps, ["Descansar", "Medir de nuevo"]);
+    assert.deepEqual(noSteps.plan.steps, ["Rest", "Measure again"]);
   });
 
   it("keeps the plan in review on a comment", () => {

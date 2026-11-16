@@ -14,7 +14,7 @@ async function loadCards(): Promise<ExternalCard[]> {
 export async function ExternalSection() {
   const cards = await loadCards();
   if (cards.length === 0) {
-    return <p className="text-sm text-muted-foreground">No se pudo contactar a NASA ni a NOAA por ahora.</p>;
+    return <p className="text-sm text-muted-foreground">Could not reach NASA or NOAA right now.</p>;
   }
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

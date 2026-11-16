@@ -14,7 +14,7 @@ function sessionId(request: Request): string | null {
 export async function GET(request: Request) {
   await connection();
   const id = sessionId(request);
-  if (!id) return Response.json({ error: "Sesión de simulación inválida." }, { status: 400 });
+  if (!id) return Response.json({ error: "Invalid simulation session." }, { status: 400 });
   const saved = await getSimulation(id);
   const state = needsIncidentReview(saved) ? await updateSimulation(id, { kind: "retry" }) : saved;
   if (state.phase === "pending") after(() => runPendingSimulation(id));
@@ -23,9 +23,9 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   const id = sessionId(request);
-  if (!id) return Response.json({ error: "Sesión de simulación inválida." }, { status: 400 });
+  if (!id) return Response.json({ error: "Invalid simulation session." }, { status: 400 });
   const input = updateSchema.safeParse(await request.json().catch(() => null));
-  if (!input.success) return Response.json({ error: "Revisa los datos ingresados." }, { status: 400 });
+  if (!input.success) return Response.json({ error: "Check the data you entered." }, { status: 400 });
   const state = await updateSimulation(id, input.data);
   if (state.phase === "pending") after(() => runPendingSimulation(id));
   return Response.json(state);

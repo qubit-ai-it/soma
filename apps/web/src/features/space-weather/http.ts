@@ -18,9 +18,9 @@ export async function fetchJson(
     try {
       return ok(JSON.parse(text));
     } catch {
-      return err(text.slice(0, 120) || "Respuesta no válida");
+      return err(text.slice(0, 120) || "Invalid response");
     }
   } catch (cause) {
-    return err(cause instanceof Error ? cause.message : "Sin conexión");
+    return err(cause instanceof Error ? cause.message : "No connection");
   }
 }

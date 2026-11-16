@@ -9,8 +9,8 @@ describe("earth display helpers", () => {
   });
 
   it("translates known error codes and passes unknown ones through", () => {
-    assert.equal(errorLabel("link_down"), "Sin enlace");
-    assert.equal(errorLabel("ack_lost"), "Confirmación perdida");
+    assert.equal(errorLabel("link_down"), "No link");
+    assert.equal(errorLabel("ack_lost"), "Acknowledgement lost");
     assert.equal(errorLabel("weird"), "weird");
     assert.equal(errorLabel(undefined), undefined);
   });

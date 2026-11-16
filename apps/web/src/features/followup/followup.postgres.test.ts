@@ -67,7 +67,7 @@ describe("follow-up cycle with Earth on postgres", { skip: !hasDirectDatabase },
       observations,
       notifications: notifications(),
       enqueue: (input) => earth.enqueue(input),
-      labelFor: (id) => `Tripulante ${id}`,
+      labelFor: (id) => `Crew member ${id}`,
       timing: () => ({ windowDays: 60 / 86_400, windowCount: 2, referenceDays: 60 / 86_400 }),
     });
     await earth.setLink({ status: "connected", latencyMs: 40, ackLoss: false });
@@ -91,7 +91,7 @@ describe("follow-up cycle with Earth on postgres", { skip: !hasDirectDatabase },
       followUpId: pending[0].followUpId,
       windowId: "w1",
       decision: "comment",
-      note: "Medir de noche",
+      note: "Measure at night",
       reviewerId: "demo-earth-md-01",
     });
     assert.ok(sent.ok);
@@ -101,7 +101,7 @@ describe("follow-up cycle with Earth on postgres", { skip: !hasDirectDatabase },
     await earth.flush({ force: true });
     const record = await followups().get(pending[0].followUpId);
     assert.equal(record?.reports[0].feedback.length, 1);
-    assert.equal(record?.reports[0].feedback[0].note, "Medir de noche");
+    assert.equal(record?.reports[0].feedback[0].note, "Measure at night");
     assert.deepEqual(await flow.awaitingFeedback(await earth.getState()), []);
 
     const cmo = await notifications().listFor({ role: "cmo" }, { limit: 50 });

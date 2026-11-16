@@ -6,30 +6,30 @@ import {
 } from "../chat.types.ts";
 
 const LOOKUP_LABELS = {
-  found: "Fuentes recuperadas",
-  "no-matches": "Búsqueda enviada · Sin fuentes",
-  unavailable: "Búsqueda enviada · Biblioteca no disponible",
+  found: "Sources retrieved",
+  "no-matches": "Search sent · No sources",
+  unavailable: "Search sent · Library unavailable",
 };
 
 const SKIPPED_LABELS = {
-  urgency: "Búsqueda omitida · Consulta urgente",
-  "image-only": "Búsqueda omitida · Consulta de imagen",
-  "no-query": "Búsqueda omitida · Sin términos de búsqueda",
+  urgency: "Search skipped · Urgent query",
+  "image-only": "Search skipped · Image query",
+  "no-query": "Search skipped · No search terms",
 };
 
 const EVIDENCE_LABELS: Record<string, string> = {
-  operational: "Procedimiento operativo",
-  operational_guidance: "Orientación operativa",
-  historical: "Práctica histórica",
-  capability: "Capacidad de tratamiento",
-  countermeasure: "Contramedida",
-  proposed_countermeasure: "Contramedida propuesta",
-  monitoring: "Método de vigilancia",
-  training: "Entrenamiento de tripulación",
-  bibliographic_reference: "Referencia bibliográfica",
-  research_method: "Método de investigación",
-  research_evidence: "Evidencia de investigación",
-  study_record: "Registro de estudio",
+  operational: "Operational procedure",
+  operational_guidance: "Operational guidance",
+  historical: "Historical practice",
+  capability: "Treatment capability",
+  countermeasure: "Countermeasure",
+  proposed_countermeasure: "Proposed countermeasure",
+  monitoring: "Monitoring method",
+  training: "Crew training",
+  bibliographic_reference: "Bibliographic reference",
+  research_method: "Research method",
+  research_evidence: "Research evidence",
+  study_record: "Study record",
 };
 
 function ResearchDetails({ research }: { research: ResearchLookup }) {
@@ -41,13 +41,13 @@ function ResearchDetails({ research }: { research: ResearchLookup }) {
     <details className="rounded-md bg-accent-soft p-3 text-xs">
       <summary className="cursor-pointer text-foreground">{LOOKUP_LABELS[research.status]}</summary>
       <p className="mt-2 break-words font-mono">{research.query}</p>
-      <p className="mt-1 text-ink">{research.origin === "model" ? "Origen · Modelo" : "Origen · Reglas de respaldo"}</p>
+      <p className="mt-1 text-ink">{research.origin === "model" ? "Origin · Model" : "Origin · Fallback rules"}</p>
       {research.sources.length > 0 && (
         <ul className="mt-3 space-y-3">
           {research.sources.map(({ id, title, url, page, section, evidenceType }) => {
             const officialURL = officialResearchURL(url);
             const description = [
-              page != null ? `Página ${page}` : section,
+              page != null ? `Page ${page}` : section,
               evidenceType ? EVIDENCE_LABELS[evidenceType] : undefined,
             ].filter(Boolean).join(" · ");
             return (

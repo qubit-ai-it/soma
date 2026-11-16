@@ -11,7 +11,7 @@ import { getStoredEvaluation } from "@/features/sentry/sentry.queries";
 
 export default function EvaluationPage({ params }: PageProps<"/report/[id]/evaluation">) {
   return (
-    <Suspense fallback={<p className="text-ink">Evaluando…</p>}>
+    <Suspense fallback={<p className="text-ink">Evaluating…</p>}>
       <Content params={params} />
     </Suspense>
   );

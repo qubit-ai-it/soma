@@ -42,7 +42,7 @@ export function createEarthService({
           action: "plan_review",
           actor: { kind: "human", id: review.actorId, role: "earth" },
           subjectId: proposal.subject.memberId,
-          detail: "Propuesta de IA revisada por un médico de Tierra; respuesta confirmada por la cola",
+          detail: "AI proposal reviewed by an Earth physician; response confirmed by the queue",
           aiProposal: {
             proposalId: proposal.id,
             title: proposal.title,
@@ -64,7 +64,7 @@ export function createEarthService({
           actor: { kind: "system", id: "deterministic-engine" },
           ...(alertId ? { alertId } : {}),
           subjectId: String(packet.payload.subjectRef ?? ""),
-          detail: "Notificación mínima (estado y acción) entregada a Tierra",
+          detail: "Minimal notification (status and action) delivered to Earth",
           idempotencyKey: `escalated:${packet.idempotencyKey}`,
         });
       }

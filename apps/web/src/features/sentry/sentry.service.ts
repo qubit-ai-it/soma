@@ -36,7 +36,7 @@ export type ProcessOutcome =
   | { phase: "evaluated"; evaluation: StoredEvaluation; saved: boolean; raised: boolean };
 
 const PRIORITY = { F3: "critical", F2: "high", NOT_EVALUABLE: "normal" } as const;
-const LEVEL_NAME = { F3: "F3", F2: "F2", NOT_EVALUABLE: "No evaluable" } as const;
+const LEVEL_NAME = { F3: "F3", F2: "F2", NOT_EVALUABLE: "Not evaluable" } as const;
 
 export type SentryService = ReturnType<typeof createSentryService>;
 
@@ -156,8 +156,8 @@ export function createSentryService(deps: Deps) {
           dedupeKey: `nodata:${memberId}:${gap}`,
           kind: "alert",
           priority: "normal",
-          title: `No evaluable · ${label}`,
-          body: `${label}: sin datos hace ${minutes} min`,
+          title: `Not evaluable · ${label}`,
+          body: `${label}: no data for ${minutes} min`,
           memberId,
           audience: audienceForLevel("NOT_EVALUABLE", memberId),
           payload: { alertId: raised.value.id, level: "NOT_EVALUABLE", memberId },

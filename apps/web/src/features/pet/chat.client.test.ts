@@ -22,9 +22,9 @@ const okBody = (content: string) => Response.json({ message: { content } });
 describe("createOllamaChat", () => {
   it("posts to the configured Ollama endpoint and returns the non-streamed reply", async () => {
     const calls: Call[] = [];
-    const chat = createOllamaChat({ ...base, fetch: fakeFetch(() => okBody(" hola "), calls) });
+    const chat = createOllamaChat({ ...base, fetch: fakeFetch(() => okBody(" hello "), calls) });
     const result = await chat.reply([{ role: "user", content: "hi" }]);
-    assert.deepEqual(result, { ok: true, value: "hola" });
+    assert.deepEqual(result, { ok: true, value: "hello" });
     assert.equal(calls[0].url, base.url);
     assert.equal(calls[0].init.method, "POST");
     const headers = new Headers(calls[0].init.headers);

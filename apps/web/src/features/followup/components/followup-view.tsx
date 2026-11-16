@@ -11,9 +11,9 @@ import type { FollowUpContract, FollowUpResult, FollowUpStatus } from "../follow
 type Props = { contract: FollowUpContract; result: FollowUpResult };
 
 const SIGNAL_LABELS: Record<string, string> = {
-  sleepHours: "Sueño",
-  hrv: "VFC (HRV)",
-  fatigue: "Fatiga",
+  sleepHours: "Sleep",
+  hrv: "HRV",
+  fatigue: "Fatigue",
 };
 
 const TONE: Record<FollowUpStatus, CardTone> = {
@@ -34,17 +34,17 @@ export function FollowUpView({ contract, result }: Props) {
 
   return (
     <div className="space-y-6">
-      <h2 className="font-heading text-2xl font-bold">Seguimiento</h2>
+      <h2 className="font-heading text-2xl font-bold">Follow-up</h2>
 
       {escalate.notifyEarth && (
         <div role="alert" className={GRID}>
-          <SomaCard title="Empeora: sube el estado" line="Se notifica a Tierra." chip="Aviso" tone="danger" />
+          <SomaCard title="Worsening: raise the status" line="Earth is notified." chip="Notice" tone="danger" />
         </div>
       )}
 
-      <section aria-label="Ventanas de revisión" className="space-y-4">
-        <h3 className="font-heading text-lg font-bold">Ventanas de revisión</h3>
-        {windows.length === 0 && <p className="text-base text-muted-foreground">Aún no cierra ninguna ventana.</p>}
+      <section aria-label="Review windows" className="space-y-4">
+        <h3 className="font-heading text-lg font-bold">Review windows</h3>
+        {windows.length === 0 && <p className="text-base text-muted-foreground">No window has closed yet.</p>}
         <div className={GRID}>
           {windows.map((w) => (
             <SomaCard
@@ -55,15 +55,15 @@ export function FollowUpView({ contract, result }: Props) {
                 w.reasons.length > 0
                   ? describeReason(w.reasons[0])
                   : w.adherence
-                    ? `Adherencia ${w.adherence.stepsDone}/${w.adherence.stepsPlanned} pasos.`
-                    : "Sin registro de adherencia."
+                    ? `Adherence ${w.adherence.stepsDone}/${w.adherence.stepsPlanned} steps.`
+                    : "No adherence record."
               }
               chip={w.label}
               tone={TONE[w.status]}
               detail={
                 <>
                   <p>
-                    {day(w.start)} a {day(w.end)}
+                    {day(w.start)} to {day(w.end)}
                   </p>
                   {w.reasons.length > 0 && (
                     <ul className="list-disc space-y-0.5 pl-5">
@@ -75,15 +75,15 @@ export function FollowUpView({ contract, result }: Props) {
                   <ul className="space-y-0.5">
                     {w.signals.map((s) => (
                       <li key={s.signal}>
-                        {SIGNAL_LABELS[s.signal] ?? s.signal}: {describeStatus(s.status)} · recuperado{" "}
+                        {SIGNAL_LABELS[s.signal] ?? s.signal}: {describeStatus(s.status)} · recovered{" "}
                         {percent(s.recoveredFraction)} · {s.observationCount} obs.
                       </li>
                     ))}
                   </ul>
                   <p>
                     {w.adherence
-                      ? `Adherencia: ${w.adherence.stepsDone}/${w.adherence.stepsPlanned} pasos · ${w.adherence.xrSessionsDone}/${w.adherence.xrSessionsPlanned} sesión XR`
-                      : "Adherencia: sin registro"}
+                      ? `Adherence: ${w.adherence.stepsDone}/${w.adherence.stepsPlanned} steps · ${w.adherence.xrSessionsDone}/${w.adherence.xrSessionsPlanned} XR session`
+                      : "Adherence: no record"}
                   </p>
                 </>
               }
@@ -94,40 +94,40 @@ export function FollowUpView({ contract, result }: Props) {
 
       <div className={GRID}>
         <SomaCard
-          label="Histéresis"
+          label="Hysteresis"
           title={CONFIRMATION_BANNER}
-          line={`Mejorando ${result.consecutiveImproving} de ${required} ventanas.`}
-          chip={stepDown.proposed ? "Propuesto" : "Aún no"}
+          line={`Improving ${result.consecutiveImproving} of ${required} windows.`}
+          chip={stepDown.proposed ? "Proposed" : "Not yet"}
           tone={stepDown.proposed ? "ok" : "neutral"}
           detail={
             <>
               <p>{CONFIRMATION_LINE}</p>
               <p>
                 {stepDown.proposed
-                  ? "Se cumple la histéresis: se propone bajar el estado, pendiente de confirmación humana."
-                  : "Todavía no se propone bajar el estado."}
+                  ? "Hysteresis is met: lowering the status is proposed, pending human confirmation."
+                  : "Lowering the status is not proposed yet."}
               </p>
             </>
           }
         />
 
         <SomaCard
-          label="Contrato de seguimiento"
-          title="Contrato de seguimiento"
-          line={`Baseline congelado hasta ${day(contract.baselineFrozenAt)}.`}
-          chip="Baseline fijo"
+          label="Follow-up contract"
+          title="Follow-up contract"
+          line={`Baseline frozen until ${day(contract.baselineFrozenAt)}.`}
+          chip="Fixed baseline"
           detail={
             <ul className="space-y-1">
-              <li>Inicio del plan: {day(contract.planStartedAt)}</li>
-              <li>Baseline congelado hasta: {day(contract.baselineFrozenAt)} (no se recalcula)</li>
+              <li>Plan start: {day(contract.planStartedAt)}</li>
+              <li>Baseline frozen until: {day(contract.baselineFrozenAt)} (not recalculated)</li>
               {contract.targets.map((t) => (
                 <li key={t.signal}>
-                  {SIGNAL_LABELS[t.signal] ?? t.signal}: se espera que{" "}
-                  {t.expectedDirection === "increase" ? "suba" : "baje"} hacia el baseline
+                  {SIGNAL_LABELS[t.signal] ?? t.signal}: expected to{" "}
+                  {t.expectedDirection === "increase" ? "rise" : "fall"} toward the baseline
                 </li>
               ))}
               <li>
-                Adherencia mínima: {Math.round(contract.adherence.minRatio * 100)} % de pasos y sesiones XR
+                Minimum adherence: {Math.round(contract.adherence.minRatio * 100)} % of steps and XR sessions
               </li>
             </ul>
           }

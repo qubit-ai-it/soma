@@ -7,9 +7,9 @@ describe("simulation sessions", () => {
   it("starts each visit clean and keeps changes separate", async () => {
     const store = createSessionStore(async () => ({ position: 17, messages: [] as string[] }));
 
-    await store.update("visit-a", (state) => ({ position: 80, messages: [...state.messages, "alerta"] }));
+    await store.update("visit-a", (state) => ({ position: 80, messages: [...state.messages, "alert"] }));
 
-    assert.deepEqual(await store.read("visit-a"), { position: 80, messages: ["alerta"] });
+    assert.deepEqual(await store.read("visit-a"), { position: 80, messages: ["alert"] });
     assert.deepEqual(await store.read("visit-b"), { position: 17, messages: [] });
   });
 

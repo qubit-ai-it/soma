@@ -11,7 +11,7 @@ import { Icon } from "@/shared/ui/icon";
 
 import { EarthConsole } from "./earth-console";
 
-export const metadata = { title: "Consola de Tierra · Soma" };
+export const metadata = { title: "Earth console · Soma" };
 
 export default function EarthPage() {
   return (
@@ -21,15 +21,15 @@ export default function EarthPage() {
         className="inline-flex items-center gap-2 text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground"
       >
         <Icon name="arrow_back" />
-        Volver
+        Back
       </Link>
-      <h1 className="reveal mt-8 text-headline">Consola de Tierra</h1>
+      <h1 className="reveal mt-8 text-headline">Earth console</h1>
       <div className="mt-6">
         <RoleSwitcher />
       </div>
       <div className="mt-8">
         <RoleGate resource="earth_console">
-          <Suspense fallback={<p className="text-ink">Cargando consola…</p>}>
+          <Suspense fallback={<p className="text-ink">Loading console…</p>}>
             <Console />
           </Suspense>
         </RoleGate>

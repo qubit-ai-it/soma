@@ -1,9 +1,9 @@
 export const CAPTURE_KINDS = [
-  { id: "heart_rate", label: "Frecuencia cardíaca", unit: "lpm", min: 58, max: 96 },
-  { id: "spo2", label: "Saturación de oxígeno", unit: "%", min: 94, max: 99 },
-  { id: "temperature", label: "Temperatura corporal", unit: "°C", min: 36.1, max: 37.4 },
-  { id: "stress", label: "Nivel de estrés", unit: "/100", min: 12, max: 68 },
-  { id: "cabin", label: "Ambiente de cabina", unit: "ppm CO₂", min: 400, max: 900 },
+  { id: "heart_rate", label: "Heart rate", unit: "bpm", min: 58, max: 96 },
+  { id: "spo2", label: "Oxygen saturation", unit: "%", min: 94, max: 99 },
+  { id: "temperature", label: "Body temperature", unit: "°C", min: 36.1, max: 37.4 },
+  { id: "stress", label: "Stress level", unit: "/100", min: 12, max: 68 },
+  { id: "cabin", label: "Cabin environment", unit: "ppm CO₂", min: 400, max: 900 },
 ] as const;
 
 export type CaptureKind = (typeof CAPTURE_KINDS)[number]["id"];

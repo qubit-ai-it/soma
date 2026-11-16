@@ -4,7 +4,7 @@ import { SentryAssistant } from "@/features/pet/components/sentry-assistant";
 
 export const metadata: Metadata = {
   title: "Sentry | Soma",
-  description: "Chat con Sentry, la mascota de Soma",
+  description: "Chat with Sentry, Soma's mascot",
 };
 
 export default function PetPage() {

@@ -101,7 +101,7 @@ describe("stale evaluation", () => {
     assert.deepEqual(evaluation.limitations, ["stale-data:heartRate"]);
     assert.equal(
       translateLimitation("stale-data:heartRate", 6).text,
-      "Frecuencia cardíaca: sin datos recientes.",
+      "Heart rate: no recent data.",
     );
   });
 

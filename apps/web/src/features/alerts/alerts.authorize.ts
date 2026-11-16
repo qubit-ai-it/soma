@@ -8,10 +8,10 @@ export function authorizeCaller(
   caller: { role: Role; actorId: string },
   resource: Resource,
 ): Result<string> {
-  if (!canAccess(caller.role, resource)) return err("El rol activo no tiene permiso para esta acción.");
+  if (!canAccess(caller.role, resource)) return err("The active role is not allowed to perform this action.");
   const actorId = caller.actorId.trim();
   if (!isIdentifiedHuman(actorId) || DEMO_ACTORS[caller.role].id !== actorId) {
-    return err("Se requiere una persona identificada.");
+    return err("An identified person is required.");
   }
   return ok(actorId);
 }

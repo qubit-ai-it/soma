@@ -7,7 +7,7 @@ const Heart = dynamic(() => import("@/shared/heart").then((module) => module.Hea
   ssr: false,
   loading: () => (
     <div className="grid h-full place-items-center text-sm text-muted-foreground">
-      Cargando corazón 3D…
+      Loading 3D heart…
     </div>
   ),
 });
@@ -17,7 +17,7 @@ const Heart = dynamic(() => import("@/shared/heart").then((module) => module.Hea
 export function HeartViewer() {
   return (
     <div className="absolute inset-0">
-      <Heart label="Modelo 3D del corazón" className="h-full rounded-none border-0" />
+      <Heart label="3D heart model" className="h-full rounded-none border-0" />
     </div>
   );
 }

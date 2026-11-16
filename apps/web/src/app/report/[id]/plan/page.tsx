@@ -13,7 +13,7 @@ import { generatedBy } from "@/features/sentry/sentry.display";
 
 export default function PlanPage({ params }: PageProps<"/report/[id]/plan">) {
   return (
-    <Suspense fallback={<p className="text-ink">Cargando plan…</p>}>
+    <Suspense fallback={<p className="text-ink">Loading plan…</p>}>
       <Content params={params} />
     </Suspense>
   );

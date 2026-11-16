@@ -4,7 +4,7 @@ import { ACTIVE_STATUSES, type PlanRecord, type PlanReview } from "./plan.record
 
 export function submitForReview(plan: PlanRecord, now: string): Result<PlanRecord> {
   if (plan.status !== "draft" && plan.status !== "changes_requested") {
-    return err("El plan ya está en revisión o decidido.");
+    return err("The plan is already in review or decided.");
   }
   return ok({
     ...plan,
@@ -20,8 +20,8 @@ export function approveOnBoard(
   link: "connected" | "disconnected",
   now: string,
 ): Result<PlanRecord> {
-  if (link === "connected") return err("Con enlace, la decisión es de Tierra.");
-  if (!ACTIVE_STATUSES.includes(plan.status)) return err("El plan ya está decidido.");
+  if (link === "connected") return err("With a link, the decision belongs to Earth.");
+  if (!ACTIVE_STATUSES.includes(plan.status)) return err("The plan is already decided.");
   return ok({
     ...plan,
     status: "approved",

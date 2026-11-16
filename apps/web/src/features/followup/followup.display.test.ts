@@ -9,11 +9,11 @@ import {
 } from "./followup.display.ts";
 
 describe("follow-up labels", () => {
-  it("names each status in Spanish with words, not only color", () => {
-    assert.equal(describeStatus("improving"), "Mejora");
-    assert.equal(describeStatus("stable"), "Estable");
-    assert.equal(describeStatus("worsening"), "Empeora");
-    assert.equal(describeStatus("not-evaluable"), "No evaluable");
+  it("names each status in English with words, not only color", () => {
+    assert.equal(describeStatus("improving"), "Improving");
+    assert.equal(describeStatus("stable"), "Stable");
+    assert.equal(describeStatus("worsening"), "Worsening");
+    assert.equal(describeStatus("not-evaluable"), "Not evaluable");
   });
 
   it("explains every reason a window is not evaluable", () => {
@@ -30,8 +30,8 @@ describe("follow-up labels", () => {
   });
 
   it("states that improvement needs human confirmation to step the status down", () => {
-    assert.match(CONFIRMATION_BANNER, /bajar de estado/i);
-    assert.match(CONFIRMATION_BANNER, /confirmaci[oó]n humana/i);
-    assert.match(CONFIRMATION_LINE, /nunca es autom[aá]tico/i);
+    assert.match(CONFIRMATION_BANNER, /lowering the status/i);
+    assert.match(CONFIRMATION_BANNER, /human confirmation/i);
+    assert.match(CONFIRMATION_LINE, /never automatic/i);
   });
 });

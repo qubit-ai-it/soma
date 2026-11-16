@@ -106,7 +106,7 @@ export function createPostgresPlansRepository(pool: Pool): PlansRepository {
         const { rows } = await client.query<Row>("select * from plans where id = $1 for update", [id]);
         if (!rows[0]) {
           await client.query("rollback");
-          return err("Plan no encontrado.");
+          return err("Plan not found.");
         }
         const result = fn(toPlan(rows[0]));
         if (!result.ok) {

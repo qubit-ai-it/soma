@@ -12,7 +12,7 @@ type Props = {
   onDelete: (id: string) => void;
 };
 
-const formatter = new Intl.DateTimeFormat("es", {
+const formatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
   month: "short",
   hour: "2-digit",
@@ -21,7 +21,7 @@ const formatter = new Intl.DateTimeFormat("es", {
 
 export function HistoryView({ conversations, activeId, onOpen, onDelete }: Props) {
   if (conversations.length === 0) {
-    return <p className="p-2 text-sm text-ink">Aún no hay conversaciones guardadas.</p>;
+    return <p className="p-2 text-sm text-ink">No saved conversations yet.</p>;
   }
 
   return (
@@ -40,7 +40,7 @@ export function HistoryView({ conversations, activeId, onOpen, onDelete }: Props
           <Button
             variant="ghost"
             size="icon-sm"
-            aria-label={`Eliminar «${c.title}»`}
+            aria-label={`Delete "${c.title}"`}
             onClick={() => onDelete(c.id)}
           >
             <Icon name="delete" />

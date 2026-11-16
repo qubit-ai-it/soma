@@ -96,13 +96,13 @@ describe("json audit and alerts repositories", () => {
   it("persists a close and refuses to close an unacknowledged alert", async () => {
     const { alerts } = fresh();
     const early = await alerts.transition("al-001", (a) =>
-      closeAlert(a, { actorId: "demo-cmo-01", role: "cmo", note: "listo", now: T0 }),
+      closeAlert(a, { actorId: "demo-cmo-01", role: "cmo", note: "done", now: T0 }),
     );
     assert.equal(early.ok, false);
     assert.equal((await alerts.get("al-001"))?.status, "open");
 
     const closed = await alerts.transition("al-002", (a) =>
-      closeAlert(a, { actorId: "demo-commander-01", role: "commander", note: "Resuelto", now: T0 }),
+      closeAlert(a, { actorId: "demo-commander-01", role: "commander", note: "Resolved", now: T0 }),
     );
     assert.ok(closed.ok);
     assert.equal((await alerts.get("al-002"))?.closed?.actorId, "demo-commander-01");

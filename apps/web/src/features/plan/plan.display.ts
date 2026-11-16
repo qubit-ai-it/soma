@@ -1,9 +1,9 @@
-export const PLAN_DISCLAIMER = "Borrador · pendiente de validación en Tierra";
-export const APPROVED_CHIP = "Aprobado antes de la misión";
-export const IMMEDIATE_STEPS_TITLE = "Pasos pre-aprobados";
-export const PROPOSED_DRAFT_TITLE = "Borrador del plan";
+export const PLAN_DISCLAIMER = "Draft · pending validation on Earth";
+export const APPROVED_CHIP = "Approved before the mission";
+export const IMMEDIATE_STEPS_TITLE = "Pre-approved steps";
+export const PROPOSED_DRAFT_TITLE = "Plan draft";
 
 export function describeValidation(validation: { status: "pending-validation" }): string {
-  const labels = { "pending-validation": "Pendiente de validación en Tierra" };
+  const labels = { "pending-validation": "Pending validation on Earth" };
   return labels[validation.status];
 }

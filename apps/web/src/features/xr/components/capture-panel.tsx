@@ -66,13 +66,13 @@ export function CapturePanel({ subjectId, synthetic, device }: Props) {
   }
 
   return (
-    <section aria-label="Captura de imagen" className="space-y-4">
+    <section aria-label="Image capture" className="space-y-4">
       <SomaCard
-        title="Captura de imagen"
-        line="Se procesa en este dispositivo"
+        title="Image capture"
+        line="Processed on this device"
       >
         <label className="flex h-16 w-full cursor-pointer items-center justify-center rounded-full bg-primary px-6 font-heading text-xl font-semibold text-primary-foreground focus-within:ring-2 focus-within:ring-ring">
-          {busy ? "Procesando…" : "Subir imagen"}
+          {busy ? "Processing…" : "Upload image"}
           <input
             type="file"
             accept="image/*"
@@ -112,18 +112,18 @@ function Result({ outcome }: { outcome: Outcome }) {
   return (
     <>
       <SomaCard
-        title="Calidad de la imagen"
+        title="Image quality"
         chip={qualityLabel(assessment.state)}
         tone={QUALITY_TONE[assessment.state]}
-        line={assessment.state === "valid" ? "La imagen se puede evaluar." : "Revisa la imagen o repite la captura."}
+        line={assessment.state === "valid" ? "The image can be evaluated." : "Check the image or repeat the capture."}
         detail={
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={outcome.previewUrl} alt="Imagen capturada" className="max-h-64 rounded-lg" />
+            <img src={outcome.previewUrl} alt="Captured image" className="max-h-64 rounded-lg" />
             {assessment.reason && <p>{assessment.reason}</p>}
             <dl className="grid gap-1">
-              <div className="flex gap-2"><dt className="text-muted-foreground">Observación:</dt><dd>{observation.id}</dd></div>
-              <div className="flex gap-2"><dt className="text-muted-foreground">Señal:</dt><dd>{observation.signal} ({observation.unit})</dd></div>
+              <div className="flex gap-2"><dt className="text-muted-foreground">Observation:</dt><dd>{observation.id}</dd></div>
+              <div className="flex gap-2"><dt className="text-muted-foreground">Signal:</dt><dd>{observation.signal} ({observation.unit})</dd></div>
             </dl>
           </>
         }
@@ -132,10 +132,10 @@ function Result({ outcome }: { outcome: Outcome }) {
       {findingsError && (
         <div role="alert">
           <SomaCard
-            title="Sin hallazgos"
+            title="No findings"
             tone="warn"
-            chip="Aviso"
-            line={findingsError.code === "image-not-evaluable" ? "La imagen no es evaluable. Repite la captura." : "No se pudieron mostrar."}
+            chip="Notice"
+            line={findingsError.code === "image-not-evaluable" ? "The image cannot be evaluated. Repeat the capture." : "Could not be shown."}
             detail={<p>{findingsError.reason}</p>}
           />
         </div>
@@ -144,13 +144,13 @@ function Result({ outcome }: { outcome: Outcome }) {
       {findings && (
         <SomaCard
           title={findings.label}
-          chip="Hallazgos preliminares"
+          chip="Preliminary findings"
           tone="info"
-          line="No es un diagnóstico · requiere revisión del médico"
+          line="Not a diagnosis · requires physician review"
           detail={
             <>
               <p className="text-base">{findings.findings}</p>
-              <p>Lo revisa el oficial médico a bordo.</p>
+              <p>The onboard medical officer reviews it.</p>
             </>
           }
         />

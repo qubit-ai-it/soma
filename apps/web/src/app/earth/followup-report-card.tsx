@@ -29,25 +29,25 @@ export function FollowUpReportCard({ followUpId, subjectId, report }: Props) {
 
   const actions: CardAction[] = commenting
     ? [
-        { label: "Enviar", disabled: pending, onClick: () => submit("comment") },
-        { label: "Cancelar", variant: "secondary", disabled: pending, onClick: () => setCommenting(false) },
+        { label: "Send", disabled: pending, onClick: () => submit("comment") },
+        { label: "Cancel", variant: "secondary", disabled: pending, onClick: () => setCommenting(false) },
       ]
     : [
-        { label: "Visto", icon: "check", disabled: pending, onClick: () => submit("ack") },
-        { label: "Comentar", icon: "chat", variant: "secondary", disabled: pending, onClick: () => setCommenting(true) },
+        { label: "Seen", icon: "check", disabled: pending, onClick: () => submit("ack") },
+        { label: "Comment", icon: "chat", variant: "secondary", disabled: pending, onClick: () => setCommenting(true) },
       ];
 
   return (
     <SomaCard
-      title={`${report.label} · Tripulante ${subjectId}`}
+      title={`${report.label} · Crew member ${subjectId}`}
       line={`${describeStatus(report.status)}${reason ? `. ${describeReason(reason)}` : ""}`}
-      chip={report.escalate ? "Empeora" : "Pendiente"}
+      chip={report.escalate ? "Worsening" : "Pending"}
       tone={report.escalate ? "danger" : "warn"}
       actions={actions}
     >
       {commenting && (
         <label className="block text-sm text-ink">
-          Nota (obligatoria)
+          Note (required)
           <input value={note} onChange={(event) => setNote(event.target.value)} className={INPUT} />
         </label>
       )}

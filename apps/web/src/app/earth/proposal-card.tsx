@@ -44,9 +44,9 @@ export function ProposalCard({ proposal, packet }: Props) {
     actions =
       mode === "idle"
         ? [
-            { label: "Aprobar", icon: "check", disabled: pending, onClick: () => submit("approve") },
+            { label: "Approve", icon: "check", disabled: pending, onClick: () => submit("approve") },
             {
-              label: "Rechazar",
+              label: "Reject",
               icon: "close",
               variant: "secondary",
               disabled: pending,
@@ -55,28 +55,28 @@ export function ProposalCard({ proposal, packet }: Props) {
           ]
         : [
             {
-              label: mode === "modify" ? "Enviar modificación" : "Enviar rechazo",
+              label: mode === "modify" ? "Send modification" : "Send rejection",
               disabled: pending,
               onClick: () => submit(mode),
             },
-            { label: "Cancelar", variant: "secondary", disabled: pending, onClick: () => setMode("idle") },
+            { label: "Cancel", variant: "secondary", disabled: pending, onClick: () => setMode("idle") },
           ];
   }
 
   return (
     <SomaCard
       title={proposal.title}
-      line={"Borrador de la IA"}
-      chip={review ? DECISION_LABELS[review.decision] : "Pendiente"}
+      line={"AI draft"}
+      chip={review ? DECISION_LABELS[review.decision] : "Pending"}
       tone={review ? "ok" : "warn"}
       actions={actions}
       detail={
         <>
           <p>
-            {proposal.subject.label} · Recibida {formatTime(proposal.createdAt)}
+            {proposal.subject.label} · Received {formatTime(proposal.createdAt)}
           </p>
           <p className="text-xs">
-            Borrador generado por IA: no es un diagnóstico ni una prescripción y requiere validación humana.
+            AI-generated draft: not a diagnosis or a prescription, and it requires human validation.
           </p>
           <ol className="list-decimal space-y-1 pl-5">
             {proposal.steps.map((step, index) => (
@@ -87,9 +87,9 @@ export function ProposalCard({ proposal, packet }: Props) {
             <div className="space-y-1 rounded-md bg-secondary p-3" aria-live="polite">
               <p className="flex items-center gap-2 font-heading font-semibold">
                 <Icon name="how_to_reg" />
-                {DECISION_LABELS[review.decision]} por {review.actorId} · {formatTime(review.decidedAt)}
+                {DECISION_LABELS[review.decision]} by {review.actorId} · {formatTime(review.decidedAt)}
               </p>
-              {review.note && <p>Nota: {review.note}</p>}
+              {review.note && <p>Note: {review.note}</p>}
               {review.steps && (
                 <ol className="list-decimal pl-5">
                   {review.steps.map((step, index) => (
@@ -100,8 +100,8 @@ export function ProposalCard({ proposal, packet }: Props) {
               {packet && (
                 <p className="flex items-center gap-1">
                   <Icon name={STATUS_LABELS[packet.status].icon} />
-                  Respuesta a la estación: {STATUS_LABELS[packet.status].text.toLowerCase()}
-                  {packet.status === "queued" && ` (intentos ${packet.attempts})`}
+                  Response to the station: {STATUS_LABELS[packet.status].text.toLowerCase()}
+                  {packet.status === "queued" && ` (attempts ${packet.attempts})`}
                 </p>
               )}
             </div>
@@ -114,7 +114,7 @@ export function ProposalCard({ proposal, packet }: Props) {
               className="inline-flex items-center gap-1 rounded-full bg-secondary px-4 py-2 font-heading text-sm font-semibold text-foreground outline-none hover:bg-secondary/70 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
             >
               <Icon name="edit" />
-              Modificar pasos
+              Edit steps
             </button>
           )}
         </>
@@ -130,7 +130,7 @@ export function ProposalCard({ proposal, packet }: Props) {
         <div className="space-y-2">
           {mode === "modify" && (
             <label className="block text-sm text-ink">
-              Pasos (uno por línea)
+              Steps (one per line)
               <textarea
                 value={stepsText}
                 onChange={(event) => setStepsText(event.target.value)}
@@ -140,7 +140,7 @@ export function ProposalCard({ proposal, packet }: Props) {
             </label>
           )}
           <label className="block text-sm text-ink">
-            Nota (obligatoria)
+            Note (required)
             <input value={note} onChange={(event) => setNote(event.target.value)} className={INPUT} />
           </label>
         </div>

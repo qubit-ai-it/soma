@@ -42,11 +42,11 @@ export function applyAction(
 }
 
 const ERROR_MESSAGES: Record<MachineError, string> = {
-  "session-closed": "La sesión ya terminó.",
-  "step-not-skippable": "Este paso no es opcional: complétalo o márcalo como fallido.",
-  "already-at-first-step": "Ya estás en el primer paso.",
-  "reset-not-allowed-in-live": "No se puede reiniciar una sesión en vivo. Abórtala y empieza otra.",
-  "invalid-session": "La sesión guardada no es válida y se descartó.",
+  "session-closed": "The session has already ended.",
+  "step-not-skippable": "This step is not optional: complete it or mark it as failed.",
+  "already-at-first-step": "You are already at the first step.",
+  "reset-not-allowed-in-live": "A live session cannot be reset. Abort it and start another.",
+  "invalid-session": "The saved session is not valid and was discarded.",
 };
 
 export function describeMachineError(error: MachineError): string {

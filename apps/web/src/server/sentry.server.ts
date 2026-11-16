@@ -17,7 +17,7 @@ import { getServices } from "./services.ts";
 
 const cache = globalThis as unknown as { somaSentry?: SentryService; somaSentryTalk?: SentryTalk };
 
-const labelFor = (memberId: string) => `Tripulante ${memberId}`;
+const labelFor = (memberId: string) => `Crew member ${memberId}`;
 
 export function getSentry(): SentryService {
   cache.somaSentry ??= createSentryService({

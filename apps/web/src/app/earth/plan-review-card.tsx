@@ -40,24 +40,24 @@ export function PlanReviewCard({ plan }: { plan: PlanRecord }) {
   const actions: CardAction[] =
     mode === "idle"
       ? [
-          { label: "Aprobar", icon: "check", disabled: pending, onClick: () => submit("approve") },
-          { label: "Pedir cambios", icon: "edit", variant: "secondary", disabled: pending, onClick: () => setMode("changes") },
-          { label: "Comentar", icon: "chat", variant: "secondary", disabled: pending, onClick: () => setMode("comment") },
+          { label: "Approve", icon: "check", disabled: pending, onClick: () => submit("approve") },
+          { label: "Request changes", icon: "edit", variant: "secondary", disabled: pending, onClick: () => setMode("changes") },
+          { label: "Comment", icon: "chat", variant: "secondary", disabled: pending, onClick: () => setMode("comment") },
         ]
       : [
-          { label: "Enviar", disabled: pending, onClick: () => submit(mode) },
-          { label: "Cancelar", variant: "secondary", disabled: pending, onClick: () => setMode("idle") },
+          { label: "Send", disabled: pending, onClick: () => submit(mode) },
+          { label: "Cancel", variant: "secondary", disabled: pending, onClick: () => setMode("idle") },
         ];
 
   return (
     <SomaCard
-      title={`Plan ${plan.level} · Tripulante ${plan.subjectId}`}
-      line={`Revisado a bordo · rev. ${plan.revision}`}
-      chip="Pendiente"
+      title={`Plan ${plan.level} · Crew member ${plan.subjectId}`}
+      line={`Reviewed onboard · rev. ${plan.revision}`}
+      chip="Pending"
       tone="warn"
       actions={actions}
       footer={`${plan.source.provider} (${MODE_LABEL[plan.source.mode]})`}
-      detailLabel="Ver pasos"
+      detailLabel="View steps"
       detail={
         <>
           <ol className="list-decimal space-y-1 pl-5">
@@ -81,7 +81,7 @@ export function PlanReviewCard({ plan }: { plan: PlanRecord }) {
         <div className="space-y-2">
           {mode === "changes" && (
             <label className="block text-sm text-ink">
-              Pasos (uno por línea)
+              Steps (one per line)
               <textarea
                 value={stepsText}
                 onChange={(event) => setStepsText(event.target.value)}
@@ -91,7 +91,7 @@ export function PlanReviewCard({ plan }: { plan: PlanRecord }) {
             </label>
           )}
           <label className="block text-sm text-ink">
-            Nota (obligatoria)
+            Note (required)
             <input value={note} onChange={(event) => setNote(event.target.value)} className={INPUT} />
           </label>
         </div>

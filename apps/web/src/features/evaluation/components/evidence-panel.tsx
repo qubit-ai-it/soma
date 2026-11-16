@@ -7,24 +7,24 @@ const TOP_REASONS = 3;
 
 function baselineText(signal: SignalView): string {
   if (signal.baseline.status !== "ready") {
-    return `Insuficiente (${signal.baseline.sampleCount} de ${signal.baseline.minObservations} lecturas válidas)`;
+    return `Insufficient (${signal.baseline.sampleCount} of ${signal.baseline.minObservations} valid readings)`;
   }
   const { center, variability, sampleCount } = signal.baseline;
-  return `${formatNumber(center)} ${signal.unit} ± ${formatNumber(variability, 2)} (${sampleCount} lecturas)`;
+  return `${formatNumber(center)} ${signal.unit} ± ${formatNumber(variability, 2)} (${sampleCount} readings)`;
 }
 
 function deviationText(signal: SignalView): string {
-  if (!signal.deviation) return "No calculable";
+  if (!signal.deviation) return "Not computable";
   const { delta, normalizedDelta } = signal.deviation;
   const sign = delta > 0 ? "+" : "";
   const sigma =
-    normalizedDelta === null ? "sin variabilidad" : `${sign}${formatNumber(normalizedDelta)} desviaciones`;
+    normalizedDelta === null ? "no variability" : `${sign}${formatNumber(normalizedDelta)} deviations`;
   return `${sign}${formatNumber(delta)} ${signal.unit} (${sigma})`;
 }
 
 function qualityText(signal: SignalView): string {
   const last = signal.points.at(-1);
-  return last ? QUALITY_LABEL[last.quality] : "Sin lecturas";
+  return last ? QUALITY_LABEL[last.quality] : "No readings";
 }
 
 export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
@@ -32,8 +32,8 @@ export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
   const top = rules.slice(0, TOP_REASONS);
   const emptyText =
     status === "NOT_EVALUABLE"
-      ? "Ninguna regla pudo evaluarse."
-      : "Ninguna regla activada: todo habitual.";
+      ? "No rule could be evaluated."
+      : "No rule triggered: all within the usual range.";
 
   const detail = (
     <div className="space-y-5">
@@ -43,7 +43,7 @@ export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
             <li key={rule.id}>
               <span className="font-heading font-bold">{rule.level}</span> · {rule.label}
               <span className="block text-xs">
-                {rule.description} · Regla {rule.id}
+                {rule.description} · Rule {rule.id}
               </span>
             </li>
           ))}
@@ -52,7 +52,7 @@ export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
 
       {limitations.length > 0 && (
         <div>
-          <h4 className="font-heading font-bold">Limitaciones</h4>
+          <h4 className="font-heading font-bold">Limitations</h4>
           <ul className="mt-2 space-y-1">
             {limitations.map((limitation) => (
               <li key={limitation.code} className="flex gap-2">
@@ -65,16 +65,16 @@ export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
       )}
 
       <div>
-        <h4 className="font-heading font-bold">Señales y baseline</h4>
+        <h4 className="font-heading font-bold">Signals and baseline</h4>
         <div className="mt-2 overflow-x-auto rounded-xl">
           <table className="w-full min-w-[640px] bg-secondary text-left">
             <thead className="text-ink">
               <tr>
-                <th scope="col" className="px-3 py-2 font-normal">Señal</th>
+                <th scope="col" className="px-3 py-2 font-normal">Signal</th>
                 <th scope="col" className="px-3 py-2 font-normal">Baseline</th>
-                <th scope="col" className="px-3 py-2 font-normal">Último valor válido</th>
-                <th scope="col" className="px-3 py-2 font-normal">Desviación</th>
-                <th scope="col" className="px-3 py-2 font-normal">Calidad</th>
+                <th scope="col" className="px-3 py-2 font-normal">Last valid value</th>
+                <th scope="col" className="px-3 py-2 font-normal">Deviation</th>
+                <th scope="col" className="px-3 py-2 font-normal">Quality</th>
               </tr>
             </thead>
             <tbody>
@@ -84,13 +84,13 @@ export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
                     {signal.label}
                     {signal.firedRuleIds.length > 0 && (
                       <span className="block text-xs text-ink">
-                        Regla activa: {signal.firedRuleIds.join(", ")}
+                        Active rule: {signal.firedRuleIds.join(", ")}
                       </span>
                     )}
                   </th>
                   <td className="px-3 py-2">{baselineText(signal)}</td>
                   <td className="px-3 py-2">
-                    {signal.latest ? `${formatNumber(signal.latest.value)} ${signal.unit}` : "Sin valor"}
+                    {signal.latest ? `${formatNumber(signal.latest.value)} ${signal.unit}` : "No value"}
                   </td>
                   <td className="px-3 py-2">{deviationText(signal)}</td>
                   <td className="px-3 py-2">{qualityText(signal)}</td>
@@ -104,7 +104,7 @@ export function EvidencePanel({ checkpoint }: { checkpoint: CheckpointView }) {
   );
 
   return (
-    <SomaCard label="Por qué este estado" title="¿Por qué?" detail={detail}>
+    <SomaCard label="Why this status" title="Why?" detail={detail}>
       {top.length > 0 ? (
         <ul className="space-y-2">
           {top.map((rule) => (

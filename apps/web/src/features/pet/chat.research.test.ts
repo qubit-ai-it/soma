@@ -7,7 +7,7 @@ import { IMAGE_ONLY_PROMPT } from "./chat.types.ts";
 const ollamaURL = "https://example.ngrok-free.dev/api/chat";
 const researchURL = "https://rag-nasa-search.onrender.com/api/research/search/";
 const model = "configured-medgemma";
-const answer = "## Contexto\n\nNASA describe Campout [S1].";
+const answer = "## Context\n\nNASA describe Campout [S1].";
 
 const ollama = (content: string) => Response.json({ message: { content } });
 const research = (sources: unknown[]) => Response.json({
@@ -51,10 +51,10 @@ describe("Sentry research chat", () => {
       ]),
       ollama(answer),
     ], "Basic configured");
-    const question = "Soy Rosa. SpO₂ 94 %. ¿Qué describe NASA sobre respiración previa?";
+    const question = "I am Rosa. SpO₂ 94 %. What does NASA describe about prebreathing?";
     const result = await chat.replyWithResearch([
-      { role: "user", content: "Pregunta anterior" },
-      { role: "assistant", content: "Respuesta anterior [S1]." },
+      { role: "user", content: "Previous question" },
+      { role: "assistant", content: "Previous answer [S1]." },
       { role: "user", content: question, images: ["data:image/png;base64,aW1hZ2U="] },
     ]);
     assert.ok(result.ok);
@@ -82,8 +82,8 @@ describe("Sentry research chat", () => {
       assert.equal(new Headers(calls[i].init.headers).get("authorization"), "Basic configured");
     }
     assert.deepEqual(final.messages.slice(1, 3), [
-      { role: "user", content: "Pregunta anterior" },
-      { role: "assistant", content: "Respuesta anterior [S1]." },
+      { role: "user", content: "Previous question" },
+      { role: "assistant", content: "Previous answer [S1]." },
     ]);
     const latest = final.messages.at(-1);
     assert.deepEqual(latest.images, ["aW1hZ2U="]);
@@ -105,9 +105,9 @@ describe("Sentry research chat", () => {
     const { chat, calls } = chatWith([
       ollama('{"search":true,"terms":["dizziness","ID12345","94"]}'),
       research([]),
-      ollama("Respuesta sin fuentes."),
+      ollama("Answer without sources."),
     ]);
-    const result = await chat.replyWithResearch([{ role: "user", content: "Tengo mareo" }]);
+    const result = await chat.replyWithResearch([{ role: "user", content: "I feel dizzy" }]);
     assert.ok(result.ok);
     assert.deepEqual(JSON.parse(String(calls[1].init.body)), {
       question: "space motion sickness dizziness vestibular balance",
@@ -122,7 +122,7 @@ describe("Sentry research chat", () => {
       research([protocol]),
       ollama(answer),
     ]);
-    const result = await chat.replyWithResearch([{ role: "user", content: "¿Qué describe ISLE?" }]);
+    const result = await chat.replyWithResearch([{ role: "user", content: "What does ISLE describe?" }]);
     assert.ok(result.ok);
     assert.deepEqual(JSON.parse(String(calls[1].init.body)), { question: "isle eva prebreathe" });
   });
@@ -135,9 +135,9 @@ describe("Sentry research chat", () => {
       const { chat, calls } = chatWith([
         ollama('{"search":true,"terms":["oxygen"]}'),
         bad,
-        ollama("Respuesta disponible."),
+        ollama("Answer available."),
       ]);
-      const result = await chat.replyWithResearch([{ role: "user", content: "Me falta el aire." }]);
+      const result = await chat.replyWithResearch([{ role: "user", content: "I am short of breath." }]);
       assert.ok(result.ok);
       assert.equal(result.value.research?.status, "unavailable");
       assert.doesNotMatch(String(calls[2].init.body), /Spaceflight research excerpts \(reference only\):/);
@@ -145,19 +145,19 @@ describe("Sentry research chat", () => {
   });
 
   it("omits the lookup for greetings, explicit urgent requests, and image-only turns", async () => {
-    const greeting = chatWith([ollama('{"search":false,"terms":[]}'), ollama("Hola.")]);
-    const result = await greeting.chat.replyWithResearch([{ role: "user", content: "Hola" }]);
+    const greeting = chatWith([ollama('{"search":false,"terms":[]}'), ollama("Hello.")]);
+    const result = await greeting.chat.replyWithResearch([{ role: "user", content: "Hello" }]);
     assert.ok(result.ok);
     assert.equal(result.value.research?.status, "skipped");
     assert.equal(greeting.calls.length, 2);
 
-    const urgency = chatWith([ollama("Busca ayuda inmediata.")]);
-    const urgent = await urgency.chat.replyWithResearch([{ role: "user", content: "Es urgente." }]);
+    const urgency = chatWith([ollama("Seek immediate help.")]);
+    const urgent = await urgency.chat.replyWithResearch([{ role: "user", content: "It is urgent." }]);
     assert.ok(urgent.ok);
     assert.deepEqual(urgent.value.research, { status: "skipped", reason: "urgency" });
     assert.equal(urgency.calls.length, 1);
 
-    const image = chatWith([ollama("Veo un panel.")]);
+    const image = chatWith([ollama("I see a panel.")]);
     const imageReply = await image.chat.replyWithResearch([
       { role: "user", content: IMAGE_ONLY_PROMPT, images: ["data:image/png;base64,aW1hZ2U="] },
     ]);

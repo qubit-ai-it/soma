@@ -39,21 +39,21 @@ import { VoiceBackdrop } from "./voice-backdrop";
 const SLEEP_AFTER_MS = 45_000;
 const TASK_TICK_MS = 10_000;
 const WORKING_FLASH_MS = 4_000;
-const LANG = "es-ES";
+const LANG = "en-US";
 
 const GREETING: ChatMessage = {
   role: "assistant",
-  content: "Hola, soy Sentry. ¿En qué te ayudo con la misión?",
+  content: "Hi, I'm Sentry. How can I help you with the mission?",
 };
 
 const VOICE_ERRORS: Record<string, string> = {
   "not-allowed":
-    "El micrófono está bloqueado. Permítelo en el candado de la barra de direcciones y usa localhost o HTTPS.",
+    "The microphone is blocked. Allow it from the lock icon in the address bar and use localhost or HTTPS.",
   "service-not-allowed":
-    "El navegador no permite el reconocimiento de voz en esta página. Usa localhost o HTTPS.",
-  "audio-capture": "No se detecta ningún micrófono.",
-  network: "No se pudo conectar con el servicio de voz del navegador.",
-  "language-not-supported": "El navegador no soporta el reconocimiento de voz en español.",
+    "The browser does not allow speech recognition on this page. Use localhost or HTTPS.",
+  "audio-capture": "No microphone detected.",
+  network: "Could not connect to the browser speech service.",
+  "language-not-supported": "The browser does not support speech recognition in English.",
 };
 
 const NO_CONVERSATIONS: Conversation[] = [];
@@ -64,17 +64,17 @@ type View = "chat" | "history" | "tasks";
 
 const VIEWS: { id: View; label: string; icon: string }[] = [
   { id: "chat", label: "Chat", icon: "chat" },
-  { id: "history", label: "Historial", icon: "history" },
-  { id: "tasks", label: "Tareas", icon: "schedule" },
+  { id: "history", label: "History", icon: "history" },
+  { id: "tasks", label: "Tasks", icon: "schedule" },
 ];
 
 const STATUS: Record<SentryMode, string> = {
-  idle: "Listo para ayudarte",
-  thinking: "Pensando…",
-  listening: "Te escucho",
-  working: "Capturando datos",
-  warning: "Alerta",
-  sleeping: "Descansando",
+  idle: "Ready to help",
+  thinking: "Thinking…",
+  listening: "Listening",
+  working: "Capturing data",
+  warning: "Alert",
+  sleeping: "Resting",
 };
 
 const DRAFT_ID = "draft";
@@ -231,8 +231,8 @@ export function SentryAssistant() {
       if (!response.ok || !body?.reply) {
         throw new Error(
           response.status === 503
-            ? "El chat de Sentry no está disponible en este momento."
-            : "No pude responder. Inténtalo de nuevo.",
+            ? "Sentry chat is not available right now."
+            : "I could not answer. Try again.",
         );
       }
       const answer: ChatMessage = { role: "assistant", content: body.reply, research: body.research };
@@ -244,7 +244,7 @@ export function SentryAssistant() {
       }
     } catch (e) {
       setConversation(false);
-      setFailure(e instanceof Error ? e.message : "No pude responder.");
+      setFailure(e instanceof Error ? e.message : "I could not answer.");
       setErrorSignal((n) => n + 1);
     } finally {
       setSending(false);
@@ -328,7 +328,7 @@ export function SentryAssistant() {
       <aside
         role={conversation ? "dialog" : undefined}
         aria-modal={conversation || undefined}
-        aria-label={conversation ? "Modo conversación" : undefined}
+        aria-label={conversation ? "Conversation mode" : undefined}
         className={
           conversation
             ? "fixed inset-0 z-50 flex flex-col items-center justify-between bg-background px-5 py-10"
@@ -354,7 +354,7 @@ export function SentryAssistant() {
                 : "font-heading text-lg font-bold lg:text-center"
             }
           >
-            {speaking ? "Hablando…" : STATUS[mode]}
+            {speaking ? "Speaking…" : STATUS[mode]}
           </p>
           {conversation && (
             <p className="line-clamp-2 min-h-12 max-w-xl text-center text-ink">{spoken}</p>
@@ -365,7 +365,7 @@ export function SentryAssistant() {
             ref={endRef}
             variant="destructive"
             size="icon-lg"
-            aria-label="Terminar conversación"
+            aria-label="End conversation"
             onClick={toggleConversation}
             className="relative"
           >
@@ -378,7 +378,7 @@ export function SentryAssistant() {
         className={`flex h-[36rem] flex-col gap-4 rounded-md bg-card p-4 lg:h-[42rem] lg:p-6 ${conversation ? "hidden" : ""}`}
       >
         <header className="flex flex-wrap items-center gap-2">
-          <nav aria-label="Secciones" className="flex flex-1 flex-wrap gap-2">
+          <nav aria-label="Sections" className="flex flex-1 flex-wrap gap-2">
             {VIEWS.map((v) => (
               <button
                 key={v.id}
@@ -400,14 +400,14 @@ export function SentryAssistant() {
               onClick={toggleConversation}
             >
               <Icon name={conversation ? "stop_circle" : "graphic_eq"} />
-              {conversation ? "Terminar" : "Conversar"}
+              {conversation ? "End" : "Talk"}
             </Button>
           )}
           {speechOut && (
             <Button
               variant={readAloud ? "default" : "outline"}
               size="icon-sm"
-              aria-label="Leer respuestas en voz alta"
+              aria-label="Read replies aloud"
               aria-pressed={readAloud}
               onClick={toggleReadAloud}
             >
@@ -416,7 +416,7 @@ export function SentryAssistant() {
           )}
           <Button variant="outline" size="sm" onClick={startNew}>
             <Icon name="edit_square" />
-            Nueva
+            New
           </Button>
         </header>
 

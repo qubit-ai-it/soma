@@ -3,17 +3,17 @@ import { test } from "node:test";
 import { assessTelemetry, canEditTelemetry, equipmentFor, hasCriticalTelemetry, incidentOptions, incidentProgress, isCrewInDanger, needsIncidentReview, validIncidentTransition } from "./incident.ts";
 import { roomCenter, type Decision, type SimulationState } from "./simulation.ts";
 
-const lab = roomCenter("laboratorio");
-const medical = roomCenter("medica");
+const lab = roomCenter("laboratory");
+const medical = roomCenter("medical");
 const nominal = { heartRateBpm: 72, spo2Pct: 98, systolic: 120, diastolic: 78, sleepHours: 7, cumulativeDoseMsv: 30 };
 const critical: Decision = {
   status: "critical",
-  equipmentId: "desfibrilador",
+  equipmentId: "defibrillator",
   affectedCrewId: "cm-04",
   signals: ["heartRateBpm"],
   instructions: [
-    { crewId: "cm-03", message: "Ve al laboratorio.", destination: "laboratorio", via: null },
-    { crewId: "cm-02", message: "Lleva el equipo.", destination: "laboratorio", via: "medica" },
+    { crewId: "cm-03", message: "Go to the laboratory.", destination: "laboratory", via: null },
+    { crewId: "cm-02", message: "Bring the equipment.", destination: "laboratory", via: "medical" },
   ],
 };
 const resolved: Decision = { status: "resolved", affectedCrewId: null, signals: [], instructions: [] };
@@ -24,9 +24,9 @@ function scenario({ pulse = 0, secondArrives = true }: { pulse?: number; secondA
     decision: critical,
     incidentOpenedWith: { ...nominal, heartRateBpm: 0 },
     crew: [
-      { id: "cm-04", name: "Lucía", role: "Tripulante", telemetry: { ...nominal, heartRateBpm: pulse }, position: lab, updatedAt: null },
-      { id: "cm-03", name: "Yuki", role: "Tripulante", telemetry: nominal, position: lab, updatedAt: null },
-      { id: "cm-02", name: "Mateo", role: "Tripulante", telemetry: nominal, position: secondArrives ? lab : medical, updatedAt: null },
+      { id: "cm-04", name: "Lucy", role: "Crew member", telemetry: { ...nominal, heartRateBpm: pulse }, position: lab, updatedAt: null },
+      { id: "cm-03", name: "Yuki", role: "Crew member", telemetry: nominal, position: lab, updatedAt: null },
+      { id: "cm-02", name: "Mateo", role: "Crew member", telemetry: nominal, position: secondArrives ? lab : medical, updatedAt: null },
     ],
   };
 }
@@ -122,9 +122,9 @@ test("after correcting pulse, mild oxygen can move to watch and severe oxygen ke
 
 test("every telemetry field can independently trigger a critical scenario with a nonzero pulse", () => {
   const examples = [
-    ["heartRateBpm", 160, "tensiometro"], ["spo2Pct", 88, "oximetro"],
-    ["systolic", 190, "tensiometro"], ["diastolic", 125, "tensiometro"],
-    ["cumulativeDoseMsv", 275, "dosimetro"],
+    ["heartRateBpm", 160, "bloodPressureMonitor"], ["spo2Pct", 88, "oximeter"],
+    ["systolic", 190, "bloodPressureMonitor"], ["diastolic", 125, "bloodPressureMonitor"],
+    ["cumulativeDoseMsv", 275, "dosimeter"],
   ] as const;
   for (const [signal, value, tool] of examples) {
     const state = scenario({ pulse: 72 });
@@ -163,7 +163,7 @@ test("an equipment carrier in the destination still needs to visit the pickup mo
   const state = scenario({ pulse: 72 });
   const [direct, carrier] = critical.instructions;
   state.decision = { ...critical, instructions: [direct, { ...carrier, equipmentCollected: false }] };
-  assert.equal(incidentProgress(state)?.arrivals[1].pickup, "medica");
+  assert.equal(incidentProgress(state)?.arrivals[1].pickup, "medical");
   assert.equal(canEditTelemetry(state, state.crew[0]), false);
   assert.equal(incidentProgress(state)?.canResolve, false);
 });

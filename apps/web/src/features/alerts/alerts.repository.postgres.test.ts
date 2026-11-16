@@ -16,7 +16,7 @@ import { verifyChain } from "./audit.logic.ts";
 const alert = (id: string): Alert => ({
   id,
   memberId: "cm-02",
-  memberLabel: "Tripulante cm-02",
+  memberLabel: "Crew member cm-02",
   level: "F2",
   title: "Prueba",
   action: "Revisar",

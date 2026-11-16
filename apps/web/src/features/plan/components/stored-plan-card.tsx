@@ -23,7 +23,7 @@ export function StoredPlanCard({ plan, link, generated }: Props) {
           ...(allowed.submit
             ? [
                 {
-                  label: plan.status === "changes_requested" ? "Reenviar a Tierra" : "Enviar a Tierra",
+                  label: plan.status === "changes_requested" ? "Resend to Earth" : "Send to Earth",
                   icon: "send",
                   disabled: pending,
                   onClick: () => run((caller) => submitPlanAction({ ...caller, planId: plan.id })),
@@ -33,7 +33,7 @@ export function StoredPlanCard({ plan, link, generated }: Props) {
           ...(allowed.approve
             ? [
                 {
-                  label: "Aprobar a bordo",
+                  label: "Approve onboard",
                   icon: "check",
                   variant: "secondary" as const,
                   disabled: pending,
@@ -52,7 +52,7 @@ export function StoredPlanCard({ plan, link, generated }: Props) {
       tone={PLAN_STATUS_TONE[plan.status]}
       actions={actions}
       footer={`${generated} · ${plan.source.provider} (${MODE_LABEL[plan.source.mode]}) · rev. ${plan.revision}`}
-      detailLabel="Ver pasos"
+      detailLabel="View steps"
       detail={
         <>
           <ol className="list-decimal space-y-1 pl-5">
@@ -71,7 +71,7 @@ export function StoredPlanCard({ plan, link, generated }: Props) {
           ))}
           {plan.decided && (
             <p className="text-xs">
-              {plan.decided.via === "earth" ? "Decidido por Tierra" : "Decidido a bordo"} · {plan.decided.actorId}
+              {plan.decided.via === "earth" ? "Decided by Earth" : "Decided onboard"} · {plan.decided.actorId}
             </p>
           )}
         </>

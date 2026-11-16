@@ -18,10 +18,10 @@ function alert(overrides: Partial<Alert> = {}): Alert {
   return {
     id: "al-1",
     memberId: "cm-02",
-    memberLabel: "Tripulante cm-02 (sintético)",
+    memberLabel: "Crew member cm-02 (synthetic)",
     level: "F2",
-    title: "Señales fuera de rango",
-    action: "Revisión por el médico de a bordo",
+    title: "Vitals out of range",
+    action: "Review by the onboard physician",
     recipients: ["astronaut", "cmo"],
     clinicalDetail: "SpO2 90 %",
     status: "open",
@@ -80,7 +80,7 @@ describe("buildAlert", () => {
   const base = {
     id: "al-9",
     memberId: "cm-03",
-    memberLabel: "Tripulante cm-03 (sintético)",
+    memberLabel: "Crew member cm-03 (synthetic)",
     title: "t",
     action: "a",
     now: T0,
@@ -134,7 +134,7 @@ describe("closeAlert", () => {
     status: "acknowledged",
     acknowledged: { actorId: "demo-cmo-01", role: "cmo", at: T0 },
   });
-  const who = { actorId: "demo-commander-01", role: "commander" as const, note: "Resuelto", now: T0 };
+  const who = { actorId: "demo-commander-01", role: "commander" as const, note: "Resolved", now: T0 };
 
   it("closes an acknowledged alert and keeps who acknowledged it", () => {
     const result = closeAlert(acknowledged, who);

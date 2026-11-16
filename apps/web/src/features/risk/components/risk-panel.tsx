@@ -12,18 +12,18 @@ const pct = (value: number) => `${Math.round(value * 100)} %`;
 export function RiskPanel({ risk }: { risk: RiskBadgeDTO | null }) {
   if (!risk) {
     return (
-      <section aria-label="Clasificación de riesgo" className={`${PANEL} h-full text-sm text-ink`}>
-        Riesgo no disponible.
+      <section aria-label="Risk classification" className={`${PANEL} h-full text-sm text-ink`}>
+        Risk unavailable.
       </section>
     );
   }
 
   const source = describeSource(risk);
   return (
-    <section aria-label="Clasificación de riesgo" className={`${PANEL} flex h-full flex-col gap-6`}>
+    <section aria-label="Risk classification" className={`${PANEL} flex h-full flex-col gap-6`}>
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <h3 className="text-base text-muted-foreground">Riesgo</h3>
+          <h3 className="text-base text-muted-foreground">Risk</h3>
           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${LEVEL_STYLES[risk.level].badge}`}>
             {RISK_LEVEL_LABEL[risk.level]}
           </span>
@@ -32,7 +32,7 @@ export function RiskPanel({ risk }: { risk: RiskBadgeDTO | null }) {
           )}
         </div>
         <span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold">
-          Confianza {pct(risk.confidence)}
+          Confidence {pct(risk.confidence)}
         </span>
       </header>
 

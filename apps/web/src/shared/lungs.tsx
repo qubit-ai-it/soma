@@ -7,7 +7,7 @@ import {
 // Generated from organui/lungs-3d at 5815084. The GLB stays in that
 // repository under its own licence; see attribution.source.
 export const lungsModel: OrganModel = {
-  name: "Pulmones",
+  name: "Lungs",
   src: "/models/lungs.glb",
   bytes: 3901260,
   defaultView: "Anterior",
@@ -21,174 +21,174 @@ export const lungsModel: OrganModel = {
       direction: [0, 0, -1],
     },
     {
-      name: "Lateral izquierda",
+      name: "Left lateral",
       direction: [1, 0, 0],
     },
     {
-      name: "Lateral derecha",
+      name: "Right lateral",
       direction: [-1, 0, 0],
     },
   ],
   structures: [
     {
       id: "FMA7338",
-      label: "Segmento apical derecho",
-      group: "Lóbulo superior derecho",
+      label: "Right apical segment",
+      group: "Right upper lobe",
       color: "#d5a286",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7339",
-      label: "Segmento posterior derecho",
-      group: "Lóbulo superior derecho",
+      label: "Right posterior segment",
+      group: "Right upper lobe",
       color: "#d5a286",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7359",
-      label: "Segmento anterior derecho",
-      group: "Lóbulo superior derecho",
+      label: "Right anterior segment",
+      group: "Right upper lobe",
       color: "#d5a286",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7361",
-      label: "Segmento lateral derecho",
-      group: "Lóbulo medio derecho",
+      label: "Right lateral segment",
+      group: "Right middle lobe",
       color: "#91b7a7",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7360",
-      label: "Segmento medial derecho",
-      group: "Lóbulo medio derecho",
+      label: "Right medial segment",
+      group: "Right middle lobe",
       color: "#91b7a7",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7366",
-      label: "Segmento superior derecho",
-      group: "Lóbulo inferior derecho",
+      label: "Right superior segment",
+      group: "Right lower lobe",
       color: "#b87f75",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7364",
-      label: "Segmento basal anterior derecho",
-      group: "Lóbulo inferior derecho",
+      label: "Right anterior basal segment",
+      group: "Right lower lobe",
       color: "#b87f75",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7363",
-      label: "Segmento basal lateral derecho",
-      group: "Lóbulo inferior derecho",
+      label: "Right lateral basal segment",
+      group: "Right lower lobe",
       color: "#b87f75",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7362",
-      label: "Segmento basal posterior derecho",
-      group: "Lóbulo inferior derecho",
+      label: "Right posterior basal segment",
+      group: "Right lower lobe",
       color: "#b87f75",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7372",
-      label: "Segmento apicoposterior izquierdo",
-      group: "Lóbulo superior izquierdo",
+      label: "Left apicoposterior segment",
+      group: "Left upper lobe",
       color: "#d9b997",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7373",
-      label: "Segmento anterior izquierdo",
-      group: "Lóbulo superior izquierdo",
+      label: "Left anterior segment",
+      group: "Left upper lobe",
       color: "#d9b997",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7374",
-      label: "Segmento lingular superior",
-      group: "Lóbulo superior izquierdo",
+      label: "Superior lingular segment",
+      group: "Left upper lobe",
       color: "#d9b997",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7375",
-      label: "Segmento lingular inferior",
-      group: "Lóbulo superior izquierdo",
+      label: "Inferior lingular segment",
+      group: "Left upper lobe",
       color: "#d9b997",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7376",
-      label: "Segmento superior izquierdo",
-      group: "Lóbulo inferior izquierdo",
+      label: "Left superior segment",
+      group: "Left lower lobe",
       color: "#879fae",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7378",
-      label: "Segmento basal anterior izquierdo",
-      group: "Lóbulo inferior izquierdo",
+      label: "Left anterior basal segment",
+      group: "Left lower lobe",
       color: "#879fae",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7379",
-      label: "Segmento basal lateral izquierdo",
-      group: "Lóbulo inferior izquierdo",
+      label: "Left lateral basal segment",
+      group: "Left lower lobe",
       color: "#879fae",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7380",
-      label: "Segmento basal posterior izquierdo",
-      group: "Lóbulo inferior izquierdo",
+      label: "Left posterior basal segment",
+      group: "Left lower lobe",
       color: "#879fae",
       description:
-        "Tejido asignado a este segmento en BodyParts3D; su forma y límites vienen del modelo original.",
+        "Tissue assigned to this segment in BodyParts3D; its shape and boundaries come from the original model.",
     },
     {
       id: "FMA7394",
-      label: "Tráquea",
-      group: "Vías respiratorias",
+      label: "Trachea",
+      group: "Airways",
       color: "#dfc6a3",
       description:
-        "La tráquea lleva el aire hacia los bronquios principales derecho e izquierdo.",
+        "The trachea carries air to the right and left main bronchi.",
     },
     {
       id: "FMA26661",
-      label: "Árbol bronquial derecho",
-      group: "Vías respiratorias",
+      label: "Right bronchial tree",
+      group: "Airways",
       color: "#d8b47e",
       description:
-        "Ramas disponibles de la vía aérea que entra al pulmón derecho, agrupadas para seleccionarlas.",
+        "Available branches of the airway entering the right lung, grouped for selection.",
     },
     {
       id: "FMA26662",
-      label: "Árbol bronquial izquierdo",
-      group: "Vías respiratorias",
+      label: "Left bronchial tree",
+      group: "Airways",
       color: "#d8b47e",
       description:
-        "Ramas disponibles de la vía aérea que entra al pulmón izquierdo, agrupadas para seleccionarlas.",
+        "Available branches of the airway entering the left lung, grouped for selection.",
     },
   ],
   attribution: {

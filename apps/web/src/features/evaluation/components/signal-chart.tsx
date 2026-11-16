@@ -9,9 +9,9 @@ function describe(signal: SignalView): string {
   const gaps = signal.points.length - valid;
   const band =
     signal.baseline.status === "ready"
-      ? `banda del baseline de ${formatNumber(signal.baseline.band.low)} a ${formatNumber(signal.baseline.band.high)} ${signal.unit}`
-      : "sin banda de baseline por baseline insuficiente";
-  return `${signal.label}: ${valid} lecturas${gaps > 0 ? `, ${gaps} sin dato` : ""}, ${band}.`;
+      ? `baseline band from ${formatNumber(signal.baseline.band.low)} to ${formatNumber(signal.baseline.band.high)} ${signal.unit}`
+      : "no baseline band because the baseline is insufficient";
+  return `${signal.label}: ${valid} readings${gaps > 0 ? `, ${gaps} without data` : ""}, ${band}.`;
 }
 
 export function SignalChart({ signal }: { signal: SignalView }) {
@@ -73,7 +73,7 @@ export function SignalChart({ signal }: { signal: SignalView }) {
         ))}
       </svg>
       <p className="mt-1 text-xs text-ink">
-        Azul: baseline · Blanco: después{chart.gaps.length > 0 ? " · Amarillo: sin dato" : ""}
+        Blue: baseline · White: after{chart.gaps.length > 0 ? " · Yellow: no data" : ""}
       </p>
     </figure>
   );

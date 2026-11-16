@@ -35,7 +35,7 @@ export function Sentry({
   color,
   successSignal = 0,
   errorSignal = 0,
-  label = "Sentry, asistente de Soma",
+  label = "Sentry, Soma's assistant",
   className,
 }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);

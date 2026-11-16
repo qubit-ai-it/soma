@@ -4,18 +4,18 @@ import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 
 const TABS = [
-  { segment: null, label: "Resumen", path: "" },
-  { segment: "status", label: "Estado", path: "/status" },
-  { segment: "evaluation", label: "Evaluación", path: "/evaluation" },
+  { segment: null, label: "Summary", path: "" },
+  { segment: "status", label: "Status", path: "/status" },
+  { segment: "evaluation", label: "Evaluation", path: "/evaluation" },
   { segment: "plan", label: "Plan", path: "/plan" },
-  { segment: "follow-up", label: "Seguimiento", path: "/follow-up" },
+  { segment: "follow-up", label: "Follow-up", path: "/follow-up" },
 ] as const;
 
 export function ReportTabs({ memberId }: { memberId: string }) {
   const active = useSelectedLayoutSegment();
   return (
     <nav
-      aria-label="Secciones del reporte"
+      aria-label="Report sections"
       className="mt-8"
     >
       <ul className="flex flex-wrap gap-2">

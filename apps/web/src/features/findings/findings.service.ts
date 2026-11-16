@@ -6,7 +6,7 @@ import type { FindingsError, FindingsProvider, PreliminaryFindings } from "./fin
 import { findingsOutputSchema } from "./findings.schema.ts";
 
 export const FINDINGS_LABEL =
-  "Hallazgos preliminares · no es un diagnóstico · requiere revisión del médico";
+  "Preliminary findings · not a diagnosis · requires physician review";
 
 function failure(code: FindingsError["code"], reason: string): Result<never, FindingsError> {
   return err({ code, reason });
@@ -20,7 +20,7 @@ export async function requestFindings(
   if (!isEvaluable(observation)) {
     return failure(
       "image-not-evaluable",
-      observation.quality.reason ?? "La calidad de la imagen no permite evaluarla.",
+      observation.quality.reason ?? "The image quality does not allow it to be evaluated.",
     );
   }
 
@@ -28,13 +28,13 @@ export async function requestFindings(
   try {
     raw = await provider.generate({ observation });
   } catch {
-    return failure("provider-failed", "El proveedor de hallazgos no respondió.");
+    return failure("provider-failed", "The findings provider did not respond.");
   }
-  if (!raw.ok) return failure("provider-failed", "El proveedor de hallazgos no respondió.");
+  if (!raw.ok) return failure("provider-failed", "The findings provider did not respond.");
 
   const parsed = findingsOutputSchema.safeParse(raw.value);
   if (!parsed.success) {
-    return failure("invalid-output", "La salida del proveedor no tiene el formato esperado.");
+    return failure("invalid-output", "The provider output does not have the expected format.");
   }
 
   for (const text of [parsed.data.findings, parsed.data.uncertainty]) {

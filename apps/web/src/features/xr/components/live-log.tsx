@@ -11,17 +11,17 @@ export function LiveLog({ procedure, session }: Props) {
 
   return (
     <SomaCard
-      label="Registro en vivo"
-      title="Registro en vivo"
-      line={count === 0 ? "Sin eventos todavía." : `${count} ${count === 1 ? "evento" : "eventos"}`}
-      detailLabel="Ver registro"
+      label="Live log"
+      title="Live log"
+      line={count === 0 ? "No events yet." : `${count} ${count === 1 ? "event" : "events"}`}
+      detailLabel="View log"
       detail={
         count > 0 && (
           <ol className="space-y-2">
             {session.log.map((entry, index) => (
               <li key={`${entry.at}-${index}`} className="flex flex-wrap gap-x-3">
                 <time dateTime={entry.at} className="text-muted-foreground">
-                  {new Date(entry.at).toLocaleTimeString("es")}
+                  {new Date(entry.at).toLocaleTimeString("en-US")}
                 </time>
                 <span>
                   {logActionLabel(entry.action)}

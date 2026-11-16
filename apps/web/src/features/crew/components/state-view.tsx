@@ -14,7 +14,7 @@ import { TrendCard } from "./trend-card";
 const TITLE = "font-heading text-xl font-bold";
 const PANEL = "rounded-[2rem_1.5rem_2.25rem_1.75rem] bg-card";
 
-const day = new Intl.DateTimeFormat("es", { day: "2-digit", month: "short", timeZone: "UTC" });
+const day = new Intl.DateTimeFormat("en-US", { day: "2-digit", month: "short", timeZone: "UTC" });
 
 export function StateView({ member, risk }: { member: MissionMemberDTO; risk: RiskBadgeDTO | null }) {
   const history = [...member.history].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
@@ -25,7 +25,7 @@ export function StateView({ member, risk }: { member: MissionMemberDTO; risk: Ri
     <div className="space-y-12">
       <section aria-labelledby="body-risk" className="space-y-4">
         <h3 id="body-risk" className={TITLE}>
-          Cuerpo y riesgo
+          Body and risk
         </h3>
         <div className="grid gap-4 lg:grid-cols-2">
           <div className={`${PANEL} p-6`}>
@@ -38,12 +38,12 @@ export function StateView({ member, risk }: { member: MissionMemberDTO; risk: Ri
 
       <section aria-labelledby="trends" className="space-y-4">
         <h3 id="trends" className={TITLE}>
-          Tendencias
+          Trends
         </h3>
         <div className="grid gap-4 md:grid-cols-3">
           <TrendCard
-            title="Frecuencia cardíaca"
-            unit="lpm"
+            title="Heart rate"
+            unit="bpm"
             icon="cardiology"
             samples={series((s) => s.heartRateBpm)}
             range={RESTING_HEART_RATE}
@@ -58,7 +58,7 @@ export function StateView({ member, risk }: { member: MissionMemberDTO; risk: Ri
             trend={member.trends.spo2}
           />
           <TrendCard
-            title="Sueño"
+            title="Sleep"
             unit="h"
             icon="bedtime"
             samples={series((s) => s.sleepHours)}
@@ -71,15 +71,15 @@ export function StateView({ member, risk }: { member: MissionMemberDTO; risk: Ri
         {history.length > 0 && (
           <details className="rounded-2xl bg-card p-4 text-sm">
             <summary className="cursor-pointer list-none text-ink outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
-              Ver los {history.length} registros
+              View all {history.length} records
             </summary>
             <table className="mt-3 w-full text-left">
               <thead className="text-ink">
                 <tr>
-                  <th scope="col" className="px-3 py-2 font-normal">Fecha</th>
-                  <th scope="col" className="px-3 py-2 font-normal">FC (lpm)</th>
+                  <th scope="col" className="px-3 py-2 font-normal">Date</th>
+                  <th scope="col" className="px-3 py-2 font-normal">HR (bpm)</th>
                   <th scope="col" className="px-3 py-2 font-normal">SpO₂ (%)</th>
-                  <th scope="col" className="px-3 py-2 font-normal">Sueño (h)</th>
+                  <th scope="col" className="px-3 py-2 font-normal">Sleep (h)</th>
                 </tr>
               </thead>
               <tbody>
@@ -99,7 +99,7 @@ export function StateView({ member, risk }: { member: MissionMemberDTO; risk: Ri
 
       <section aria-labelledby="organs" className="space-y-4">
         <h3 id="organs" className={TITLE}>
-          Corazón y pulmones
+          Heart and lungs
         </h3>
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="grid gap-4">

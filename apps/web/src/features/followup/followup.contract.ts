@@ -31,7 +31,7 @@ export function buildFollowUpContract(input: BuildInput): FollowUpContract {
     targets: input.targets,
     windows: Array.from({ length: windowCount }, (_, i) => ({
       id: `w${i + 1}`,
-      label: `Ventana ${i + 1}`,
+      label: `Window ${i + 1}`,
       start: iso(start + i * windowDays * DAY_MS),
       end: iso(start + (i + 1) * windowDays * DAY_MS),
     })),

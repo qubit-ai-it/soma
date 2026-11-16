@@ -15,7 +15,6 @@ import type {
 import { buildObservations } from "../scenario/scenario.build.ts";
 import type { Scenario } from "../scenario/scenario.types.ts";
 import {
-  CHECKPOINT_LABEL,
   RULE_LABEL,
   SCENARIO_COPY,
   signalLabel,
@@ -45,13 +44,13 @@ function byTime(a: Observation, b: Observation): number {
 }
 
 function describeSignalRule(rule: SignalRule): string {
-  const verb = rule.direction === "increase" ? "sube" : "baja";
-  const reads = rule.minConsecutive === 1 ? "1 lectura" : `${rule.minConsecutive} lecturas consecutivas`;
-  return `${signalLabel(rule.signal)} ${verb} ${rule.minNormalizedDelta} o más desviaciones respecto a su baseline durante ${reads}`;
+  const verb = rule.direction === "increase" ? "rises" : "drops";
+  const reads = rule.minConsecutive === 1 ? "1 reading" : `${rule.minConsecutive} consecutive readings`;
+  return `${signalLabel(rule.signal)} ${verb} ${rule.minNormalizedDelta} or more deviations from its baseline for ${reads}`;
 }
 
 function describeConvergence(rule: ConvergenceRule): string {
-  return `Al menos ${rule.minSignals} señales con una regla activa a la vez`;
+  return `At least ${rule.minSignals} signals with an active rule at once`;
 }
 
 function triggeredRules(evaluation: Evaluation, ruleSet: RuleSet): TriggeredRuleView[] {
@@ -199,7 +198,7 @@ export function buildScenarioView(
 
     return {
       index,
-      label: CHECKPOINT_LABEL[checkpoint.label] ?? checkpoint.label,
+      label: checkpoint.label,
       evaluatedAt: checkpoint.evaluatedAt,
       status: evaluation.status,
       rules: triggeredRules(evaluation, ruleSet),

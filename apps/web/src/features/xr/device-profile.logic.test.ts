@@ -20,7 +20,7 @@ describe("resolveDeviceProfile", () => {
   it("detects a Meta Quest with immersive support in a secure context", () => {
     const profile = resolveDeviceProfile(quest);
     assert.equal(profile.kind, "quest");
-    assert.equal(profile.label, "Meta Quest detectado");
+    assert.equal(profile.label, "Meta Quest detected");
   });
 
   it("falls back to simulated mode on a desktop browser without WebXR", () => {
@@ -32,14 +32,14 @@ describe("resolveDeviceProfile", () => {
       userAgent: DESKTOP_UA,
     });
     assert.equal(profile.kind, "simulated");
-    assert.equal(profile.label, "Visor no detectado");
+    assert.equal(profile.label, "Headset not detected");
     assert.match(profile.detail, /WebXR/);
   });
 
   it("explains that WebXR needs a secure context", () => {
     const profile = resolveDeviceProfile({ ...quest, hasXr: false, secureContext: false });
     assert.equal(profile.kind, "simulated");
-    assert.match(profile.detail, /HTTPS|seguro/);
+    assert.match(profile.detail, /HTTPS|secure/);
   });
 
   it("does not claim a Quest when WebXR reports no immersive session", () => {

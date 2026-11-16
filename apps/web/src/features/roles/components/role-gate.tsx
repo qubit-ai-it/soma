@@ -16,7 +16,7 @@ export function RoleGate({ resource, children }: Props) {
   if (canAccess(role, resource)) return <>{children}</>;
   return (
     <p role="status" className="rounded-2xl bg-card p-5 text-base text-ink">
-      El rol {ROLE_LABELS[role]} no tiene acceso. Cambia de rol arriba.
+      The {ROLE_LABELS[role]} role has no access. Switch roles above.
     </p>
   );
 }

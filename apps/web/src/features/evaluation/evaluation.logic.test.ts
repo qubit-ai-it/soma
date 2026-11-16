@@ -52,9 +52,9 @@ describe("buildScenarioView", () => {
     assert.deepEqual(fatigue.provenanceTypes, ["synthetic"]);
   });
 
-  it("uses Spanish copy for known scenarios and checkpoints, raw text otherwise", () => {
-    assert.equal(fatigue.title, "Sueño reducido, HRV en descenso y fatiga");
-    assert.equal(fatigue.checkpoints[0].label, "Baseline estable");
+  it("uses English copy for known scenarios and checkpoints, raw text otherwise", () => {
+    assert.equal(fatigue.title, "Reduced sleep, falling HRV and fatigue");
+    assert.equal(fatigue.checkpoints[0].label, "Baseline stable");
     const unknown = buildScenarioView(
       { ...load("critical-f3.json"), id: "other", title: "Raw title" },
       ruleSet,
@@ -63,22 +63,22 @@ describe("buildScenarioView", () => {
     assert.equal(unknown.title, "Raw title");
   });
 
-  it("describes triggered rules in Spanish with their parameters", () => {
+  it("describes triggered rules with their parameters", () => {
     const last = fatigue.checkpoints[4];
     const rule = last.rules.find((r) => r.id === "hrv-low-persistent");
     assert.ok(rule);
-    assert.equal(rule.label, "HRV baja de forma persistente");
+    assert.equal(rule.label, "HRV persistently low");
     assert.equal(rule.level, "F2");
     assert.equal(rule.kind, "signal");
     assert.deepEqual(rule.signals, ["hrv"]);
     assert.equal(
       rule.description,
-      "Variabilidad cardíaca (HRV) baja 2 o más desviaciones respecto a su baseline durante 3 lecturas consecutivas",
+      "Heart rate variability (HRV) drops 2 or more deviations from its baseline for 3 consecutive readings",
     );
     const convergence = last.rules.find((r) => r.id === "conv-3");
     assert.ok(convergence);
     assert.equal(convergence.kind, "convergence");
-    assert.equal(convergence.description, "Al menos 3 señales con una regla activa a la vez");
+    assert.equal(convergence.description, "At least 3 signals with an active rule at once");
     assert.ok(convergence.signals.length >= 3);
   });
 
@@ -100,7 +100,7 @@ describe("buildScenarioView", () => {
 
   it("summarizes baseline, latest value and deviation per signal", () => {
     const hrv = signalOf(fatigue, 4, "hrv");
-    assert.equal(hrv.label, "Variabilidad cardíaca (HRV)");
+    assert.equal(hrv.label, "Heart rate variability (HRV)");
     assert.equal(hrv.unit, "ms");
     assert.deepEqual(hrv.provenance, { type: "synthetic", source: "wearable-sim", device: "watch-sim" });
     assert.equal(hrv.baseline.status, "ready");
@@ -146,11 +146,11 @@ describe("buildScenarioView", () => {
     assert.equal(hrv.deviation, null);
   });
 
-  it("translates limitations into readable Spanish", () => {
+  it("translates limitations into readable English", () => {
     const texts = insufficient.checkpoints[0].limitations.map((l) => l.text);
     assert.deepEqual(texts, [
-      "Variabilidad cardíaca (HRV): el baseline tiene menos de 5 observaciones válidas.",
-      "Sueño: no hay observaciones válidas posteriores al baseline.",
+      "Heart rate variability (HRV): the baseline has fewer than 5 valid observations.",
+      "Sleep: no valid observations after the baseline.",
     ]);
     assert.deepEqual(
       insufficient.checkpoints[0].limitations.map((l) => l.signal),
@@ -164,11 +164,11 @@ describe("translateLimitation", () => {
   it("covers every limitation code the engine emits", () => {
     assert.equal(
       translateLimitation("insufficient-baseline:hrv:mixed-units", 5).text,
-      "Variabilidad cardíaca (HRV): el baseline mezcla unidades distintas y no es comparable.",
+      "Heart rate variability (HRV): the baseline mixes different units and is not comparable.",
     );
     assert.equal(
       translateLimitation("zero-variability:fatigue", 5).text,
-      "Fatiga autorreportada: el baseline no tiene variabilidad, así que no se puede normalizar la desviación.",
+      "Self-reported fatigue: the baseline has no variability, so the deviation cannot be normalized.",
     );
   });
 
@@ -176,7 +176,7 @@ describe("translateLimitation", () => {
     assert.deepEqual(translateLimitation("something-new", 5), {
       code: "something-new",
       signal: null,
-      text: "Limitación no reconocida (something-new).",
+      text: "Unrecognized limitation (something-new).",
     });
   });
 });

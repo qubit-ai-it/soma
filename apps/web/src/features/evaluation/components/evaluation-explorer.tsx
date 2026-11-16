@@ -35,16 +35,16 @@ export function EvaluationExplorer({ board }: { board: EvaluationBoard }) {
   }
 
   return (
-    <section aria-label="Evaluación del motor determinista" className="space-y-6">
+    <section aria-label="Deterministic engine evaluation" className="space-y-6">
       <div>
-        <h2 className="font-heading text-2xl font-bold">Evaluación</h2>
+        <h2 className="font-heading text-2xl font-bold">Evaluation</h2>
         <p role="note" className="mt-1 text-sm text-ink">
-          No es una escala clínica ni un diagnóstico
+          Not a clinical scale or a diagnosis
         </p>
       </div>
 
       <div className="space-y-3">
-        <ul aria-label="Escenario" className="flex flex-wrap gap-2">
+        <ul aria-label="Scenario" className="flex flex-wrap gap-2">
           {board.scenarios.map((item, index) => (
             <li key={item.id}>
               <button
@@ -71,7 +71,7 @@ export function EvaluationExplorer({ board }: { board: EvaluationBoard }) {
           step={1}
           value={checkpointIndex}
           onChange={(event) => setCheckpointIndex(Number(event.target.value))}
-          aria-label="Punto de control"
+          aria-label="Checkpoint"
           aria-valuetext={`${checkpoint.label}, ${copy.name}`}
           className="w-full accent-[var(--signal)]"
         />
@@ -96,20 +96,20 @@ export function EvaluationExplorer({ board }: { board: EvaluationBoard }) {
 
       <div aria-live="polite" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <SomaCard
-          label="Estado"
+          label="Status"
           tone={TONE[checkpoint.status]}
           chip={checkpoint.label}
           title={copy.name}
-          line={checkpoint.status === "NOT_EVALUABLE" ? "Faltan datos. No es F0." : copy.summary}
+          line={checkpoint.status === "NOT_EVALUABLE" ? "Data missing. Not F0." : copy.summary}
           actions={[
             {
-              label: "Siguiente",
+              label: "Next",
               icon: "chevron_right",
               disabled: checkpointIndex === last,
               onClick: () => setCheckpointIndex(checkpointIndex + 1),
             },
             {
-              label: "Anterior",
+              label: "Previous",
               icon: "chevron_left",
               variant: "secondary",
               disabled: checkpointIndex === 0,
@@ -123,10 +123,10 @@ export function EvaluationExplorer({ board }: { board: EvaluationBoard }) {
         {checkpoint.status === "F3" && <ProtocolCard />}
 
         <SomaCard
-          label="Gráficos"
-          title="Señales"
-          line={`${checkpoint.signals.length} gráficos`}
-          detailLabel="Ver gráficos"
+          label="Charts"
+          title="Signals"
+          line={`${checkpoint.signals.length} charts`}
+          detailLabel="View charts"
           detail={
             <div className="grid gap-3 sm:grid-cols-2">
               {checkpoint.signals.map((signal) => (
@@ -139,7 +139,7 @@ export function EvaluationExplorer({ board }: { board: EvaluationBoard }) {
 
       <p className="flex items-center gap-2 text-xs text-ink">
         <Icon name="science" />
-        Un valor faltante nunca cuenta como cero.
+        A missing value never counts as zero.
       </p>
     </section>
   );

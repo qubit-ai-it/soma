@@ -63,7 +63,7 @@ describe("requestFindings", () => {
     assert.equal(result.value.label, FINDINGS_LABEL);
     assert.equal(
       FINDINGS_LABEL,
-      "Hallazgos preliminares · no es un diagnóstico · requiere revisión del médico",
+      "Preliminary findings · not a diagnosis · requires physician review",
     );
     assert.equal(result.value.requiresHumanReview, true);
     assert.equal(result.value.source.provider, "simulated-medgemma");
@@ -83,8 +83,8 @@ describe("requestFindings", () => {
 
   it("blocks a diagnostic text from the provider", async () => {
     const spy = spyProvider({
-      findings: "El paciente tiene una colecistitis aguda.",
-      uncertainty: "Baja confianza.",
+      findings: "The patient has acute cholecystitis.",
+      uncertainty: "Low confidence.",
     });
     const result = await requestFindings(spy.provider, observation("valid"), { now: () => NOW });
     assert.equal(spy.calls, 1);
@@ -95,8 +95,8 @@ describe("requestFindings", () => {
 
   it("blocks a prescriptive text from the provider", async () => {
     const spy = spyProvider({
-      findings: "Estructura visible. Tomar 400 mg de ibuprofeno.",
-      uncertainty: "Baja confianza.",
+      findings: "Visible structure. Take 400 mg of ibuprofen.",
+      uncertainty: "Low confidence.",
     });
     const result = await requestFindings(spy.provider, observation("valid"), { now: () => NOW });
     assert.ok(!result.ok);
@@ -105,7 +105,7 @@ describe("requestFindings", () => {
 
   it("blocks a diagnosis hidden in the uncertainty statement", async () => {
     const spy = spyProvider({
-      findings: "Estructura visible.",
+      findings: "Visible structure.",
       uncertainty: "The patient has a fracture.",
     });
     const result = await requestFindings(spy.provider, observation("valid"), { now: () => NOW });

@@ -82,7 +82,7 @@ export function createPostgresFollowUpsRepository(pool: Pool): FollowUpsReposito
         const { rows } = await client.query<Row>("select * from followups where id = $1 for update", [id]);
         if (!rows[0]) {
           await client.query("rollback");
-          return err("Seguimiento no encontrado.");
+          return err("Follow-up not found.");
         }
         const result = fn(toRecord(rows[0]));
         if (!result.ok) {

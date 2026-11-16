@@ -11,36 +11,36 @@
   "proposals": [
     {
       "id": "pp-001",
-      "subject": { "memberId": "cm-02", "label": "Tripulante cm-02" },
-      "title": "Borrador de plan de recuperación del sueño",
+      "subject": { "memberId": "cm-02", "label": "Crew member cm-02" },
+      "title": "Sleep recovery plan draft",
       "steps": [
-        "Ajustar el horario de descanso para acumular al menos 7 horas continuas.",
-        "Repetir la medición de variabilidad cardiaca tras el descanso.",
-        "Registrar cualquier cambio en el siguiente check-in."
+        "Adjust the rest schedule to get at least 7 continuous hours.",
+        "Repeat the heart rate variability measurement after resting.",
+        "Record any change at the next check-in."
       ],
       "source": { "provider": "simulated-medgemma", "version": "sim-2026.10" },
       "createdAt": "2026-10-31T05:40:00.000Z"
     },
     {
       "id": "pp-002",
-      "subject": { "memberId": "cm-03", "label": "Tripulante cm-03" },
-      "title": "Borrador de revisión de carga de ejercicio",
+      "subject": { "memberId": "cm-03", "label": "Crew member cm-03" },
+      "title": "Exercise load review draft",
       "steps": [
-        "Reducir la intensidad de la sesión de ejercicio durante dos días.",
-        "Mantener la hidratación y la rutina de sueño programadas.",
-        "Pedir al médico de a bordo que revise la tendencia."
+        "Reduce the intensity of the exercise session for two days.",
+        "Keep the scheduled hydration and sleep routine.",
+        "Ask the onboard physician to review the trend."
       ],
       "source": { "provider": "simulated-medgemma", "version": "sim-2026.10" },
       "createdAt": "2026-10-31T05:42:00.000Z"
     },
     {
       "id": "pp-003",
-      "subject": { "memberId": "cm-04", "label": "Tripulante cm-04" },
-      "title": "Borrador de seguimiento por señales no evaluables",
+      "subject": { "memberId": "cm-04", "label": "Crew member cm-04" },
+      "title": "Follow-up draft for non-evaluable signals",
       "steps": [
-        "Repetir las mediciones con el equipo de respaldo.",
-        "Confirmar manualmente los valores con el médico de a bordo.",
-        "Reevaluar cuando haya datos completos."
+        "Repeat the measurements with the backup equipment.",
+        "Manually confirm the values with the onboard physician.",
+        "Re-evaluate when complete data is available."
       ],
       "source": { "provider": "simulated-jev", "version": "sim-2026.10" },
       "createdAt": "2026-10-31T05:45:00.000Z"

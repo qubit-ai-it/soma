@@ -32,16 +32,16 @@ describe("spaceWeatherCards", () => {
 
   it("counts events and lists each kind once", () => {
     const solar = byId(spaceWeatherCards(snapshot()), "solar-events");
-    assert.equal(solar?.value, "3 eventos");
-    assert.equal(solar?.line, "Llamarada, Tormenta geomagnética");
+    assert.equal(solar?.value, "3 events");
+    assert.equal(solar?.line, "Flare, Geomagnetic storm");
     assert.equal(solar?.tone, "warn");
   });
 
   it("handles no events and a single event", () => {
-    assert.equal(byId(spaceWeatherCards(snapshot({ events: [] })), "solar-events")?.value, "0 eventos");
+    assert.equal(byId(spaceWeatherCards(snapshot({ events: [] })), "solar-events")?.value, "0 events");
     assert.equal(byId(spaceWeatherCards(snapshot({ events: [] })), "solar-events")?.tone, "ok");
     const one = snapshot().events?.slice(0, 1) ?? [];
-    assert.equal(byId(spaceWeatherCards(snapshot({ events: one })), "solar-events")?.value, "1 evento");
+    assert.equal(byId(spaceWeatherCards(snapshot({ events: one })), "solar-events")?.value, "1 event");
   });
 
   it("leaves out a card whose source could not be read instead of showing zero", () => {
@@ -66,7 +66,7 @@ describe("spaceWeatherCards", () => {
     const mock = spaceWeatherCards(snapshot({ source: { ...live, mode: "mock" } }));
     assert.equal(byId(mock, "geomagnetic")?.source, "NOAA SWPC · Demo");
     const cache = spaceWeatherCards(snapshot({ source: { ...live, mode: "cache" } }));
-    assert.equal(byId(cache, "solar-events")?.source, "DONKI by NASA · Última lectura");
+    assert.equal(byId(cache, "solar-events")?.source, "DONKI by NASA · Last reading");
   });
 });
 
@@ -84,7 +84,7 @@ describe("radiationCard", () => {
   it("averages the last 24 h of readings and dates them, since RadLab lags", () => {
     const card = radiationCard({ ...window, samples: [...window.samples] });
     assert.equal(card?.value, "20 µGy/h");
-    assert.match(card?.line ?? "", /^BPD, promedio 24 h al 13 nov/);
+    assert.match(card?.line ?? "", /^BPD, 24 h average as of Nov 13/);
     assert.equal(card?.source, "RadLab by NASA");
   });
 

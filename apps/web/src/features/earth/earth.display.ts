@@ -1,29 +1,29 @@
 import type { Direction, Packet, PacketKind } from "./earth.types.ts";
 
 export const KIND_LABELS: Record<PacketKind, string> = {
-  alert_notification: "Notificación de alerta",
-  plan_response: "Respuesta de plan",
-  plan_review_request: "Plan para revisión",
-  plan_review_response: "Revisión de plan",
-  followup_report: "Reporte de seguimiento",
-  followup_feedback: "Respuesta de seguimiento",
-  event: "Evento",
+  alert_notification: "Alert notification",
+  plan_response: "Plan response",
+  plan_review_request: "Plan for review",
+  plan_review_response: "Plan review",
+  followup_report: "Follow-up report",
+  followup_feedback: "Follow-up response",
+  event: "Event",
 };
 
 export const DIRECTION_LABELS: Record<Direction, string> = {
-  to_earth: "Estación a Tierra",
-  to_station: "Tierra a estación",
+  to_earth: "Station to Earth",
+  to_station: "Earth to station",
 };
 
 export const STATUS_LABELS: Record<Packet["status"], { text: string; icon: string }> = {
-  queued: { text: "En cola", icon: "schedule" },
-  acked: { text: "Confirmado", icon: "check_circle" },
-  failed: { text: "Fallido", icon: "error" },
+  queued: { text: "Queued", icon: "schedule" },
+  acked: { text: "Confirmed", icon: "check_circle" },
+  failed: { text: "Failed", icon: "error" },
 };
 
 const ERROR_LABELS: Record<string, string> = {
-  link_down: "Sin enlace",
-  ack_lost: "Confirmación perdida",
+  link_down: "No link",
+  ack_lost: "Acknowledgement lost",
 };
 
 export function errorLabel(code: string | undefined): string | undefined {
@@ -37,7 +37,7 @@ export function formatTime(iso: string): string {
 }
 
 export const DECISION_LABELS = {
-  approve: "Aprobada",
-  modify: "Modificada",
-  reject: "Rechazada",
+  approve: "Approved",
+  modify: "Modified",
+  reject: "Rejected",
 } as const;

@@ -17,13 +17,13 @@ import type { Trend } from "../crew.types";
 const BOX: ChartBox = { width: 240, height: 96, padX: 10, padY: 12 };
 
 const TREND_META: Record<Trend, { symbol: string; label: string }> = {
-  rising: { symbol: "trending_up", label: "Subiendo" },
-  falling: { symbol: "trending_down", label: "Bajando" },
-  stable: { symbol: "trending_flat", label: "Estable" },
-  insufficient: { symbol: "remove", label: "Pocos datos" },
+  rising: { symbol: "trending_up", label: "Rising" },
+  falling: { symbol: "trending_down", label: "Falling" },
+  stable: { symbol: "trending_flat", label: "Stable" },
+  insufficient: { symbol: "remove", label: "Not enough data" },
 };
 
-const day = new Intl.DateTimeFormat("es", { day: "numeric", month: "short", timeZone: "UTC" });
+const day = new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short", timeZone: "UTC" });
 
 type Props = {
   title: string;
@@ -71,7 +71,7 @@ export function TrendCard({ title, unit, icon, samples, range = {}, trend, digit
       {points.length > 1 ? (
         <svg
           role="img"
-          aria-label={`${title}: de ${values[0].toFixed(digits)} a ${latest?.toFixed(digits)} ${unit} en ${values.length} registros`}
+          aria-label={`${title}: from ${values[0].toFixed(digits)} to ${latest?.toFixed(digits)} ${unit} over ${values.length} records`}
           viewBox={`0 0 ${BOX.width} ${BOX.height}`}
           className={`h-24 w-full ${tone}`}
         >
@@ -114,7 +114,7 @@ export function TrendCard({ title, unit, icon, samples, range = {}, trend, digit
           {last && <circle cx={last.x} cy={last.y} r={9} fill="currentColor" opacity={0.18} />}
         </svg>
       ) : (
-        <p className="py-6 text-sm text-ink">Aún no hay suficientes registros.</p>
+        <p className="py-6 text-sm text-ink">Not enough records yet.</p>
       )}
 
       <footer className="flex items-center justify-between gap-3">

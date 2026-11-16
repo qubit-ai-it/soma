@@ -12,8 +12,8 @@ import type { FollowUpContract, FollowUpResult } from "./followup.types.ts";
 export type FollowUpScenarioId = "followup-recovery" | "followup-worsening";
 
 export const FOLLOWUP_SCENARIOS: { id: FollowUpScenarioId; label: string }[] = [
-  { id: "followup-recovery", label: "Recuperación" },
-  { id: "followup-worsening", label: "Empeoramiento" },
+  { id: "followup-recovery", label: "Recovery" },
+  { id: "followup-worsening", label: "Worsening" },
 ];
 
 export type FollowUpView = {

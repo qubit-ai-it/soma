@@ -6,7 +6,7 @@ import { getMissionMember } from "@/features/crew/crew.queries";
 
 export default function ReportSummaryPage({ params }: PageProps<"/report/[id]">) {
   return (
-    <Suspense fallback={<p className="text-ink">Cargando signos vitales…</p>}>
+    <Suspense fallback={<p className="text-ink">Loading vitals…</p>}>
       <Content params={params} />
     </Suspense>
   );

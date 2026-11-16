@@ -23,9 +23,9 @@ export function HeadsetCard() {
 
   return (
     <MetricCard
-      title="Visor XR"
-      value={profile === null ? "Buscando…" : found ? "Meta Quest" : "No detectado"}
-      line={found ? "WebXR disponible." : undefined}
+      title="XR headset"
+      value={profile === null ? "Searching…" : found ? "Meta Quest" : "Not detected"}
+      line={found ? "WebXR available." : undefined}
       icon="view_in_ar"
     />
   );

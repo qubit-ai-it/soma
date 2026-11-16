@@ -6,7 +6,7 @@ import { type CrewId, type Instruction, type SimCrew } from "./simulation.ts";
 
 function member(id: CrewId, x: number, y: number, pulse = 72): SimCrew {
   return {
-    id, name: id, role: "Tripulante", position: { x, y }, updatedAt: null,
+    id, name: id, role: "Crew member", position: { x, y }, updatedAt: null,
     telemetry: { heartRateBpm: pulse, spo2Pct: 98, systolic: 120, diastolic: 78, sleepHours: 7, cumulativeDoseMsv: 30 },
   };
 }
@@ -14,15 +14,15 @@ function member(id: CrewId, x: number, y: number, pulse = 72): SimCrew {
 test("the shortest exact position in the same module gets the direct assignment", () => {
   const affected = member("cm-01", 16.4, 19.2, 0);
   const crew = [affected, member("cm-02", 19.5, 18), member("cm-03", 14.2, 18.3), member("cm-04", 50, 75)];
-  assert.deepEqual(dispatchResponse(crew, affected, "desfibrilador").map(({ crewId, via }) => [crewId, via]), [
-    ["cm-03", null], ["cm-04", "medica"],
+  assert.deepEqual(dispatchResponse(crew, affected, "defibrillator").map(({ crewId, via }) => [crewId, via]), [
+    ["cm-03", null], ["cm-04", "medical"],
   ]);
 });
 
 test("a responder across a nearby doorway can beat someone across the same room", () => {
   const affected = member("cm-01", 32, 25, 0);
   const crew = [affected, member("cm-02", 8, 25), member("cm-03", 34, 25)];
-  assert.equal(dispatchResponse(crew, affected, "desfibrilador")[0]?.crewId, "cm-03");
+  assert.equal(dispatchResponse(crew, affected, "defibrillator")[0]?.crewId, "cm-03");
 });
 
 test("active assignments persist until a destination changes or a responder becomes unavailable", () => {
@@ -31,35 +31,35 @@ test("active assignments persist until a destination changes or a responder beco
   const nearer = member("cm-03", 17, 25);
   const equipment = member("cm-04", 50, 75);
   const prior: Instruction[] = [
-    { crewId: first.id, destination: "mando", via: null, message: "Ve a Mando." },
-    { crewId: equipment.id, destination: "mando", via: "medica", message: "Lleva el equipo a Mando." },
+    { crewId: first.id, destination: "command", via: null, message: "Go to Command." },
+    { crewId: equipment.id, destination: "command", via: "medical", message: "Bring the equipment to Command." },
   ];
-  assert.equal(dispatchResponse([affected, first, nearer, equipment], affected, "desfibrilador", prior)[0]?.crewId, first.id);
+  assert.equal(dispatchResponse([affected, first, nearer, equipment], affected, "defibrillator", prior)[0]?.crewId, first.id);
   const unavailable = { ...first, telemetry: { ...first.telemetry, heartRateBpm: 0 } };
-  assert.deepEqual(dispatchResponse([affected, unavailable, nearer, equipment], affected, "desfibrilador", prior).map(({ crewId }) => crewId), [
+  assert.deepEqual(dispatchResponse([affected, unavailable, nearer, equipment], affected, "defibrillator", prior).map(({ crewId }) => crewId), [
     nearer.id, equipment.id,
   ]);
 });
 
 test("only the equipment assignment names the defibrillator", () => {
-  const responder = dispatchMessage("laboratorio", "Lucía", null, ["heartRateBpm"]);
-  const equipment = dispatchMessage("laboratorio", "Lucía", "desfibrilador");
-  assert.match(responder, /Ve de inmediato al módulo Laboratorio para asistir a Lucía/);
-  assert.match(responder, /comprueba si responde y cómo respira/);
-  assert.match(responder, /En la ficha del ejercicio, verifica el pulso/);
-  assert.doesNotMatch(responder, /desfibrilador/);
-  assert.match(equipment, /Recoge el desfibrilador en Área médica y llévalo al módulo Laboratorio/);
-  assert.match(equipment, /entrega el equipo a quien está asistiendo/);
+  const responder = dispatchMessage("laboratory", "Lucy", null, ["heartRateBpm"]);
+  const equipment = dispatchMessage("laboratory", "Lucy", "defibrillator");
+  assert.match(responder, /Go immediately to the module Laboratory to assist Lucy/);
+  assert.match(responder, /check whether they respond and how they breathe/);
+  assert.match(responder, /In the exercise record, verify pulse/);
+  assert.doesNotMatch(responder, /defibrillator/);
+  assert.match(equipment, /Pick up the defibrillator from Medical area and bring it to the module Laboratory/);
+  assert.match(equipment, /hand the equipment to whoever is assisting/);
 });
 
 test("the first responder is told which readings to verify in the exercise", () => {
   const affected = member("cm-01", 80, 25);
   const crew = [affected, member("cm-02", 85, 25), member("cm-03", 50, 75)];
-  const [direct, carrier] = dispatchResponse(crew, affected, "oximetro", [], ["spo2Pct", "systolic", "diastolic"]);
-  assert.match(direct.message, /verifica la saturación de oxígeno y la presión sistólica y diastólica/);
-  assert.equal(direct.message.match(/presión/g)?.length, 1);
-  assert.doesNotMatch(direct.message, /oxímetro/);
-  assert.match(carrier.message, /Recoge el oxímetro/);
+  const [direct, carrier] = dispatchResponse(crew, affected, "oximeter", [], ["spo2Pct", "systolic", "diastolic"]);
+  assert.match(direct.message, /verify oxygen saturation and systolic and diastolic pressure/);
+  assert.equal(direct.message.match(/pressure/g)?.length, 1);
+  assert.doesNotMatch(direct.message, /oximeter/);
+  assert.match(carrier.message, /Pick up the oximeter/);
 });
 
 test("visible routes project outer positions onto the floor and cross rooms in a corridor", () => {
@@ -82,9 +82,9 @@ test("empty gaps and exterior corners snap to a walkable floor", () => {
 });
 
 test("numbered corridors are independently detected and their routes stay on the deck", () => {
-  const destination = locationCenter("pasillo-2");
-  assert.equal(locationAt(destination), "pasillo-2");
-  const paths = [shortestWalk({ x: 18, y: 71 }, destination), shortestWalk(destination, locationCenter("pasillo-4"))];
+  const destination = locationCenter("corridor-2");
+  assert.equal(locationAt(destination), "corridor-2");
+  const paths = [shortestWalk({ x: 18, y: 71 }, destination), shortestWalk(destination, locationCenter("corridor-4"))];
   for (const { path } of paths) {
     assert.ok(Number.isFinite(shortestWalk(path[0], path.at(-1)!).distance));
     for (let index = 1; index < path.length; index++) {
@@ -96,22 +96,22 @@ test("numbered corridors are independently detected and their routes stay on the
     }
   }
   const affected = { ...member("cm-01", destination.x, destination.y, 0), name: "Amara" };
-  const [direct, carrier] = dispatchResponse([affected, member("cm-02", 55, 24), member("cm-03", 50, 75)], affected, "desfibrilador");
-  assert.equal(direct.destination, "pasillo-2");
-  assert.match(direct.message, /al Pasillo 2/);
-  assert.match(carrier.message, /al Pasillo 2/);
+  const [direct, carrier] = dispatchResponse([affected, member("cm-02", 55, 24), member("cm-03", 50, 75)], affected, "defibrillator");
+  assert.equal(direct.destination, "corridor-2");
+  assert.match(direct.message, /to the Corridor 2/);
+  assert.match(carrier.message, /to the Corridor 2/);
 });
 
 test("equipment can come from Engineering and a direct response can have no equipment", () => {
   const affected = member("cm-01", 80, 27);
   const crew = [affected, member("cm-02", 81, 25), member("cm-03", 83, 75), member("cm-04", 50, 75)];
-  const [direct, carrier] = dispatchResponse(crew, affected, "dosimetro");
+  const [direct, carrier] = dispatchResponse(crew, affected, "dosimeter");
   assert.equal(direct.via, null);
-  assert.doesNotMatch(direct.message, /dosímetro/);
+  assert.doesNotMatch(direct.message, /dosimeter/);
   assert.equal(carrier.crewId, "cm-03");
-  assert.equal(carrier.via, "ingenieria");
+  assert.equal(carrier.via, "engineering");
   assert.equal(carrier.equipmentCollected, true);
-  assert.match(carrier.message, /dosímetro en Ingeniería/);
+  assert.match(carrier.message, /dosimeter from Engineering/);
   const withoutEquipment = dispatchResponse(crew, affected, null);
   assert.equal(withoutEquipment.length, 2);
   assert.equal(withoutEquipment[0].crewId, direct.crewId);

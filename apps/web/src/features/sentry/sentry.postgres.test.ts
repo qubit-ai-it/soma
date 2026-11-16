@@ -34,7 +34,7 @@ describe("sentry end to end on postgres", { skip: !hasDirectDatabase }, () => {
       notifications,
       raiseAlert: (input) => alerts.raise(input),
       memberFor: (s) => s,
-      labelFor: (m) => `Tripulante ${m}`,
+      labelFor: (m) => `Crew member ${m}`,
     });
     return { alertsRepo, audit, evaluations, notifications, sentry };
   };
@@ -94,7 +94,7 @@ describe("sentry end to end on postgres", { skip: !hasDirectDatabase }, () => {
     assert.deepEqual([(await alertsRepo.list()).length, (await audit.list()).length], before);
   });
 
-  it("flags every crew member as no evaluable after a long data gap, once", { timeout: 120_000 }, async () => {
+  it("flags every crew member as not evaluable after a long data gap, once", { timeout: 120_000 }, async () => {
     const { alertsRepo, evaluations, notifications, sentry } = build();
     const before = (await alertsRepo.list()).length;
     const gap = START + 40 * 60_000;
@@ -107,9 +107,9 @@ describe("sentry end to end on postgres", { skip: !hasDirectDatabase }, () => {
       assert.deepEqual(latest?.limitations, ["stale-data:heartRate"]);
     }
     const cmo = await notifications.listFor({ role: "cmo" }, { limit: 200 });
-    assert.equal(cmo.filter((n) => n.body?.includes("sin datos hace")).length, 4);
+    assert.equal(cmo.filter((n) => n.body?.includes("no data for")).length, 4);
     const person = await notifications.listFor({ role: "astronaut", memberId: "cm-01" }, { limit: 200 });
-    assert.ok(!person.some((n) => n.body?.includes("sin datos hace")));
+    assert.ok(!person.some((n) => n.body?.includes("no data for")));
 
     assert.deepEqual(await sentry.checkStale(gap + 120_000, SIM_SUBJECTS, { force: true }), []);
     assert.equal((await alertsRepo.list()).length, before + 4);

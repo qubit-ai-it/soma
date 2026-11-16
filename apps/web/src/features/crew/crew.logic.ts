@@ -22,16 +22,16 @@ export function beatDuration(bpm: number): string {
 export function deriveFlags(member: CrewMember): CrewFlag[] {
   const flags: CrewFlag[] = [];
   if (member.vitals.spo2Pct < THRESHOLDS.minSpo2Pct) {
-    flags.push({ code: "low-spo2", label: "SpO₂ baja" });
+    flags.push({ code: "low-spo2", label: "Low SpO₂" });
   }
   if (member.vitals.heartRateBpm > THRESHOLDS.maxHeartRateBpm) {
-    flags.push({ code: "high-heart-rate", label: "Frecuencia cardíaca alta" });
+    flags.push({ code: "high-heart-rate", label: "High heart rate" });
   }
   if (member.vitals.sleepHours < THRESHOLDS.minSleepHours) {
-    flags.push({ code: "short-sleep", label: "Sueño insuficiente" });
+    flags.push({ code: "short-sleep", label: "Insufficient sleep" });
   }
   if (member.cumulativeDoseMsv > THRESHOLDS.maxDoseMsv) {
-    flags.push({ code: "high-dose", label: "Dosis acumulada alta" });
+    flags.push({ code: "high-dose", label: "High cumulative dose" });
   }
   return flags;
 }

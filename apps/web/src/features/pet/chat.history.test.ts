@@ -12,7 +12,7 @@ import {
   withMessages,
 } from "./chat.history.ts";
 
-const greeting = { role: "assistant" as const, content: "hola" };
+const greeting = { role: "assistant" as const, content: "hello" };
 
 describe("deriveTitle", () => {
   it("falls back when there is no user message", () => {
@@ -40,7 +40,7 @@ describe("upsertConversation", () => {
 
   it("strips image data and keeps the count", () => {
     const c = withMessages(createConversation("a", 1, greeting), [
-      { role: "user", content: "mira", images: ["data:image/jpeg;base64,AAAA"] },
+      { role: "user", content: "look", images: ["data:image/jpeg;base64,AAAA"] },
     ], 2);
     const [stored] = upsertConversation([], c);
     assert.equal(stored.messages[0].images, undefined);

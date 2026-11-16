@@ -21,7 +21,7 @@ describe("check-in", () => {
     assert.equal(checkinNotification("cm-02", at("2026-11-16T05:59:00Z")), null);
     const n = checkinNotification("cm-02", at("2026-11-16T09:00:00Z"));
     assert.equal(n?.dedupeKey, "checkin:sleep:cm-02:2026-11-16");
-    assert.equal(n?.title, "¿Cómo dormiste?");
+    assert.equal(n?.title, "How did you sleep?");
     assert.ok(isVisibleTo(n!.audience, { role: "astronaut", memberId: "cm-02" }));
     assert.ok(!isVisibleTo(n!.audience, { role: "cmo" }));
     assert.equal(checkinNotification("cm-02", at("2026-11-16T20:00:00Z"))?.dedupeKey, n?.dedupeKey);
@@ -36,8 +36,8 @@ describe("shift boundaries and summaries", () => {
   });
 
   const members = [
-    { id: "cm-01", label: "Tripulante cm-01" },
-    { id: "cm-02", label: "Tripulante cm-02" },
+    { id: "cm-01", label: "Crew member cm-01" },
+    { id: "cm-02", label: "Crew member cm-02" },
   ];
   const alert = (id: string, memberId: string, level: Alert["level"], createdAt: string): Alert => ({
     id,
@@ -66,17 +66,17 @@ describe("shift boundaries and summaries", () => {
       { "cm-01": "F0", "cm-02": "F2" },
     );
     const crew = list[0];
-    assert.equal(crew.body, "Turno anterior: 2 alertas (1 F3, 1 F2). Ahora: 1 F0, 1 F2.");
+    assert.equal(crew.body, "Previous shift: 2 alerts (1 F3, 1 F2). Now: 1 F0, 1 F2.");
     assert.ok(isVisibleTo(crew.audience, { role: "commander" }) && !isVisibleTo(crew.audience, { role: "earth" }));
     const cm01 = list.find((n) => n.memberId === "cm-01")!;
-    assert.equal(cm01.body, "Tu turno anterior: sin alertas. Ahora: F0.");
+    assert.equal(cm01.body, "Your previous shift: no alerts. Now: F0.");
     assert.equal(cm01.priority, "low");
     assert.equal(list.length, 3);
   });
 
   it("says not evaluated instead of inventing a level", () => {
     const [crew] = shiftNotifications(at("2026-11-16T06:00:00Z"), members, [], { "cm-01": null });
-    assert.equal(crew.body, "Turno anterior: sin alertas. Ahora: 2 sin evaluar.");
+    assert.equal(crew.body, "Previous shift: no alerts. Now: 2 not evaluated.");
   });
 });
 
@@ -88,8 +88,8 @@ describe("link notifications", () => {
     assert.equal(linkNotification(up, { status: "connected" }), null);
     assert.equal(linkNotification(up, null), null);
     assert.equal(linkNotification(down, null)?.priority, "high");
-    assert.equal(linkNotification(down, { status: "connected" })?.title, "Enlace con Tierra perdido");
-    assert.equal(linkNotification(up, { status: "disconnected" })?.title, "Enlace con Tierra restablecido");
+    assert.equal(linkNotification(down, { status: "connected" })?.title, "Earth link lost");
+    assert.equal(linkNotification(up, { status: "disconnected" })?.title, "Earth link restored");
   });
 
   it("goes to the CMO and the commander", () => {
@@ -127,9 +127,9 @@ describe("space weather", () => {
 
   it("notifies the crew with visible provenance and scaled priority", () => {
     const [storm, protons] = spaceWeatherNotifications(snapshot({ kpIndex: 7, protonFluxPfu10Mev: 12 }), now);
-    assert.equal(storm.title, "Tormenta geomagnética G3");
+    assert.equal(storm.title, "Geomagnetic storm G3");
     assert.equal(storm.priority, "high");
-    assert.equal(storm.body, "Kp 7 · NOAA SWPC · en vivo");
+    assert.equal(storm.body, "Kp 7 · NOAA SWPC · live");
     assert.equal(protons.priority, "low");
     assert.ok(isVisibleTo(storm.audience, { role: "astronaut", memberId: "cm-04" }));
     assert.ok(!isVisibleTo(storm.audience, { role: "earth" }));
@@ -140,7 +140,7 @@ describe("space weather", () => {
     const [a] = spaceWeatherNotifications(cached, now);
     const [b] = spaceWeatherNotifications(cached, now + 3_600_000);
     const [c] = spaceWeatherNotifications(cached, now + 7 * 3_600_000);
-    assert.ok(a.body?.endsWith("caché"));
+    assert.ok(a.body?.endsWith("cache"));
     assert.equal(a.dedupeKey, b.dedupeKey);
     assert.notEqual(a.dedupeKey, c.dedupeKey);
   });

@@ -7,31 +7,31 @@ type RiskLevel = PlanInput["riskLevel"];
 
 const STEPS: Record<RiskLevel, string[]> = {
   low: [
-    "Mantener la rutina habitual de ejercicio y sueño.",
-    "Repetir el control diario de signos vitales a la hora programada.",
-    "Registrar la hidratación y las comidas de las próximas 24 horas.",
-    "Compartir el check-in diario con el cirujano de vuelo.",
+    "Keep the usual exercise and sleep routine.",
+    "Repeat the daily vital signs check at the scheduled time.",
+    "Log hydration and meals for the next 24 hours.",
+    "Share the daily check-in with the flight surgeon.",
   ],
   moderate: [
-    "Repetir las mediciones después de un periodo de reposo.",
-    "Ajustar el horario de trabajo para permitir una ventana de sueño más larga.",
-    "Aumentar la hidratación y revisar el plan del refugio contra radiación.",
-    "Hacer un check-in extra con Sentry en las próximas 6 horas.",
-    "Pedir al cirujano de vuelo que revise la tendencia.",
+    "Repeat the measurements after a rest period.",
+    "Adjust the work schedule to allow a longer sleep window.",
+    "Increase hydration and review the radiation shelter plan.",
+    "Do an extra check-in with Sentry within the next 6 hours.",
+    "Ask the flight surgeon to review the trend.",
   ],
   high: [
-    "Suspender las actividades no esenciales y descansar.",
-    "Repetir las mediciones después de 15 minutos.",
-    "Avisar ahora al cirujano de vuelo.",
-    "Preparar el refugio contra radiación si el clima espacial está elevado.",
-    "Prepararse para escalar al control de Tierra.",
+    "Suspend non-essential activities and rest.",
+    "Repeat the measurements after 15 minutes.",
+    "Notify the flight surgeon now.",
+    "Prepare the radiation shelter if space weather is elevated.",
+    "Prepare to escalate to Earth control.",
   ],
 };
 
 const UNCERTAINTY = [
-  "Borrador preliminar. No usa el historial completo del tripulante y requiere validación médica.",
-  "Los pasos son generales y no están validados por un médico.",
-  "Se desconocen la confianza y los límites del análisis; requiere validación médica.",
+  "Preliminary draft. It does not use the crew member's full history and requires medical validation.",
+  "The steps are generic and have not been validated by a physician.",
+  "The confidence and limits of the analysis are unknown; medical validation is required.",
 ];
 
 function pick<T>(items: T[], random: Random): T {
@@ -54,10 +54,10 @@ export function createMockPlanner({
     async draft(input) {
       const focus = input.concerns.length
         ? input.concerns.join(", ")
-        : "sin señales marcadas";
+        : "no flagged signals";
       return ok({
         steps: [
-          `Revisar las señales marcadas: ${focus}.`,
+          `Review the flagged signals: ${focus}.`,
           ...sample(STEPS[input.riskLevel], 3, random),
         ],
         uncertainty: pick(UNCERTAINTY, random),

@@ -7,7 +7,7 @@ import {
 // Generated from organui/heart-3d at c72ce66. The GLB stays in that
 // repository under its own licence; see attribution.source.
 export const heartModel: OrganModel = {
-  name: "Corazón",
+  name: "Heart",
   src: "/models/heart.glb",
   bytes: 2524400,
   defaultView: "Anterior",
@@ -21,95 +21,95 @@ export const heartModel: OrganModel = {
       direction: [0, 0, -1],
     },
     {
-      name: "Lateral izquierda",
+      name: "Left lateral",
       direction: [1, 0, 0],
     },
   ],
   structures: [
     {
       id: "right-atrium",
-      label: "Aurícula derecha",
-      group: "Paredes del corazón",
+      label: "Right atrium",
+      group: "Heart walls",
       color: "#a96d70",
       description:
-        "Recibe la sangre que vuelve del cuerpo y la pasa al ventrículo derecho.",
+        "Receives blood returning from the body and passes it to the right ventricle.",
     },
     {
       id: "left-atrium",
-      label: "Aurícula izquierda",
-      group: "Paredes del corazón",
+      label: "Left atrium",
+      group: "Heart walls",
       color: "#b77c76",
       description:
-        "Recibe la sangre oxigenada de los pulmones y la pasa al ventrículo izquierdo.",
+        "Receives oxygenated blood from the lungs and passes it to the left ventricle.",
     },
     {
       id: "ventricular-wall",
-      label: "Pared ventricular",
-      group: "Paredes del corazón",
+      label: "Ventricular wall",
+      group: "Heart walls",
       color: "#ab6159",
       description:
-        "Tejido muscular que rodea las dos cámaras inferiores de bombeo.",
+        "Muscle tissue surrounding the two lower pumping chambers.",
     },
     {
       id: "right-ventricle",
-      label: "Cavidad del ventrículo derecho",
-      group: "Cavidades ventriculares",
+      label: "Right ventricle cavity",
+      group: "Ventricular cavities",
       color: "#b86661",
       description:
-        "El espacio dentro del ventrículo derecho, que bombea la sangre hacia los pulmones.",
+        "The space inside the right ventricle, which pumps blood to the lungs.",
     },
     {
       id: "left-ventricle",
-      label: "Cavidad del ventrículo izquierdo",
-      group: "Cavidades ventriculares",
+      label: "Left ventricle cavity",
+      group: "Ventricular cavities",
       color: "#d28b72",
       description:
-        "El espacio dentro del ventrículo izquierdo, que bombea la sangre a la aorta.",
+        "The space inside the left ventricle, which pumps blood to the aorta.",
     },
     {
       id: "ascending-aorta",
-      label: "Aorta ascendente",
-      group: "Grandes vasos",
+      label: "Ascending aorta",
+      group: "Great vessels",
       color: "#c37f6a",
-      description: "La aorta lleva la sangre del corazón al resto del cuerpo.",
+      description: "The aorta carries blood from the heart to the rest of the body.",
     },
     {
       id: "aortic-arch",
-      label: "Arco aórtico",
-      group: "Grandes vasos",
+      label: "Aortic arch",
+      group: "Great vessels",
       color: "#ca8d78",
       description:
-        "Tramo de la aorta, la arteria principal que sale del corazón.",
+        "Section of the aorta, the main artery leaving the heart.",
     },
     {
       id: "pulmonary-trunk",
-      label: "Tronco pulmonar",
-      group: "Grandes vasos",
+      label: "Pulmonary trunk",
+      group: "Great vessels",
       color: "#789aab",
-      description: "Lleva la sangre del ventrículo derecho hacia los pulmones.",
+      description: "Carries blood from the right ventricle to the lungs.",
     },
     {
       id: "superior-vena-cava",
-      label: "Vena cava superior",
-      group: "Grandes vasos",
+      label: "Superior vena cava",
+      group: "Great vessels",
       color: "#8c9fab",
       description:
-        "Una de las grandes venas que devuelven la sangre del cuerpo a la aurícula derecha.",
+        "One of the large veins returning blood from the body to the right atrium.",
     },
     {
       id: "left-coronary",
-      label: "Arteria coronaria izquierda",
-      group: "Arterias coronarias",
+      label: "Left coronary artery",
+      group: "Coronary arteries",
       color: "#dfb58a",
       description:
-        "Irriga el músculo cardíaco, incluidas partes del corazón izquierdo y el tabique ventricular.",
+        "Supplies the heart muscle, including parts of the left heart and the ventricular septum.",
     },
     {
       id: "right-coronary",
-      label: "Arteria coronaria derecha",
-      group: "Arterias coronarias",
+      label: "Right coronary artery",
+      group: "Coronary arteries",
       color: "#d4a777",
-      description: "Irriga la aurícula derecha y partes de ambos ventrículos.",
+      description: "Supplies the right atrium and parts of both ventricles.",
     },
   ],
   attribution: {

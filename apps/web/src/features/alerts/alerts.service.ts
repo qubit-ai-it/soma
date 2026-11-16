@@ -58,7 +58,7 @@ export function createAlertService({
         actor: { kind: "system", id: input.actorId ?? "deterministic-engine" },
         alertId: alert.id,
         subjectId: alert.memberId,
-        detail: `Nivel ${alert.level}; destinatarios: ${alert.recipients.join(", ")}`,
+        detail: `Level ${alert.level}; recipients: ${alert.recipients.join(", ")}`,
         idempotencyKey: `raised:${alert.id}`,
       });
 

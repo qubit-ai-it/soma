@@ -22,7 +22,7 @@ function refresh() {
 
 export async function submitPlanAction(raw: unknown): Promise<Result<void>> {
   const parsed = planSchema.safeParse(raw);
-  if (!parsed.success) return err("Solicitud no válida.");
+  if (!parsed.success) return err("Invalid request.");
   const auth = authorize(parsed.data, "plan_board_review");
   if (!auth.ok) return auth;
 
@@ -38,7 +38,7 @@ export async function submitPlanAction(raw: unknown): Promise<Result<void>> {
 
 export async function approvePlanOnBoardAction(raw: unknown): Promise<Result<void>> {
   const parsed = planSchema.safeParse(raw);
-  if (!parsed.success) return err("Solicitud no válida.");
+  if (!parsed.success) return err("Invalid request.");
   const auth = authorize(parsed.data, "plan_board_review");
   if (!auth.ok) return auth;
 

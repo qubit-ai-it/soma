@@ -21,30 +21,30 @@ function findings(m: ImageMeasures): Finding[] {
   const side = Math.min(m.width, m.height);
 
   if (![m.width, m.height, m.bytes, m.meanBrightness, m.contrast].every(Number.isFinite)) {
-    return [{ state: "invalid", reason: "No se pudieron medir la imagen: datos incompletos." }];
+    return [{ state: "invalid", reason: "Could not measure the image: incomplete data." }];
   }
   if (side < LIMITS.invalid.minSide) {
-    out.push({ state: "invalid", reason: "Imagen demasiado pequeña para evaluarla." });
+    out.push({ state: "invalid", reason: "Image too small to evaluate." });
   } else if (side < LIMITS.suspect.minSide) {
-    out.push({ state: "suspect", reason: "Resolución baja: conviene repetir la captura." });
+    out.push({ state: "suspect", reason: "Low resolution: consider repeating the capture." });
   }
   if (m.bytes < LIMITS.invalid.minBytes) {
-    out.push({ state: "invalid", reason: "Archivo casi vacío." });
+    out.push({ state: "invalid", reason: "File is almost empty." });
   }
   if (m.meanBrightness < LIMITS.invalid.minBrightness) {
-    out.push({ state: "invalid", reason: "Imagen demasiado oscura." });
+    out.push({ state: "invalid", reason: "Image too dark." });
   } else if (m.meanBrightness < LIMITS.suspect.minBrightness) {
-    out.push({ state: "suspect", reason: "Imagen oscura: conviene ajustar la ganancia." });
+    out.push({ state: "suspect", reason: "Dark image: consider adjusting the gain." });
   }
   if (m.meanBrightness > LIMITS.invalid.maxBrightness) {
-    out.push({ state: "invalid", reason: "Imagen sobreexpuesta." });
+    out.push({ state: "invalid", reason: "Image overexposed." });
   } else if (m.meanBrightness > LIMITS.suspect.maxBrightness) {
-    out.push({ state: "suspect", reason: "Imagen muy clara: conviene ajustar la ganancia." });
+    out.push({ state: "suspect", reason: "Very bright image: consider adjusting the gain." });
   }
   if (m.contrast < LIMITS.invalid.minContrast) {
-    out.push({ state: "invalid", reason: "Imagen sin contraste: no se distinguen estructuras." });
+    out.push({ state: "invalid", reason: "Image has no contrast: structures cannot be distinguished." });
   } else if (m.contrast < LIMITS.suspect.minContrast) {
-    out.push({ state: "suspect", reason: "Contraste bajo: conviene ajustar la profundidad." });
+    out.push({ state: "suspect", reason: "Low contrast: consider adjusting the depth." });
   }
   return out;
 }

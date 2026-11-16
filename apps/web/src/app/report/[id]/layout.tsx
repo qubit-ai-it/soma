@@ -13,9 +13,9 @@ export default function ReportLayout({ children, params }: LayoutProps<"/report/
     <main className="container-soma flex-1 py-16">
       <Link href="/mission" className="inline-flex items-center gap-2 text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground">
         <Icon name="arrow_back" />
-        Volver al resumen de misión
+        Back to mission summary
       </Link>
-      <Suspense fallback={<p className="mt-6 text-ink">Cargando reporte…</p>}>
+      <Suspense fallback={<p className="mt-6 text-ink">Loading report…</p>}>
         <ReportHeader params={params} />
       </Suspense>
       <div className="mt-8">{children}</div>

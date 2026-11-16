@@ -15,13 +15,13 @@ export function LinkPanel({ link }: { link: LinkState }) {
 
   return (
     <SomaCard
-      title={`Enlace con Tierra: ${connected ? "conectado" : "sin enlace"}`}
-      chip={connected ? "Conectado" : "Sin enlace"}
+      title={`Earth link: ${connected ? "connected" : "down"}`}
+      chip={connected ? "Connected" : "Down"}
       tone={connected ? "ok" : "danger"}
-      label="Estado del enlace"
+      label="Link status"
       actions={[
         {
-          label: connected ? "Cortar enlace" : "Restablecer enlace",
+          label: connected ? "Cut link" : "Restore link",
           icon: connected ? "wifi_off" : "wifi",
           variant: connected ? "secondary" : "primary",
           disabled: pending,
@@ -34,7 +34,7 @@ export function LinkPanel({ link }: { link: LinkState }) {
       detail={
         <>
           <label className="flex items-center gap-2">
-            Latencia
+            Latency
             <select
               value={link.latencyMs}
               disabled={pending}
@@ -60,9 +60,9 @@ export function LinkPanel({ link }: { link: LinkState }) {
               }
               className="size-4 accent-[var(--accent)]"
             />
-            Pérdida de confirmaciones
+            Acknowledgement loss
           </label>
-          <p>Último cambio: {formatTime(link.updatedAt)}</p>
+          <p>Last change: {formatTime(link.updatedAt)}</p>
         </>
       }
     >

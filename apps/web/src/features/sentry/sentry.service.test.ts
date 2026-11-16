@@ -79,7 +79,7 @@ function setup() {
       return ok({ id: input.alertId ?? "x", level: input.level } as Alert);
     },
     memberFor: (s) => s,
-    labelFor: (m) => `Tripulante ${m}`,
+    labelFor: (m) => `Crew member ${m}`,
   });
   const feed = async (subject: string, from: number, to: number) => {
     for (let k = from; k < to; k++) await observations.add(syntheticHeartRate(subject, T0 + k * 5000, T0));
@@ -153,7 +153,7 @@ describe("sentry stale data", () => {
   const gapEnd = T0 + 100_000;
   const later = gapEnd + 12 * 60_000;
 
-  it("flags a data gap once as no evaluable, for the CMO only", async () => {
+  it("flags a data gap once as not evaluable, for the CMO only", async () => {
     const { service, feed, raised, notified } = setup();
     await feed("cm-01", 0, 20);
     await service.process("cm-01");
@@ -163,7 +163,7 @@ describe("sentry stale data", () => {
     assert.equal(raised.length, 1);
     assert.equal(raised[0].level, "NOT_EVALUABLE");
     assert.equal(raised[0].actorId, "sentry");
-    assert.equal(notified[0].body, "Tripulante cm-01: sin datos hace 12 min");
+    assert.equal(notified[0].body, "Crew member cm-01: no data for 12 min");
     assert.deepEqual(notified[0].audience, ["role:cmo"]);
 
     assert.deepEqual(await service.checkStale(later + 60_000, ["cm-01"], { force: true }), []);

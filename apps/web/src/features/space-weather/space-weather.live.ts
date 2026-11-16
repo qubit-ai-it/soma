@@ -49,7 +49,7 @@ const iso = (value: string) => new Date(value).toISOString();
 function parse<S extends z.ZodType>(schema: S, value: Result<unknown>): Result<z.output<S>> {
   if (!value.ok) return value;
   const parsed = schema.safeParse(value.value);
-  return parsed.success ? ok(parsed.data) : err("Formato inesperado");
+  return parsed.success ? ok(parsed.data) : err("Unexpected format");
 }
 
 export function createLiveSpaceWeather({
@@ -79,24 +79,24 @@ export function createLiveSpaceWeather({
     const events: SpaceWeatherEvent[] = [];
     if (flr.ok) {
       for (const e of flr.value) {
-        const detail = [e.classType, e.activeRegionNum ? `región ${e.activeRegionNum}` : null].filter(Boolean);
-        events.push({ id: e.flrID, type: "FLR", startTime: iso(e.beginTime), summary: `Llamarada ${detail.join(", ")}`.trim() });
+        const detail = [e.classType, e.activeRegionNum ? `region ${e.activeRegionNum}` : null].filter(Boolean);
+        events.push({ id: e.flrID, type: "FLR", startTime: iso(e.beginTime), summary: `Flare ${detail.join(", ")}`.trim() });
       }
     }
     if (cme.ok) {
       for (const e of cme.value) {
-        events.push({ id: e.activityID, type: "CME", startTime: iso(e.startTime), summary: "Eyección de masa coronal" });
+        events.push({ id: e.activityID, type: "CME", startTime: iso(e.startTime), summary: "Coronal mass ejection" });
       }
     }
     if (gst.ok) {
       for (const e of gst.value) {
         const peak = Math.max(0, ...(e.allKpIndex ?? []).map((k) => k.kpIndex));
-        events.push({ id: e.gstID, type: "GST", startTime: iso(e.startTime), summary: `Tormenta geomagnética, Kp máx. ${peak}` });
+        events.push({ id: e.gstID, type: "GST", startTime: iso(e.startTime), summary: `Geomagnetic storm, max Kp ${peak}` });
       }
     }
     if (sep.ok) {
       for (const e of sep.value) {
-        events.push({ id: e.sepID, type: "SEP", startTime: iso(e.eventTime), summary: "Evento de partículas solares" });
+        events.push({ id: e.sepID, type: "SEP", startTime: iso(e.eventTime), summary: "Solar particle event" });
       }
     }
     return events.sort((a, b) => b.startTime.localeCompare(a.startTime));
@@ -133,7 +133,7 @@ export function createLiveSpaceWeather({
       loadXray(),
     ]);
     if (events === null && kpIndex === null && protonFluxPfu10Mev === null && xrayClass === null) {
-      return err("No se pudo contactar a DONKI ni a NOAA SWPC");
+      return err("Could not reach DONKI or NOAA SWPC");
     }
     return ok({
       events,

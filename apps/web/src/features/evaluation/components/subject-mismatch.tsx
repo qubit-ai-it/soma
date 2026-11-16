@@ -11,14 +11,14 @@ export function SubjectMismatch({
 }) {
   return (
     <SomaCard
-      label="Evaluación no disponible"
+      label="Evaluation unavailable"
       tone="info"
-      chip="Sin datos"
-      title="Sin escenario para este miembro"
-      line={`Estos datos son de ${scenarioSubjectName ?? "otro miembro"}, no de ${memberName}.`}
+      chip="No data"
+      title="No scenario for this crew member"
+      line={`This data belongs to ${scenarioSubjectName ?? "another crew member"}, not ${memberName}.`}
       actions={
         scenarioHref
-          ? [{ label: `Ver a ${scenarioSubjectName}`, href: scenarioHref, icon: "arrow_forward" }]
+          ? [{ label: `View ${scenarioSubjectName}`, href: scenarioHref, icon: "arrow_forward" }]
           : undefined
       }
     />

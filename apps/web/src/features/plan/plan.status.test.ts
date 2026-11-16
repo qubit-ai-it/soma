@@ -19,8 +19,8 @@ describe("board actions", () => {
   });
 
   it("explains who decides", () => {
-    assert.equal(boardActions("in_review", "connected").note, "Esperando a Tierra.");
-    assert.equal(boardActions("draft", "disconnected").note, "Sin enlace decide el médico de a bordo.");
+    assert.equal(boardActions("in_review", "connected").note, "Waiting for Earth.");
+    assert.equal(boardActions("draft", "disconnected").note, "With no link, the onboard physician decides.");
     assert.equal(boardActions("approved", "disconnected").note, null);
     assert.equal(boardActions("draft", "connected").note, null);
   });

@@ -40,7 +40,7 @@ function refresh() {
 
 export async function setLinkAction(raw: unknown): Promise<Result<void>> {
   const parsed = linkSchema.safeParse(raw);
-  if (!parsed.success) return err("Solicitud no válida.");
+  if (!parsed.success) return err("Invalid request.");
   const auth = authorize(parsed.data, "earth_console");
   if (!auth.ok) return auth;
 
@@ -53,7 +53,7 @@ export async function setLinkAction(raw: unknown): Promise<Result<void>> {
 
 export async function flushQueueAction(raw: unknown): Promise<Result<void>> {
   const parsed = flushSchema.safeParse(raw);
-  if (!parsed.success) return err("Solicitud no válida.");
+  if (!parsed.success) return err("Invalid request.");
   const auth = authorize(parsed.data, "earth_console");
   if (!auth.ok) return auth;
 
@@ -65,14 +65,14 @@ export async function flushQueueAction(raw: unknown): Promise<Result<void>> {
 export async function reviewProposalAction(raw: unknown): Promise<Result<void>> {
   const parsed = reviewSchema.safeParse(raw);
   if (!parsed.success) {
-    return err("Revisa los campos: la modificación y el rechazo necesitan una nota, y la modificación al menos un paso.");
+    return err("Check the fields: a modification or rejection needs a note, and a modification needs at least one step.");
   }
   const auth = authorize(parsed.data, "plan_review");
   if (!auth.ok) return auth;
 
   const { earth } = getEcosystem();
   const reviewed = await earth.review(parsed.data.review, auth.value);
-  if (!reviewed.ok) return err("Esta propuesta ya fue revisada o no existe.");
+  if (!reviewed.ok) return err("This proposal was already reviewed or does not exist.");
   await earth.flush();
   refresh();
   return ok(undefined);
@@ -80,7 +80,7 @@ export async function reviewProposalAction(raw: unknown): Promise<Result<void>> 
 
 export async function reviewPlanAction(raw: unknown): Promise<Result<void>> {
   const parsed = planReviewSchema.safeParse(raw);
-  if (!parsed.success) return err("Revisa los campos del plan.");
+  if (!parsed.success) return err("Check the plan fields.");
   const auth = authorize(parsed.data, "plan_review");
   if (!auth.ok) return auth;
 
@@ -100,7 +100,7 @@ export async function reviewPlanAction(raw: unknown): Promise<Result<void>> {
 
 export async function reviewFollowUpAction(raw: unknown): Promise<Result<void>> {
   const parsed = followUpReviewSchema.safeParse(raw);
-  if (!parsed.success) return err("Revisa los campos del reporte.");
+  if (!parsed.success) return err("Check the report fields.");
   const auth = authorize(parsed.data, "plan_review");
   if (!auth.ok) return auth;
 

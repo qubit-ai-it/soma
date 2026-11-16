@@ -23,8 +23,8 @@ type Props = { procedure: Procedure; subjectId?: string };
 
 const PENDING_PROFILE: DeviceProfile = {
   kind: "simulated",
-  label: "Detectando dispositivo…",
-  detail: "Comprobando WebXR.",
+  label: "Detecting device…",
+  detail: "Checking WebXR.",
 };
 
 function browserStorage(): SessionStorageLike | null {
@@ -72,7 +72,7 @@ export function XrExperience({ procedure, subjectId = "cm-01" }: Props) {
   }
 
   if (session === null) {
-    return <p className="text-lg text-muted-foreground">Cargando sesión…</p>;
+    return <p className="text-lg text-muted-foreground">Loading session…</p>;
   }
 
   const live = session.mode === "live";
@@ -81,23 +81,23 @@ export function XrExperience({ procedure, subjectId = "cm-01" }: Props) {
   return (
     <div className="space-y-4">
       <SomaCard
-        label="Dispositivo"
-        title={profile.kind === "simulated" ? "Visor no detectado" : profile.label}
-        chip={live ? "En vivo" : "Práctica"}
+        label="Device"
+        title={profile.kind === "simulated" ? "Headset not detected" : profile.label}
+        chip={live ? "Live" : "Practice"}
         tone={live ? "info" : "neutral"}
         detail={
           <>
             <p>{profile.detail}</p>
             <p>
               {live
-                ? "En vivo se registra cada acción. Para cambiar de modo, termina o aborta la sesión."
-                : "Práctica no registra nada y puedes reiniciar cuando quieras."}
+                ? "Live mode records every action. To switch modes, finish or abort the session."
+                : "Practice mode records nothing and you can reset whenever you want."}
             </p>
-            <p>SOMA no diagnostica ni prescribe.</p>
+            <p>SOMA does not diagnose or prescribe.</p>
           </>
         }
       >
-        <div role="group" aria-label="Modo de sesión" className="flex gap-2">
+        <div role="group" aria-label="Session mode" className="flex gap-2">
           {(["practice", "live"] as const).map((mode) => (
             <button
               key={mode}
@@ -109,7 +109,7 @@ export function XrExperience({ procedure, subjectId = "cm-01" }: Props) {
                 session.mode === mode ? "bg-primary text-primary-foreground" : "bg-secondary hover:bg-secondary/70"
               }`}
             >
-              {mode === "practice" ? "Práctica" : "En vivo"}
+              {mode === "practice" ? "Practice" : "Live"}
             </button>
           ))}
         </div>

@@ -48,16 +48,16 @@ export function worstSeverity(severities: readonly Severity[]): Severity {
 
 // illustrative signal -> zone mapping
 const ZONES: { zone: Zone; label: string; signals: Signal[] }[] = [
-  { zone: "head", label: "Cabeza", signals: ["sleep"] },
-  { zone: "thorax", label: "Tórax", signals: ["heartRate", "spo2"] },
-  { zone: "abdomen-pelvis", label: "Abdomen y pelvis", signals: ["dose"] },
+  { zone: "head", label: "Head", signals: ["sleep"] },
+  { zone: "thorax", label: "Thorax", signals: ["heartRate", "spo2"] },
+  { zone: "abdomen-pelvis", label: "Abdomen and pelvis", signals: ["dose"] },
 ];
 
 const SIGNAL_META: Record<Signal, { label: string; unit: string }> = {
   spo2: { label: "SpO₂", unit: "%" },
-  heartRate: { label: "Frecuencia cardíaca", unit: "lpm" },
-  sleep: { label: "Sueño", unit: "h" },
-  dose: { label: "Dosis acumulada", unit: "mSv" },
+  heartRate: { label: "Heart rate", unit: "bpm" },
+  sleep: { label: "Sleep", unit: "h" },
+  dose: { label: "Cumulative dose", unit: "mSv" },
 };
 
 // ids come from bodyMapRegions in src/shared/ui/body-map.tsx

@@ -23,9 +23,9 @@ function baseState(overrides: Partial<EarthState> = {}): EarthState {
     proposals: [
       {
         id: "pp-1",
-        subject: { memberId: "cm-02", label: "Tripulante cm-02 (sintético)" },
-        title: "Plan de descanso",
-        steps: ["Dormir 8 h", "Hidratar"],
+        subject: { memberId: "cm-02", label: "Crew member cm-02 (synthetic)" },
+        title: "Rest plan",
+        steps: ["Sleep 8 h", "Hydrate"],
         source: { provider: "simulated-medgemma", version: "sim-1" },
         createdAt: T0,
       },
@@ -286,16 +286,16 @@ describe("applyReview", () => {
     const result = applyReview(baseState(), {
       ...base,
       decision: "modify",
-      steps: ["Dormir 9 h"],
-      note: "Más descanso",
+      steps: ["Sleep 9 h"],
+      note: "More rest",
     });
     assert.ok(result.ok);
-    assert.deepEqual(result.value.packet.payload.steps, ["Dormir 9 h"]);
-    assert.equal(result.value.state.proposals[0]?.review?.note, "Más descanso");
+    assert.deepEqual(result.value.packet.payload.steps, ["Sleep 9 h"]);
+    assert.equal(result.value.state.proposals[0]?.review?.note, "More rest");
   });
 
   it("reject keeps the note and no steps", () => {
-    const result = applyReview(baseState(), { ...base, decision: "reject", note: "No procede" });
+    const result = applyReview(baseState(), { ...base, decision: "reject", note: "Not applicable" });
     assert.ok(result.ok);
     assert.equal("steps" in result.value.packet.payload, false);
   });

@@ -88,7 +88,7 @@
   font-size: clamp(10px, .85vw, 12px);
   font-weight: 600;
 }
-.room[data-module="medica"], .room[data-module="ingenieria"] {
+.room[data-module="medical"], .room[data-module="engineering"] {
   background: color-mix(in oklch, var(--secondary) 70%, var(--accent-soft));
 }
 .room small {

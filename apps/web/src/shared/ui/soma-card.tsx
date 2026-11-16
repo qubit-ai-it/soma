@@ -77,7 +77,7 @@ export function SomaCard({
   avatar,
   children,
   detail,
-  detailLabel = "Ver detalle",
+  detailLabel = "View details",
   actions,
   footer,
   label,

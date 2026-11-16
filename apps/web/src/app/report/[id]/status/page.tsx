@@ -8,7 +8,7 @@ import { toRiskInput } from "../../../risk-request";
 
 export default function StatePage({ params }: PageProps<"/report/[id]/status">) {
   return (
-    <Suspense fallback={<p className="text-ink">Cargando estado…</p>}>
+    <Suspense fallback={<p className="text-ink">Loading status…</p>}>
       <Content params={params} />
     </Suspense>
   );

@@ -45,10 +45,10 @@ export function equipmentFor(telemetry: Telemetry): EquipmentId[] {
   const critical = abnormal.filter(({ severity }) => severity === "critical");
   const signals = (critical.length ? critical : abnormal).map(({ signal }) => signal);
   const choices: EquipmentId[] = [];
-  if (signals.includes("heartRateBpm")) choices.push(telemetry.heartRateBpm === 0 ? "desfibrilador" : "tensiometro");
-  if (signals.includes("spo2Pct")) choices.push("oximetro");
-  if (signals.includes("systolic") || signals.includes("diastolic")) choices.push("tensiometro");
-  if (signals.includes("cumulativeDoseMsv")) choices.push("dosimetro");
+  if (signals.includes("heartRateBpm")) choices.push(telemetry.heartRateBpm === 0 ? "defibrillator" : "bloodPressureMonitor");
+  if (signals.includes("spo2Pct")) choices.push("oximeter");
+  if (signals.includes("systolic") || signals.includes("diastolic")) choices.push("bloodPressureMonitor");
+  if (signals.includes("cumulativeDoseMsv")) choices.push("dosimeter");
   return [...new Set(choices)];
 }
 

@@ -11,21 +11,21 @@ export function DeviceCard() {
   const connected = live.status === "connected";
 
   const line = connected
-    ? "Conectado"
+    ? "Connected"
     : live.status === "connecting"
-      ? "Conectando…"
+      ? "Connecting…"
       : live.error
         ? BLUETOOTH_MESSAGES[live.error]
-        : "Reloj o banda por Bluetooth.";
+        : "Watch or band over Bluetooth.";
 
   const actions: CardAction[] = connected
-    ? [{ label: "Desconectar", variant: "secondary", onClick: disconnectLive }]
-    : [{ label: "Conectar", icon: "bluetooth", disabled: live.status === "connecting", onClick: () => void connectLive() }];
+    ? [{ label: "Disconnect", variant: "secondary", onClick: disconnectLive }]
+    : [{ label: "Connect", icon: "bluetooth", disabled: live.status === "connecting", onClick: () => void connectLive() }];
 
   return (
     <MetricCard
-      title="Reloj o banda"
-      value={live.deviceName ?? "Sin dispositivo"}
+      title="Watch or band"
+      value={live.deviceName ?? "No device"}
       line={line}
       icon="watch"
       tone={connected ? "ok" : "neutral"}

@@ -7,9 +7,9 @@ import type { Alert } from "./alerts.types.ts";
 function alert(overrides: Partial<Alert> & Pick<Alert, "id" | "level">): Alert {
   return {
     memberId: "cm-01",
-    memberLabel: "Tripulante cm-01",
-    title: `Alerta ${overrides.id}`,
-    action: "Seguir el protocolo.",
+    memberLabel: "Crew member cm-01",
+    title: `Alert ${overrides.id}`,
+    action: "Follow the protocol.",
     recipients: ["astronaut", "cmo", "commander", "earth"],
     status: "open",
     createdAt: "2026-11-20T10:00:00Z",
@@ -53,7 +53,7 @@ describe("trayItems", () => {
     const [f3, f2] = trayItems(alerts, { role: "cmo" });
     assert.equal(f3.tone, "danger");
     assert.equal(f2.tone, "warn");
-    assert.equal(f3.line, "Seguir el protocolo.");
+    assert.equal(f3.line, "Follow the protocol.");
     const ne = trayItems(alerts, { role: "cmo" }).find((i) => i.id === "ne");
     assert.equal(ne?.tone, "info");
   });

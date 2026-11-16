@@ -31,7 +31,7 @@ function Detail({ alert, onChanged }: { alert: Alert; onChanged: () => void }) {
   function run(call: () => Promise<{ ok: boolean; error?: string }>) {
     start(async () => {
       const result = await call();
-      setError(result.ok ? null : (result.error ?? "No se pudo completar la acción."));
+      setError(result.ok ? null : (result.error ?? "Could not complete the action."));
       if (result.ok) {
         setClosing(false);
         setNote("");
@@ -43,7 +43,7 @@ function Detail({ alert, onChanged }: { alert: Alert; onChanged: () => void }) {
   const actions: CardAction[] = [];
   if (alert.status === "open" && canAccess(role, "alert_acknowledge")) {
     actions.push({
-      label: "Reconocer",
+      label: "Acknowledge",
       icon: "visibility",
       disabled: pending,
       onClick: () => run(() => acknowledgeAlertAction({ ...caller, alertId: alert.id })),
@@ -53,14 +53,14 @@ function Detail({ alert, onChanged }: { alert: Alert; onChanged: () => void }) {
     if (closing) {
       actions.push(
         {
-          label: "Cerrar alerta",
+          label: "Close alert",
           disabled: pending || note.trim().length < 3,
           onClick: () => run(() => closeAlertAction({ ...caller, alertId: alert.id, note })),
         },
-        { label: "Cancelar", variant: "secondary", disabled: pending, onClick: () => setClosing(false) },
+        { label: "Cancel", variant: "secondary", disabled: pending, onClick: () => setClosing(false) },
       );
     } else {
-      actions.push({ label: "Cerrar alerta", icon: "task_alt", onClick: () => setClosing(true) });
+      actions.push({ label: "Close alert", icon: "task_alt", onClick: () => setClosing(true) });
     }
   }
 
@@ -73,27 +73,27 @@ function Detail({ alert, onChanged }: { alert: Alert; onChanged: () => void }) {
       chip={`${LEVEL_LABELS[alert.level]} · ${STATUS_LABELS[alert.status].text}`}
       tone={alert.status === "closed" ? "ok" : TONE[alert.level]}
       actions={actions}
-      footer={blocked ? "Cambia de rol para actuar." : undefined}
+      footer={blocked ? "Switch roles to act." : undefined}
       className="bg-transparent p-0"
     >
       <div className="space-y-2 text-sm text-ink">
         <p>
           {alert.memberLabel} · {formatDateTime(alert.createdAt)}
         </p>
-        <p>Para: {alert.recipients.map((r) => ROLE_LABELS[r]).join(", ")}</p>
+        <p>To: {alert.recipients.map((r) => ROLE_LABELS[r]).join(", ")}</p>
         <p>
           {alert.clinicalDetail
-            ? `Detalle clínico: ${alert.clinicalDetail}`
-            : "Detalle clínico no disponible para este rol."}
+            ? `Clinical detail: ${alert.clinicalDetail}`
+            : "Clinical detail not available for this role."}
         </p>
         {alert.acknowledged && (
           <p>
-            Reconocida por {alert.acknowledged.actorId} · {formatDateTime(alert.acknowledged.at)}
+            Acknowledged by {alert.acknowledged.actorId} · {formatDateTime(alert.acknowledged.at)}
           </p>
         )}
         {alert.closed && (
           <p>
-            Cerrada por {alert.closed.actorId} · {alert.closed.note}
+            Closed by {alert.closed.actorId} · {alert.closed.note}
           </p>
         )}
       </div>
@@ -101,8 +101,8 @@ function Detail({ alert, onChanged }: { alert: Alert; onChanged: () => void }) {
         <input
           value={note}
           onChange={(event) => setNote(event.target.value)}
-          placeholder="Nota de cierre"
-          aria-label="Nota de cierre"
+          placeholder="Closing note"
+          aria-label="Closing note"
           className="h-11 w-full rounded-full bg-secondary px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
       )}
@@ -122,9 +122,9 @@ export function AlertDetailDialog({ alert, onClose, onChanged }: Props) {
         <Dialog.Backdrop className="fixed inset-0 z-[60] bg-black/60 transition-opacity duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0" />
         <Dialog.Popup className="fixed left-1/2 top-1/2 z-[60] max-h-[85vh] w-[min(92vw,30rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl bg-card p-5 text-foreground outline-none transition-[opacity,scale] duration-150 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <Dialog.Title className="font-heading text-lg font-bold">Detalle de la notificación</Dialog.Title>
+            <Dialog.Title className="font-heading text-lg font-bold">Notification detail</Dialog.Title>
             <Dialog.Close
-              aria-label="Cerrar detalle"
+              aria-label="Close detail"
               className="grid size-10 place-items-center rounded-full bg-secondary outline-none transition-colors duration-[var(--duration-micro)] hover:bg-secondary/70 focus-visible:ring-2 focus-visible:ring-ring"
             >
               <Icon name="close" />

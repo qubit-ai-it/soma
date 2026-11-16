@@ -10,16 +10,16 @@ import styles from "./simulation.module.css";
 const GUIDE_KEY = "soma.simulation-guide.v1";
 const steps = [
   {
-    title: "Conoce a la tripulación",
-    text: "Cada número en el mapa es una persona. Haz clic para ver sus lecturas.",
+    title: "Meet the crew",
+    text: "Each number on the map is a person. Click to see their readings.",
   },
   {
-    title: "Ayuda cuando haya peligro",
-    text: "Si alguien se pone rojo, no lo muevas. Lleva a los dos compañeros siguiendo sus chats; después podrás cambiar sus lecturas.",
+    title: "Help when there is danger",
+    text: "If someone turns red, do not move them. Move the two teammates by following their chats; then you can change their readings.",
   },
   {
-    title: "Termina o vuelve a empezar",
-    text: "Actualiza las lecturas cuando mejoren. Reiniciar situación borra el ejercicio y cambia los lugares de la tripulación.",
+    title: "Finish or start over",
+    text: "Update the readings when they improve. Restart situation clears the exercise and shuffles the crew locations.",
   },
 ] as const;
 
@@ -44,23 +44,23 @@ export function SimulationGuide() {
   return (
     <>
       <Button type="button" variant="outline" size="sm" onClick={() => { setStep(0); setManualOpen(true); }}>
-        Cómo funciona
+        How it works
       </Button>
       <Dialog.Root open={open} onOpenChange={(next) => { if (!next) close(); }}>
         <Dialog.Portal>
           <Dialog.Backdrop className={styles.guideBackdrop} />
           <Dialog.Popup className={styles.guidePopup}>
-            <span className={styles.guideCount}>Paso {step + 1} de {steps.length}</span>
+            <span className={styles.guideCount}>Step {step + 1} of {steps.length}</span>
             <Dialog.Title className={styles.guideTitle}>{steps[step].title}</Dialog.Title>
             <Dialog.Description className={styles.guideText}>{steps[step].text}</Dialog.Description>
             <div className={styles.guideProgress} aria-hidden="true">
               {steps.map((item, index) => <span key={item.title} data-active={index === step} />)}
             </div>
             <div className={styles.guideActions}>
-              <Button type="button" variant="outline" size="sm" onClick={close}>Saltar</Button>
-              {step > 0 && <Button type="button" variant="outline" size="sm" onClick={() => setStep(step - 1)}>Atrás</Button>}
+              <Button type="button" variant="outline" size="sm" onClick={close}>Skip</Button>
+              {step > 0 && <Button type="button" variant="outline" size="sm" onClick={() => setStep(step - 1)}>Back</Button>}
               <Button type="button" size="sm" onClick={() => step === steps.length - 1 ? close() : setStep(step + 1)}>
-                {step === steps.length - 1 ? "Empezar" : "Siguiente"}
+                {step === steps.length - 1 ? "Start" : "Next"}
               </Button>
             </div>
           </Dialog.Popup>

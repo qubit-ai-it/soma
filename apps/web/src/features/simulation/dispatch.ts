@@ -3,13 +3,13 @@ import { isCorridor, locationAt, locationNames, shortestWalk } from "./deck.ts";
 import { equipment, roomCenter, rooms, type EquipmentId, type Instruction, type LocationId, type Point, type RoomId, type SimCrew, type Telemetry } from "./simulation.ts";
 
 const readingLabels: Partial<Record<keyof Telemetry, string>> = {
-  heartRateBpm: "el pulso",
-  spo2Pct: "la saturación de oxígeno",
-  systolic: "la presión sistólica y diastólica",
-  diastolic: "la presión sistólica y diastólica",
-  cumulativeDoseMsv: "la dosis acumulada",
+  heartRateBpm: "pulse",
+  spo2Pct: "oxygen saturation",
+  systolic: "systolic and diastolic pressure",
+  diastolic: "systolic and diastolic pressure",
+  cumulativeDoseMsv: "cumulative dose",
 };
-const readingList = new Intl.ListFormat("es", { type: "conjunction" });
+const readingList = new Intl.ListFormat("en", { type: "conjunction" });
 
 export function dispatchMessage(
   destination: LocationId,
@@ -17,17 +17,17 @@ export function dispatchMessage(
   equipmentId: EquipmentId | null = null,
   signals: readonly (keyof Telemetry)[] = [],
 ) {
-  const location = isCorridor(destination) ? locationNames[destination] : `módulo ${rooms[destination]}`;
+  const location = isCorridor(destination) ? locationNames[destination] : `module ${rooms[destination]}`;
   if (equipmentId) {
     const tool = equipment[equipmentId];
-    return `Recoge el ${tool.label.toLowerCase()} en ${rooms[tool.room]} y llévalo al ${location}, donde está ${affectedName}. Al llegar, entrega el equipo a quien está asistiendo y confirma la entrega al operador del ejercicio.`;
+    return `Pick up the ${tool.label.toLowerCase()} from ${rooms[tool.room]} and bring it to the ${location}, where ${affectedName} is. On arrival, hand the equipment to whoever is assisting and confirm the handoff to the exercise operator.`;
   }
 
   const readings = [...new Set(signals.map((signal) => readingLabels[signal]).filter((label) => label !== undefined))];
   const report = readings.length
-    ? `En la ficha del ejercicio, verifica ${readingList.format(readings)} y comunica las lecturas al operador.`
-    : "Comunica al operador del ejercicio lo que observas.";
-  return `Ve de inmediato al ${location} para asistir a ${affectedName}. Al llegar, comprueba si responde y cómo respira. Si no responde o no respira con normalidad, avisa de inmediato al operador del ejercicio. ${report} Quédate a su lado y avisa si cambia su estado.`;
+    ? `In the exercise record, verify ${readingList.format(readings)} and report the readings to the operator.`
+    : "Report to the exercise operator what you observe.";
+  return `Go immediately to the ${location} to assist ${affectedName}. On arrival, check whether they respond and how they breathe. If they do not respond or are not breathing normally, alert the exercise operator immediately. ${report} Stay by their side and report if their condition changes.`;
 }
 
 export function dispatchResponse(

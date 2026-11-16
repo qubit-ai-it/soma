@@ -38,14 +38,14 @@ export function QueuePanel({ queue }: { queue: Packet[] }) {
 
   return (
     <SomaCard
-      title="Cola de paquetes"
-      line={`${waiting} en cola · ${sent} enviados · ${confirmed} confirmados`}
-      chip={waiting > 0 ? `${waiting} en cola` : "Al día"}
+      title="Packet queue"
+      line={`${waiting} queued · ${sent} sent · ${confirmed} confirmed`}
+      chip={waiting > 0 ? `${waiting} queued` : "Up to date"}
       tone={waiting > 0 ? "warn" : "ok"}
-      label="Cola de salida"
+      label="Outbound queue"
       actions={[
         {
-          label: "Reintentar ahora",
+          label: "Retry now",
           icon: "send",
           disabled: pending || waiting === 0,
           onClick: () => run((caller) => flushQueueAction({ ...caller, force: true })),
@@ -53,7 +53,7 @@ export function QueuePanel({ queue }: { queue: Packet[] }) {
       ]}
       detail={
         ordered.length === 0 ? (
-          <p>No hay paquetes en la cola.</p>
+          <p>No packets in the queue.</p>
         ) : (
           <ul className="space-y-3" aria-live="polite">
             {ordered.map((packet) => {
@@ -69,12 +69,12 @@ export function QueuePanel({ queue }: { queue: Packet[] }) {
                     </span>
                   </p>
                   <p>
-                    {DIRECTION_LABELS[packet.direction]} · Intentos {packet.attempts}/{MAX_ATTEMPTS}
-                    {packet.status === "queued" && ` · Próximo intento ${formatTime(packet.nextAttemptAt)}`}
-                    {packet.ackedAt && ` · Confirmado ${formatTime(packet.ackedAt)}`}
+                    {DIRECTION_LABELS[packet.direction]} · Attempts {packet.attempts}/{MAX_ATTEMPTS}
+                    {packet.status === "queued" && ` · Next attempt ${formatTime(packet.nextAttemptAt)}`}
+                    {packet.ackedAt && ` · Confirmed ${formatTime(packet.ackedAt)}`}
                     {lastError && packet.status !== "acked" && ` · ${lastError}`}
                   </p>
-                  <p className="break-all text-xs">Clave de idempotencia: {packet.idempotencyKey}</p>
+                  <p className="break-all text-xs">Idempotency key: {packet.idempotencyKey}</p>
                 </li>
               );
             })}

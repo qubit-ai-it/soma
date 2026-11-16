@@ -101,7 +101,7 @@ export function speak(text: string, lang: string, onEnd?: () => void) {
   }
   const synth = window.speechSynthesis;
   if (synth.speaking) synth.cancel();
-  const chunks = toSpeakable(text).match(/[^.!?¿\n]+[.!?]*/g)?.map((c) => c.trim()).filter(Boolean) ?? [];
+  const chunks = toSpeakable(text).match(/[^.!?\n]+[.!?]*/g)?.map((c) => c.trim()).filter(Boolean) ?? [];
   if (chunks.length === 0) {
     onEnd?.();
     return;

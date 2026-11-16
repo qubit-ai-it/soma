@@ -1,10 +1,10 @@
 import type { PlanStatus } from "./plan.record.ts";
 
 export const PLAN_STATUS_LABEL: Record<PlanStatus, string> = {
-  draft: "Borrador",
-  in_review: "En revisión",
-  approved: "Aprobado",
-  changes_requested: "Cambios pedidos",
+  draft: "Draft",
+  in_review: "In review",
+  approved: "Approved",
+  changes_requested: "Changes requested",
 };
 
 export const PLAN_STATUS_TONE: Record<PlanStatus, "ok" | "warn" | "info"> = {
@@ -15,12 +15,12 @@ export const PLAN_STATUS_TONE: Record<PlanStatus, "ok" | "warn" | "info"> = {
 };
 
 export const DECISION_LABEL = {
-  approve: "Aprobó",
-  comment: "Comentó",
-  changes: "Pidió cambios",
+  approve: "Approved",
+  comment: "Commented",
+  changes: "Requested changes",
 } as const;
 
-export const MODE_LABEL = { live: "en vivo", cache: "caché", mock: "simulado" } as const;
+export const MODE_LABEL = { live: "live", cache: "cache", mock: "simulated" } as const;
 
 export function boardActions(
   status: PlanStatus,
@@ -34,9 +34,9 @@ export function boardActions(
       status === "approved"
         ? null
         : link === "disconnected"
-          ? "Sin enlace decide el médico de a bordo."
+          ? "With no link, the onboard physician decides."
           : status === "in_review"
-            ? "Esperando a Tierra."
+            ? "Waiting for Earth."
             : null,
   };
 }
