@@ -25,6 +25,8 @@ describe("instructionNotifications", () => {
     assert.equal(a.body, "Go to the medical area and bring the oximeter.");
     assert.equal(a.payload?.source, "Gemini");
     assert.equal(a.payload?.destination, "Medical area");
+    assert.equal(a.payload?.experience, "cpr");
+    assert.equal(a.payload?.href, "/experience/cpr");
     assert.equal(isVisibleTo(a.audience, { role: "astronaut", memberId: "cm-a1" }), true);
     assert.equal(isVisibleTo(a.audience, { role: "astronaut", memberId: "cm-b2" }), false);
     assert.equal(isVisibleTo(b.audience, { role: "astronaut", memberId: "cm-b2" }), true);

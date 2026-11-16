@@ -1,6 +1,7 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
 export const ASSETS_BUCKET = "assets";
+export const EXPERIENCES_BUCKET = "xps";
 
 const globalForS3 = globalThis as unknown as { somaS3?: S3Client };
 

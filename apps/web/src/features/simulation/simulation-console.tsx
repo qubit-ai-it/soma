@@ -15,6 +15,7 @@ import {
   telemetryLabels, telemetrySchema,
   type Point, type SimCrew, type SimulationState, type SimulationUpdate, type Telemetry,
 } from "./simulation";
+import { CPR_EXPERIENCE, cardiacArrestIncident } from "./simulation.experience";
 import { providerLabel } from "./simulation.provider";
 import styles from "./simulation.module.css";
 
@@ -419,6 +420,13 @@ export function SimulationConsole() {
                         )}
                       </div>
                     )}
+                  </div>
+                )}
+                {cardiacArrestIncident(state) && (
+                  <div className={styles.decision} data-status="critical">
+                    <strong>{CPR_EXPERIENCE.title}</strong>
+                    <p>{cardiacArrestIncident(state)?.name} has no reliable pulse. Start the guided experience.</p>
+                    <Link href={CPR_EXPERIENCE.href}>Start the experience</Link>
                   </div>
                 )}
                 {state.phase === "idle" && <p>Move someone or change a reading to begin.</p>}

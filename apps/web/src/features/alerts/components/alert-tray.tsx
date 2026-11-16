@@ -184,7 +184,11 @@ export function AlertTray({ className }: { className?: string }) {
                         n.kind === "checkin"
                           ? [{ label: "Reply", icon: "chat", href: "/pet" }]
                           : n.kind === "task"
-                            ? [{ label: "Open simulation", icon: "rocket_launch", href: "/" }]
+                            ? [{
+                                label: n.payload.experience ? "Start the experience" : "Open simulation",
+                                icon: "rocket_launch",
+                                href: typeof n.payload.href === "string" ? n.payload.href : "/",
+                              }]
                             : undefined
                       }
                     />

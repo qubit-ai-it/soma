@@ -1,6 +1,7 @@
 import { memberKey } from "../notifications/notifications.logic.ts";
 import type { NewNotification } from "../notifications/notifications.types.ts";
 import { locationNames } from "./deck.ts";
+import { CPR_EXPERIENCE } from "./simulation.experience.ts";
 import type { ChatEntry } from "./simulation.ts";
 
 const MAX_BODY = 280;
@@ -16,6 +17,8 @@ export function instructionNotifications(messages: readonly ChatEntry[], analyst
     audience: [memberKey(entry.crewId)],
     payload: {
       source: analyst,
+      experience: CPR_EXPERIENCE.id,
+      href: CPR_EXPERIENCE.href,
       destination: entry.destination ? (locationNames[entry.destination] ?? entry.destination) : null,
     },
   }));

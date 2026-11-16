@@ -16,6 +16,7 @@
 | `/devices` | Devices and XR experiences | Done |
 | `/earth` | Earth console: packet queue, plan reviews and follow-up reports | Done |
 | `/pet` | Sentry assistant: chat, tasks and history | Done |
+| `/experience/cpr` | Guided CPR video (bucket `xps`, signed URL). Only available while a crew member's pulse is at or below 20 bpm in the crew simulation | Done |
 | `/sign-in`, `/sign-up` | Clerk sign-in and sign-up pages; the onboarding embeds the sign-up and stores the chosen role in the account | Done |
 
 A nonexistent `id` on any `/report/[id]` route renders `not-found.tsx` (see "Limits").

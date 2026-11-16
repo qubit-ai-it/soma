@@ -6,6 +6,7 @@ import { getServices } from "../../server/services.ts";
 import { evaluateSimulation } from "./orchestrator.ts";
 import { activeIncident, canEditTelemetry, isCrewInDanger, needsIncidentReview } from "./incident.ts";
 import { constrainToDeck, locationAt } from "./deck.ts";
+import { cardiacArrestIncident } from "./simulation.experience.ts";
 import { instructionNotifications } from "./simulation.notifications.ts";
 import { PROVIDER_LABELS } from "./simulation.provider.ts";
 import { buildCrew, emptyState, reconcileCrew } from "./simulation.crew.ts";
@@ -100,8 +101,10 @@ async function evaluatePending() {
     if (state.phase !== "pending") return;
     const result = await evaluateSimulation(state);
     let created: ChatEntry[] = [];
+    let arrest = false;
     await storage().update((current) => {
       created = [];
+      arrest = false;
       if (current.revision !== state.revision || current.phase !== "pending") return current;
       const version = current.version + 1;
       if (!result.ok) return { ...current, version, phase: "error", error: result.error };
@@ -123,7 +126,7 @@ async function evaluatePending() {
         )))
         .map((entry) => ({ ...entry, at, id: `${version}-${entry.crewId}` }));
       created = messages;
-      return {
+      const next = {
         ...current,
         version,
         phase: "done",
@@ -131,8 +134,10 @@ async function evaluatePending() {
         incidentOpenedWith,
         messages: [...current.messages, ...messages].slice(-150),
       } satisfies SimulationState;
+      arrest = cardiacArrestIncident(next) !== null;
+      return next;
     });
-    if (result.ok) await notifyMembers(created, result.value.provider);
+    if (result.ok && arrest) await notifyMembers(created, result.value.provider);
   }
 }
 
