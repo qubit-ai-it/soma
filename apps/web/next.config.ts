@@ -6,6 +6,13 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
+  async headers() {
+    const immutable = [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }];
+    return [
+      { source: "/rive/:path*", headers: immutable },
+      { source: "/mascot/:path*", headers: immutable },
+    ];
+  },
   turbopack: {
     rules: {
       "globals.css": {

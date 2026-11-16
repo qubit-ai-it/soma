@@ -12,7 +12,7 @@ import { useSettings } from "@/features/settings/settings.store";
 
 import { hexToRgb, type SentryMode } from "../sentry.types";
 import { MASCOT_SRC } from "./rive-runtime";
-import { useSharedMascotFile } from "./sentry-file";
+import { useSharedMascot } from "./sentry-file";
 
 const ARTBOARD = {
   artboard: "Artboard 1",
@@ -39,14 +39,19 @@ export function Sentry({
   className,
 }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const shared = useSharedMascotFile();
+  const mascot = useSharedMascot();
+  const shared = mascot?.file ?? null;
+  const request = mascot?.request;
   const [settings] = useSettings();
   const tint = color ?? settings.color;
   // the shared file is returned while still loading: wait for "success", fall back to src on failure
+  useEffect(() => {
+    request?.();
+  }, [request]);
   const { rive, RiveComponent } = useRive(
-    shared === null || shared.status === "failed"
+    mascot === null || shared?.status === "failed"
       ? { src: MASCOT_SRC, ...ARTBOARD }
-      : shared.status === "success" && shared.riveFile
+      : shared?.status === "success" && shared.riveFile
         ? { riveFile: shared.riveFile, ...ARTBOARD }
         : null,
   );
