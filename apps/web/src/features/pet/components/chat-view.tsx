@@ -5,8 +5,9 @@ import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
 import { Button } from "@/shared/ui/button";
 import { Icon } from "@/shared/ui/icon";
 
-import type { ChatMessage } from "../chat.client";
+import type { ChatMessage } from "../chat.types";
 import { MAX_ATTACHMENTS } from "../image";
+import { ChatReplyView } from "./chat-reply";
 
 export const QUICK_ACTIONS = [
   "Dame un resumen de la misión",
@@ -72,7 +73,7 @@ export function ChatView({
             className={`flex max-w-[85%] flex-col gap-2 rounded-md px-4 py-2 text-sm ${
               m.role === "user"
                 ? "self-end bg-primary text-primary-foreground"
-                : "self-start whitespace-pre-wrap bg-secondary"
+                : "self-start bg-secondary"
             }`}
           >
             {m.images?.map((src, n) => (
@@ -85,7 +86,9 @@ export function ChatView({
                 {m.imageCount} {m.imageCount === 1 ? "imagen adjunta" : "imágenes adjuntas"}
               </span>
             ) : null}
-            <p>{m.content}</p>
+            {m.role === "assistant" ? (
+              <ChatReplyView content={m.content} research={m.research} />
+            ) : <p className="whitespace-pre-wrap break-words">{m.content}</p>}
           </div>
         ))}
         {sending && <p className="self-start text-sm text-ink">Sentry está pensando…</p>}

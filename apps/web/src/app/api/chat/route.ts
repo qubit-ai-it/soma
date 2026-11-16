@@ -3,7 +3,8 @@ import { z } from "zod";
 import { createOllamaChat } from "@/features/pet/chat.client";
 import { getConfig } from "@/server/config";
 
-export const maxDuration = 150;
+// Allow the planning, research, and final answer requests to complete.
+export const maxDuration = 225;
 
 const bodySchema = z.object({
   messages: z
@@ -32,12 +33,13 @@ export async function POST(request: Request) {
     return Response.json({ error: "Chat is unavailable" }, { status: 503 });
   }
 
-  const result = await createOllamaChat({ url, model, authorization }).reply(
+  const result = await createOllamaChat({ url, model, authorization }).replyWithResearch(
     parsed.data.messages,
+    request.signal,
   );
   if (!result.ok) {
     console.error("[chat]", result.error);
     return Response.json({ error: "Chat provider failed" }, { status: 502 });
   }
-  return Response.json({ reply: result.value });
+  return Response.json(result.value);
 }

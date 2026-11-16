@@ -35,6 +35,14 @@ Para exponer Ollama por ngrok, configura la política de tráfico para que reesc
 
 `SOMA_OFFLINE=true` deshabilita el chat. El planificador tiene su propia configuración en `PLANNER_PROVIDER` y `OLLAMA_*`.
 
+En las consultas de salud espacial, Sentry usa el modelo configurado primero para
+proponer hasta diez términos del mismo catálogo que usa Swift. El servidor envía
+solo esos términos a [la biblioteca de investigación](https://rag-nasa-search.onrender.com/api/research/search/)
+y añade hasta dos extractos a la siguiente llamada al modelo. El chat conserva la
+respuesta en Markdown, el estado de la búsqueda y las fuentes con su ubicación.
+`research.vocabulary.ts` refleja el vocabulario, los alias y las reglas de
+respaldo de la aplicación Swift. Actualiza ambas proyecciones al cambiar el catálogo.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
