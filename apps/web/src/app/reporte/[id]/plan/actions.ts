@@ -1,38 +1,52 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { getMissionMember } from "@/features/crew/crew.queries";
-import { getPlanDraft } from "@/features/plan/plan.queries";
-import type { PlanActionState } from "@/features/plan/plan.types";
-import { getRisk } from "@/features/risk/risk.queries";
-import { toRiskInput } from "../../../risk-request";
+import { authorizeCaller as authorize } from "@/features/alerts/alerts.authorize";
+import { getEcosystem } from "@/features/earth/ecosystem.server";
+import { ROLES } from "@/features/roles/roles.types";
+import { getPlanFlow } from "@/server/plans.server";
+import { err, ok, type Result } from "@/shared/result";
 
-const memberIdSchema = z.string().trim().min(1).max(64);
+const planSchema = z.object({
+  role: z.enum(ROLES),
+  actorId: z.string().trim().min(1).max(64),
+  planId: z.string().trim().min(1).max(80),
+});
 
-const failure = (message: string): PlanActionState => ({ status: "error", message });
+function refresh() {
+  revalidatePath("/reporte/[id]/plan", "page");
+  revalidatePath("/tierra");
+}
 
-// Only the id comes from the client; risk and signals are resolved here
-export async function generatePlan(
-  memberId: string,
-  // required by useActionState, unused
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _previous: PlanActionState,
-): Promise<PlanActionState> {
-  const id = memberIdSchema.safeParse(memberId);
-  if (!id.success) return failure("Tripulante no válido.");
+export async function submitPlanAction(raw: unknown): Promise<Result<void>> {
+  const parsed = planSchema.safeParse(raw);
+  if (!parsed.success) return err("Solicitud no válida.");
+  const auth = authorize(parsed.data, "plan_board_review");
+  if (!auth.ok) return auth;
 
-  const member = await getMissionMember(id.data);
-  if (!member) return failure("Tripulante no encontrado.");
-
-  const risk = await getRisk(toRiskInput(member));
-  if (!risk) return failure("No se pudo clasificar el riesgo; no se generó el borrador.");
-
-  const plan = await getPlanDraft({
-    riskLevel: risk.level,
-    concerns: member.flags.map((flag) => flag.label),
+  const sent = await getPlanFlow().submit({
+    planId: parsed.data.planId,
+    actor: { role: parsed.data.role, actorId: auth.value },
   });
-  if (!plan.ok) return failure("No se pudo generar el borrador. Inténtalo de nuevo.");
+  if (!sent.ok) return err(sent.error);
+  await getEcosystem().earth.flush();
+  refresh();
+  return ok(undefined);
+}
 
-  return { status: "ready", plan: plan.value };
+export async function approvePlanOnBoardAction(raw: unknown): Promise<Result<void>> {
+  const parsed = planSchema.safeParse(raw);
+  if (!parsed.success) return err("Solicitud no válida.");
+  const auth = authorize(parsed.data, "plan_board_review");
+  if (!auth.ok) return auth;
+
+  const approved = await getPlanFlow().approveBoard({
+    planId: parsed.data.planId,
+    actor: { role: parsed.data.role, actorId: auth.value },
+  });
+  if (!approved.ok) return err(approved.error);
+  refresh();
+  return ok(undefined);
 }

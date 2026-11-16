@@ -35,6 +35,7 @@ const STATIC_ACCESS: Record<Exclude<Resource, "clinical_detail">, readonly Role[
   audit_log: ["cmo", "commander", "earth"],
   earth_console: ["earth"],
   plan_review: ["earth"],
+  plan_board_review: ["cmo"],
 };
 
 export function isRole(value: unknown): value is Role {

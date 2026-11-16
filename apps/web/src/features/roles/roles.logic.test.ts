@@ -51,6 +51,7 @@ describe("other resources", () => {
     audit_log: { astronaut: false, cmo: true, commander: true, earth: true },
     earth_console: { astronaut: false, cmo: false, commander: false, earth: true },
     plan_review: { astronaut: false, cmo: false, commander: false, earth: true },
+    plan_board_review: { astronaut: false, cmo: true, commander: false, earth: false },
   };
 
   for (const [resource, byRole] of Object.entries(expected)) {

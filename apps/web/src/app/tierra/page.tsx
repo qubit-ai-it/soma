@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { getEcosystem } from "@/features/earth/ecosystem.server";
+import { getPlanFlow } from "@/server/plans.server";
 import { RoleGate } from "@/features/roles/components/role-gate";
 import { RoleSwitcher } from "@/features/roles/components/role-switcher";
 import { Icon } from "@/shared/ui/icon";
@@ -39,5 +40,6 @@ export default function EarthPage() {
 async function Console() {
   await connection();
   const state = await getEcosystem().earth.getState();
-  return <EarthConsole state={state} />;
+  const plans = process.env.DATABASE_URL ? await getPlanFlow().awaitingEarth(state) : [];
+  return <EarthConsole state={state} plans={plans} />;
 }

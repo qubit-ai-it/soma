@@ -16,6 +16,7 @@ Rama: main · Entrega: ask-on-risk · Tests: `pnpm test` (node --test) · DB: Ne
 - S9. "Nada de datos inventados: si una fuente falla, se oculta o se marca, nunca se rellena con falsos. Procedencia visible."
 - S10. "UI en español, minimalista, sin textos largos ni avisos legales dentro de la interfaz. Cards como MetricCard (título, cifra, ícono de trazo) y SomaCard cuando Sentry habla. Íconos Material Symbols."
 - S11. "Diseñá los puertos para poder cambiar de adaptador."
+- S12 (supuesto de diseño, paso 4). Estados del plan: "borrador, en revisión, aprobado, cambios pedidos". F2: borrador con IA. F3: pasos de protocolos aprobados, sin IA (safety gate de CONTEXT.md). El médico de a bordo (cmo) envía a Tierra; sin enlace puede aprobar él. Tierra aprueba, comenta o pide cambios por paquete; la respuesta se aplica al entregarse el paquete (idempotente por responseId).
 
 Supuestos (marcados): roles reales son astronaut/cmo/commander/earth (no "doctor"); médico de a bordo = cmo, médico de Tierra = earth. Decisión del usuario: Neon Postgres.
 
@@ -31,7 +32,9 @@ Supuestos (marcados): roles reales son astronaut/cmo/commander/earth (no "doctor
 | T5 | S7,S3 | inline | hecho | `/api/ingesta` + envío de 5 s desde live.store con reintento; emisor simulado de tripulación (`instrumentation.ts` cada 5 s, `/api/sentry/tick`, apagable con `SENTRY_SIMULATOR=off`) |
 | T6 | S3,S4,S5,S8 | inline | hecho | (paso 2) motor por umbral con antirrebote 10 min e histéresis 30 min, difusión F3 (`crew:all` + `role:earth`), evaluaciones guardadas al cambiar de nivel, la pestaña Evaluación muestra la última guardada |
 | T7 | S5,S4 | inline | hecho | (paso 3) check-in diario (desde 06:00 UTC), cambio de turno (06:00/18:00 UTC, crew + personal), enlace con Tierra solo en cambios, clima espacial NOAA G/S solo de fuentes reales, reloj con throttle de 60 s; bandeja por SSE con SomaCard y avisos menores agrupados (modo resumen). Recordatorios de pasos del plan: paso 4 |
-| T8 | S4,S6 | inline | pendiente | (paso 4) plan automático y revisión de Tierra |
+| T8a | S2,S6 | inline | hecho | migración 0004 (earth_state, plans), repo Postgres de Tierra (estado completo en jsonb, seed al primer uso), paquetes plan_review_request/response, gancho onFlushed |
+| T8b | S4,S6,S12 | inline | hecho | planes con estado en Postgres, flujo (borrador F2 con IA, F3 con protocolos aprobados, enviar, aprobar a bordo sin enlace, respuesta de Tierra idempotente, aviso "Tierra respondió"), disparo desde Sentry al guardar la evaluación |
+| T8c | S4,S6,S10 | inline | hecho | pestaña Plan con "Generado por Sentry · hace X min" y acciones del cmo, sección "Planes por revisar" en /tierra (aprobar, pedir cambios, comentar); se quitó el botón de generar |
 | T9 | S4,S6 | inline | pendiente | (paso 5) seguimiento automático |
 
 Ruta declarada: todo inline; sin Writer trigger (unidades secuenciales, mismas superficies).

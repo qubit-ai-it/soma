@@ -14,6 +14,7 @@ export const RESOURCES = [
   "audit_log",
   "earth_console",
   "plan_review",
+  "plan_board_review",
 ] as const;
 export type Resource = (typeof RESOURCES)[number];
 

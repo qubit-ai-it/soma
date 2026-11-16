@@ -4,11 +4,12 @@ import { Suspense } from "react";
 import { getMissionMember } from "@/features/crew/crew.queries";
 import { getEvaluationBoard } from "@/features/evaluation/evaluation.queries";
 import { selectionInputFromCheckpoint } from "@/features/plan/plan.evaluation";
-import { CarePlanGenerator } from "@/features/plan/components/care-plan-generator";
 import { ImmediateStepsView } from "@/features/plan/components/immediate-steps-view";
+import { StoredPlanCard } from "@/features/plan/components/stored-plan-card";
 import { getImmediatePlan } from "@/features/plan/plan.queries";
 import { selectionInputFromFlags } from "@/features/plan/plan.selection";
-import { generatePlan } from "./actions";
+import { getStoredPlan } from "@/features/plan/plan.stored";
+import { generatedBy } from "@/features/sentry/sentry.display";
 
 export default function PlanPage({ params }: PageProps<"/reporte/[id]/plan">) {
   return (
@@ -37,10 +38,18 @@ async function Content({ params }: Pick<PageProps<"/reporte/[id]/plan">, "params
         ),
   );
 
+  const stored = await getStoredPlan(member.id);
+
   return (
     <div className="space-y-8">
+      {stored && (
+        <StoredPlanCard
+          plan={stored.plan}
+          link={stored.link}
+          generated={generatedBy(stored.plan.createdAt, stored.nowMs)}
+        />
+      )}
       <ImmediateStepsView steps={immediateSteps} />
-      <CarePlanGenerator action={generatePlan.bind(null, member.id)} />
     </div>
   );
 }
