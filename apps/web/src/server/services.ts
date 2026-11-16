@@ -22,7 +22,7 @@ import {
 import { createLiveSpaceWeather } from "../features/space-weather/space-weather.live.ts";
 import type { SpaceWeatherSource } from "../features/space-weather/space-weather.port.ts";
 import { getConfig, type Config } from "./config.ts";
-import { createJsonStore } from "./json-store.ts";
+import { createSeedStore } from "./json-store.ts";
 
 export type Services = {
   crew: CrewRepository;
@@ -76,10 +76,7 @@ function buildPlanner(config: Config): CarePlanner {
 function build(): Services {
   const config = getConfig();
   const dataDir = path.join(process.cwd(), "data");
-  const store = createJsonStore({
-    seedDir: path.join(dataDir, "seed"),
-    runtimeDir: path.join(dataDir, "runtime"),
-  });
+  const store = createSeedStore(path.join(dataDir, "seed"));
 
   return {
     crew: createJsonCrewRepository(store),

@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { after, before, describe, it } from "node:test";
 
-import { createJsonStore } from "./json-store.ts";
+import { createJsonStore, createSeedStore } from "./json-store.ts";
 
 describe("json-store", () => {
   let root: string;
@@ -66,5 +66,12 @@ describe("json-store", () => {
       /boom/,
     );
     assert.deepEqual(await store.read("counter"), { count: 0 });
+  });
+
+  it("seed store reads the seed without creating any runtime directory", async () => {
+    const store = createSeedStore(seedDir);
+    assert.deepEqual(await store.read("counter"), { count: 0 });
+    await assert.rejects(store.update("counter", () => ({ count: 1 })), /read-only/);
+    await assert.rejects(store.read("../secrets"), /Invalid store name/);
   });
 });

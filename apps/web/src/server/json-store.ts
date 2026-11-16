@@ -55,6 +55,20 @@ async function writeAtomic(file: string, value: unknown): Promise<void> {
   await renameWithRetry(tmp, file);
 }
 
+export function createSeedStore(seedDir: string): JsonStore {
+  return {
+    read: async (name) => {
+      if (!NAME_PATTERN.test(name)) {
+        throw new Error(`Invalid store name "${name}"`);
+      }
+      return JSON.parse(await readFile(path.join(seedDir, `${name}.json`), "utf-8"));
+    },
+    update: async () => {
+      throw new Error("The seed store is read-only");
+    },
+  };
+}
+
 export function createJsonStore({
   seedDir,
   runtimeDir,
