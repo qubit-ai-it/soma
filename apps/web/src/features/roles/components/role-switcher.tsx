@@ -8,8 +8,8 @@ export function RoleSwitcher() {
   const role = useDemoRole();
 
   return (
-    <section aria-label="Selector de rol" className="space-y-2">
-      <div role="radiogroup" aria-label="Rol activo" className="inline-flex flex-wrap gap-1 rounded-full bg-card p-1">
+    <section aria-label="Role selector" className="space-y-2">
+      <div role="radiogroup" aria-label="Active role" className="inline-flex flex-wrap gap-1 rounded-full bg-card p-1">
         {ROLES.map((value) => {
           const active = value === role;
           return (

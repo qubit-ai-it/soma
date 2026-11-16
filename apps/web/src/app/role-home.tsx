@@ -31,10 +31,10 @@ export function RoleHome({ crew, riskSlots, levels, f3Open }: Props) {
           crew={visible}
           hrefFor={hrefFor}
           riskSlots={riskSlots}
-          heading={kind === "self" ? "Tu reporte" : "Tripulación"}
+          heading={kind === "self" ? "Your report" : "Crew"}
         />
         <p className="mt-2 text-xs text-ink">
-          La clasificación de riesgo requiere validación humana; no es un diagnóstico.
+          Risk classification requires human review; it is not a diagnosis.
         </p>
       </>
     );
@@ -45,31 +45,31 @@ export function RoleHome({ crew, riskSlots, levels, f3Open }: Props) {
     const tone =
       availability.unavailable > 0 ? "danger" : availability.limited > 0 ? "warn" : "ok";
     return (
-      <section aria-label="Resumen operativo" className="grid gap-4 sm:grid-cols-2">
+      <section aria-label="Operational summary" className="grid gap-4 sm:grid-cols-2">
         <SomaCard
-          title={`${availability.available} de ${total} disponibles`}
-          line={`${availability.limited} limitados · ${availability.unavailable} no disponibles`}
-          chip="Tripulación"
+          title={`${availability.available} of ${total} available`}
+          line={`${availability.limited} limited · ${availability.unavailable} unavailable`}
+          chip="Crew"
           tone={tone}
-          detail={<p>Sin detalle clínico: solo disponibilidad operativa.</p>}
+          detail={<p>No clinical details: operational availability only.</p>}
         />
       </section>
     );
   }
 
   return (
-    <section aria-label="Resumen para Tierra" className="grid gap-4 sm:grid-cols-2">
+    <section aria-label="Earth summary" className="grid gap-4 sm:grid-cols-2">
       <SomaCard
-        title="Consola de Tierra"
-        line="Revisa las propuestas pendientes."
-        chip="Tierra"
+        title="Earth console"
+        line="Review pending proposals."
+        chip="Earth"
         tone="info"
-        actions={[{ label: "Abrir consola", icon: "public", href: "/tierra" }]}
+        actions={[{ label: "Open console", icon: "public", href: "/tierra" }]}
       />
       <SomaCard
-        title={f3Open === 0 ? "Sin alertas F3" : `${f3Open} alertas F3`}
-        line={f3Open === 0 ? "Nada urgente por ahora." : "Requieren acción inmediata."}
-        chip="Alertas"
+        title={f3Open === 0 ? "No F3 alerts" : `${f3Open} F3 alerts`}
+        line={f3Open === 0 ? "Nothing urgent at this time." : "Immediate action required."}
+        chip="Alerts"
         tone={f3Open === 0 ? "ok" : "danger"}
       />
     </section>

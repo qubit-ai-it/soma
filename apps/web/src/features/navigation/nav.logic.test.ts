@@ -64,6 +64,9 @@ describe("navItemsFor", () => {
 });
 
 describe("navigation items", () => {
+  it("uses English labels without changing routes", () => {
+    assert.deepEqual(NAV_ITEMS.map((item) => item.label), ["Home", "Report", "Devices", "Earth", "Alerts", "Sentry"]);
+  });
   it("has unique ids and short labels", () => {
     assert.equal(new Set(NAV_ITEMS.map((i) => i.id)).size, NAV_ITEMS.length);
     assert.ok(NAV_ITEMS.every((i) => i.label.length > 0 && i.label.length <= 12));

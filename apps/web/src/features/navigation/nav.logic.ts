@@ -9,11 +9,11 @@ export type NavItem = {
 };
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { id: "home", label: "Inicio", href: "/", icon: "home" },
-  { id: "report", label: "Reporte", href: "/reporte/cm-01", icon: "monitor_heart" },
-  { id: "devices", label: "Dispositivos", href: "/dispositivos", icon: "devices" },
-  { id: "earth", label: "Tierra", href: "/tierra", icon: "public" },
-  { id: "alerts", label: "Alertas", icon: "notifications" },
+  { id: "home", label: "Home", href: "/", icon: "home" },
+  { id: "report", label: "Report", href: "/reporte/cm-01", icon: "monitor_heart" },
+  { id: "devices", label: "Devices", href: "/dispositivos", icon: "devices" },
+  { id: "earth", label: "Earth", href: "/tierra", icon: "public" },
+  { id: "alerts", label: "Alerts", icon: "notifications" },
   { id: "sentry", label: "Sentry", href: "/pet", icon: "smart_toy" },
 ];
 

@@ -5,29 +5,29 @@ import type { LiveEvaluation } from "./live.logic.ts";
 export type LiveView = { chip: string; tone: CardTone; line: string };
 
 export const BLUETOOTH_MESSAGES: Record<BluetoothError, string> = {
-  unsupported: "Este navegador no permite Bluetooth.",
-  cancelled: "Conexión cancelada.",
-  error: "No se pudo conectar.",
+  unsupported: "This browser does not support Bluetooth.",
+  cancelled: "Connection cancelled.",
+  error: "Could not connect.",
 };
 
 const LEVEL_VIEW = {
-  F0: { tone: "ok", line: "Dentro de tu referencia." },
-  F1: { tone: "warn", line: "Por encima de tu referencia." },
-  F2: { tone: "warn", line: "Se mantiene por encima." },
-  F3: { tone: "danger", line: "Muy por encima de tu referencia." },
+  F0: { tone: "ok", line: "Within your baseline." },
+  F1: { tone: "warn", line: "Above your baseline." },
+  F2: { tone: "warn", line: "Remains above your baseline." },
+  F3: { tone: "danger", line: "Well above your baseline." },
 } as const;
 
 export function describeLive(live: LiveEvaluation, connected: boolean): LiveView {
   if (live.phase === "waiting") {
     return connected
-      ? { chip: "Esperando", tone: "info", line: "Esperando lecturas." }
-      : { chip: "Sin conexión", tone: "neutral", line: "Conecta un reloj o una banda." };
+      ? { chip: "Waiting", tone: "info", line: "Waiting for readings." }
+      : { chip: "Disconnected", tone: "neutral", line: "Connect a watch or band." };
   }
   if (live.phase === "calibrating" || live.evaluation === null) {
     return {
-      chip: `Calibrando ${live.binsCount}/${live.calibrationBins}`,
+      chip: `Calibrating ${live.binsCount}/${live.calibrationBins}`,
       tone: "info",
-      line: "Aprendiendo tu referencia.",
+      line: "Learning your baseline.",
     };
   }
 
@@ -35,9 +35,9 @@ export function describeLive(live: LiveEvaluation, connected: boolean): LiveView
   if (status === "NOT_EVALUABLE") {
     const flat = limitations.some((l) => l.startsWith("zero-variability"));
     return {
-      chip: "No evaluable",
+      chip: "Not evaluable",
       tone: "info",
-      line: flat ? "Tu referencia no varía." : "Esperando nuevas lecturas.",
+      line: flat ? "Your baseline does not vary." : "Waiting for new readings.",
     };
   }
   return { chip: status, ...LEVEL_VIEW[status] };

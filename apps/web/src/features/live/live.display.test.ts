@@ -18,16 +18,16 @@ const live = (values: number[]) => evaluateLive(bins(values), "x", T0 + values.l
 describe("describeLive", () => {
   it("asks to connect a device when nothing is connected", () => {
     const view = describeLive(evaluateLive([], "x", T0), false);
-    assert.deepEqual([view.chip, view.tone], ["Sin conexión", "neutral"]);
+    assert.deepEqual([view.chip, view.tone], ["Disconnected", "neutral"]);
   });
 
   it("waits for readings once connected", () => {
-    assert.equal(describeLive(evaluateLive([], "x", T0), true).chip, "Esperando");
+    assert.equal(describeLive(evaluateLive([], "x", T0), true).chip, "Waiting");
   });
 
   it("shows the calibration progress", () => {
     const view = describeLive(live(BASELINE.slice(0, 2)), true);
-    assert.equal(view.chip, "Calibrando 2/6");
+    assert.equal(view.chip, "Calibrating 2/6");
   });
 
   it("maps each status to a tone and a short line", () => {
@@ -40,11 +40,11 @@ describe("describeLive", () => {
 
   it("says why it cannot evaluate, and never calls it F0", () => {
     const noData = describeLive(live(BASELINE), true);
-    assert.equal(noData.chip, "No evaluable");
+    assert.equal(noData.chip, "Not evaluable");
     assert.notEqual(noData.chip, "F0");
 
     const flat = describeLive(live([70, 70, 70, 70, 70, 70, 75]), true);
-    assert.equal(flat.chip, "No evaluable");
+    assert.equal(flat.chip, "Not evaluable");
   });
 
   it("keeps every line short", () => {

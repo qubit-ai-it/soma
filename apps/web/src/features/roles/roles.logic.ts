@@ -12,18 +12,18 @@ import {
 } from "./roles.types.ts";
 
 export const ROLE_LABELS: Record<Role, string> = {
-  astronaut: "Astronauta",
-  cmo: "Médico de a bordo",
-  commander: "Comandante",
-  earth: "Supervisor de Tierra",
+  astronaut: "Astronaut",
+  cmo: "Crew medical officer",
+  commander: "Commander",
+  earth: "Earth supervisor",
 };
 
 // Fictional identities for the demo; there is no authentication
 export const DEMO_ACTORS: Record<Role, DemoActor> = {
-  astronaut: { id: "demo-astronaut-01", label: "Astronauta", memberId: "cm-02" },
-  cmo: { id: "demo-cmo-01", label: "Médico de a bordo" },
-  commander: { id: "demo-commander-01", label: "Comandante" },
-  earth: { id: "demo-earth-md-01", label: "Médico de Tierra" },
+  astronaut: { id: "demo-astronaut-01", label: "Astronaut", memberId: "cm-02" },
+  cmo: { id: "demo-cmo-01", label: "Crew medical officer" },
+  commander: { id: "demo-commander-01", label: "Commander" },
+  earth: { id: "demo-earth-md-01", label: "Earth medical officer" },
 };
 
 const STATIC_ACCESS: Record<Exclude<Resource, "clinical_detail">, readonly Role[]> = {
