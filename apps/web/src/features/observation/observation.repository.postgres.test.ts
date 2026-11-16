@@ -44,12 +44,25 @@ describe("postgres observations repository", { skip: !hasDatabase }, () => {
     assert.equal(observation.quality.state, "missing");
   });
 
+  it("adds many in one call and counts duplicates", async () => {
+    const batch = [make("b1", "2026-11-15T11:00:00.000Z", 70), make("b2", "2026-11-15T11:00:05.000Z", 71)];
+    assert.deepEqual(await repo.addMany(batch), { stored: 2, duplicates: 0 });
+    assert.deepEqual(await repo.addMany([...batch, make("b3", "2026-11-15T11:00:10.000Z", 72)]), {
+      stored: 1,
+      duplicates: 2,
+    });
+    assert.deepEqual(await repo.addMany([]), { stored: 0, duplicates: 0 });
+  });
+
   it("lists in time order with since and signal filters", async () => {
     await repo.add(make("3", "2026-11-15T10:00:10.000Z", 75));
-    const all = await repo.listBySubject(subject, { signal: "heartRate" });
+    const all = await repo.listBySubject(subject, { signal: "heartRate", since: "2026-11-15T10:00:00.000Z", limit: 3 });
     assert.deepEqual(all.map((o) => o.id.slice(-1)), ["1", "2", "3"]);
-    const recent = await repo.listBySubject(subject, { since: "2026-11-15T10:00:06.000Z" });
+    const recent = await repo.listBySubject(subject, { since: "2026-11-15T10:00:06.000Z", limit: 1 });
     assert.deepEqual(recent.map((o) => o.id.slice(-1)), ["3"]);
+    const newest = await repo.listBySubject(subject, { newest: true, limit: 2 });
+    assert.deepEqual(newest.map((o) => o.observedAt), [...newest.map((o) => o.observedAt)].sort());
+    assert.equal(newest[newest.length - 1].id.slice(-2), "b3");
     assert.deepEqual(await repo.listBySubject(subject, { signal: "spo2" }), []);
   });
 });

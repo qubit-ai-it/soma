@@ -32,6 +32,7 @@ export type RaiseAlertInput = {
   clinicalDetail?: string;
   // Same key, same alert: lets a caller retry safely
   alertId?: string;
+  actorId?: string;
 };
 
 export type AlertService = ReturnType<typeof createAlertService>;
@@ -54,7 +55,7 @@ export function createAlertService({
 
       await audit.append({
         action: "alert_raised",
-        actor: { kind: "system", id: "deterministic-engine" },
+        actor: { kind: "system", id: input.actorId ?? "deterministic-engine" },
         alertId: alert.id,
         subjectId: alert.memberId,
         detail: `Nivel ${alert.level}; destinatarios: ${alert.recipients.join(", ")}`,

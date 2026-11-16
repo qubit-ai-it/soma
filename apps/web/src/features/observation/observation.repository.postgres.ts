@@ -78,18 +78,60 @@ export function createPostgresObservationsRepository(pool: Pool): ObservationsRe
       const { rows } = await pool.query<Row>("select * from observations where id = $1", [o.id]);
       return { observation: toObservation(rows[0]), duplicate: inserted.rowCount === 0 };
     },
+    addMany: async (raw) => {
+      if (raw.length === 0) return { stored: 0, duplicates: 0 };
+      const rows = raw.map((r) => {
+        const o = observationSchema.parse(r);
+        return {
+          id: o.id,
+          subject_id: o.subjectId,
+          signal: o.signal,
+          value_num: typeof o.value === "number" ? o.value : null,
+          value_text: typeof o.value === "string" ? o.value : null,
+          unit: o.unit,
+          observed_at: o.observedAt,
+          mission_time: o.missionTime ?? null,
+          provenance_type: o.provenance.type,
+          provenance_source: o.provenance.source,
+          provenance_device: o.provenance.device ?? null,
+          provenance_dataset: o.provenance.dataset ?? null,
+          quality_state: o.quality.state,
+          quality_reason: o.quality.reason ?? null,
+          processing_version: o.processingVersion ?? null,
+        };
+      });
+      const inserted = await pool.query(
+        `insert into observations (id, subject_id, signal, value_num, value_text, unit, observed_at,
+           mission_time, provenance_type, provenance_source, provenance_device, provenance_dataset,
+           quality_state, quality_reason, processing_version)
+         select id, subject_id, signal, value_num, value_text, unit, observed_at, mission_time,
+           provenance_type, provenance_source, provenance_device, provenance_dataset,
+           quality_state, quality_reason, processing_version
+         from jsonb_to_recordset($1::jsonb) as x(
+           id text, subject_id text, signal text, value_num double precision, value_text text,
+           unit text, observed_at timestamptz, mission_time text, provenance_type text,
+           provenance_source text, provenance_device text, provenance_dataset text,
+           quality_state text, quality_reason text, processing_version text)
+         on conflict (id) do nothing`,
+        [JSON.stringify(rows)],
+      );
+      const stored = inserted.rowCount ?? 0;
+      return { stored, duplicates: rows.length - stored };
+    },
     listBySubject: async (subjectId, options = {}) => {
       const limit = Math.min(Math.max(options.limit ?? 500, 1), 5000);
+      const order = options.newest ? "desc" : "asc";
       const { rows } = await pool.query<Row>(
         `select * from observations
          where subject_id = $1
            and ($2::text is null or signal = $2)
            and ($3::timestamptz is null or observed_at >= $3)
-         order by observed_at asc
+         order by observed_at ${order}
          limit $4`,
         [subjectId, options.signal ?? null, options.since ?? null, limit],
       );
-      return rows.map(toObservation);
+      const observations = rows.map(toObservation);
+      return options.newest ? observations.reverse() : observations;
     },
   };
 }
