@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { cn } from "cn";
 
 import { Icon } from "./icon";
-import { SentryStill } from "./sentry-still";
+import { SentryStill, type SentryStillState } from "./sentry-still";
 
 export type CardTone = "ok" | "warn" | "danger" | "info" | "neutral";
 
@@ -23,6 +23,15 @@ const CHIP: Record<CardTone, string> = {
   danger: "bg-danger/15 text-danger",
   info: "bg-accent-soft text-signal",
   neutral: "bg-secondary text-ink",
+};
+
+// Risky notifications show the warning pose, good ones the success pose, the rest stay at rest
+const TONE_STILL: Record<CardTone, SentryStillState> = {
+  danger: "warning",
+  warn: "warning",
+  ok: "success",
+  info: "idle",
+  neutral: "idle",
 };
 
 const ACTION =
@@ -78,7 +87,7 @@ export function SomaCard({
     <article aria-label={label ?? title} className={cn("flex flex-col gap-4 rounded-2xl bg-card p-5", className)}>
       <header className="flex items-center justify-between gap-3">
         {avatar ?? (
-          <SentryStill className="w-14 shrink-0" />
+          <SentryStill state={TONE_STILL[tone]} className="w-14 shrink-0" />
         )}
         {chip && (
           <span className={cn("rounded-full px-3 py-1 text-xs font-semibold", CHIP[tone])}>{chip}</span>
