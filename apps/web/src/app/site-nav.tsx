@@ -1,13 +1,13 @@
 "use client";
 
+import { Show, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { AlertTray } from "@/features/alerts/components/alert-tray";
 import { NAV_ITEMS, activeItemId, navItemsFor } from "@/features/navigation/nav.logic";
-import { DEMO_ACTORS, ROLE_LABELS, isRole } from "@/features/roles/roles.logic";
-import { setDemoRole, useDemoRole } from "@/features/roles/roles.store";
-import { ROLES } from "@/features/roles/roles.types";
+import { DEMO_ACTORS, ROLE_LABELS } from "@/features/roles/roles.logic";
+import { useDemoRole } from "@/features/roles/roles.store";
 import { Icon } from "@/shared/ui/icon";
 
 const PILL =
@@ -47,23 +47,21 @@ export function SiteNav() {
           );
         })}
 
-        <label className={`${PILL} bg-secondary px-3`} title="Active role">
-          <Icon name="person" />
-          <span className="sr-only">Active role</span>
-          <select
-            value={role}
-            onChange={(event) => {
-              if (isRole(event.target.value)) setDemoRole(event.target.value);
-            }}
-            className="cursor-pointer bg-transparent font-heading text-sm font-semibold outline-none"
-          >
-            {ROLES.map((value) => (
-              <option key={value} value={value} className="bg-card text-foreground">
-                {ROLE_LABELS[value]}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Show when="signed-out">
+          <Link href="/sign-in" className={`${PILL} bg-secondary px-3`} title="Sign in" aria-label="Sign in">
+            <Icon name="login" />
+            <span className="hidden sm:inline">Sign in</span>
+          </Link>
+        </Show>
+        <Show when="signed-in">
+          <span className={`${PILL} bg-secondary px-3`} title="Your role">
+            <Icon name="person" />
+            <span className="hidden sm:inline">{ROLE_LABELS[role]}</span>
+          </span>
+          <span className="grid size-10 shrink-0 place-items-center">
+            <UserButton />
+          </span>
+        </Show>
       </nav>
     </div>
   );

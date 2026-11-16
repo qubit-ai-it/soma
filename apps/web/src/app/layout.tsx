@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DM_Sans, Inter } from "next/font/google";
@@ -6,6 +7,7 @@ import "./globals.css";
 
 import { SentryFileProvider } from "@/shared/ui/sentry-file";
 import { OnboardingGate } from "./onboarding-gate";
+import { RoleSync } from "./role-sync";
 import { SiteNav } from "./site-nav";
 
 const inter = Inter({
@@ -31,13 +33,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background pb-32 text-foreground sm:pb-24">
-        <SentryFileProvider>
-          {children}
-          <Suspense fallback={null}>
-            <SiteNav />
-          </Suspense>
-          <OnboardingGate />
-        </SentryFileProvider>
+        <ClerkProvider>
+          <SentryFileProvider>
+            {children}
+            <Suspense fallback={null}>
+              <SiteNav />
+            </Suspense>
+            <OnboardingGate />
+            <RoleSync />
+          </SentryFileProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

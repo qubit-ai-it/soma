@@ -1,7 +1,8 @@
 "use client";
 
+import { SignIn, SignUp, useUser } from "@clerk/nextjs";
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { Suspense, useEffect, useState, useSyncExternalStore } from "react";
 
 import {
   ONBOARDING_DONE,
@@ -106,6 +107,8 @@ export function OnboardingGate() {
   const [index, setIndex] = useState(0);
   const [profile, setProfile] = useState<DeviceProfile | null>(null);
   const [bluetoothMessage, setBluetoothMessage] = useState<string | null>(null);
+  const [hasAccount, setHasAccount] = useState(false);
+  const { isSignedIn, user } = useUser();
   const live = useLiveState();
 
   const open = mounted && shouldShowOnboarding(stored || null) && !closed;
@@ -283,6 +286,33 @@ export function OnboardingGate() {
           </div>
         )}
 
+        {step.kind === "account" && (
+          <div className="flex w-full flex-col items-center gap-3">
+            {isSignedIn ? (
+              <p role="status" className="text-base">
+                Welcome{user?.firstName ? `, ${user.firstName}` : ""}. You joined as {ROLE_LABELS[role]}.
+              </p>
+            ) : (
+              <>
+                <Suspense fallback={null}>
+                  {hasAccount ? (
+                    <SignIn routing="hash" fallbackRedirectUrl="/" />
+                  ) : (
+                    <SignUp routing="hash" fallbackRedirectUrl="/" unsafeMetadata={{ role }} />
+                  )}
+                </Suspense>
+                <button
+                  type="button"
+                  onClick={() => setHasAccount((value) => !value)}
+                  className="text-sm underline underline-offset-4"
+                >
+                  {hasAccount ? "Create a new account" : "I already have an account"}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
         <div className="flex w-full flex-col gap-2">
           {last ? (
             <>
@@ -291,7 +321,7 @@ export function OnboardingGate() {
                 onClick={finish}
                 className={`${ACTION} bg-primary text-primary-foreground hover:bg-primary/85`}
               >
-                Get started
+                {isSignedIn ? "Get started" : "Continue as guest"}
               </Link>
               <button
                 type="button"

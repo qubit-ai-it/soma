@@ -18,7 +18,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   earth: "Earth supervisor",
 };
 
-// Fictional identities for the demo; there is no authentication
+// Fictional identities used when nobody is signed in
 export const DEMO_ACTORS: Record<Role, DemoActor> = {
   astronaut: { id: "demo-astronaut-01", label: "Astronaut", memberId: "cm-02" },
   cmo: { id: "demo-cmo-01", label: "Onboard physician" },
@@ -40,6 +40,17 @@ const STATIC_ACCESS: Record<Exclude<Resource, "clinical_detail">, readonly Role[
 
 export function isRole(value: unknown): value is Role {
   return typeof value === "string" && (ROLES as readonly string[]).includes(value);
+}
+
+export function roleFromMetadata(metadata: unknown): Role | null {
+  if (typeof metadata !== "object" || metadata === null) return null;
+  const role = (metadata as { role?: unknown }).role;
+  return isRole(role) ? role : null;
+}
+
+export function actorIdForUser(userId: string): string {
+  const slug = userId.replace(/^user_/, "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+  return `user-${slug}`.slice(0, 64);
 }
 
 // Clinical detail (any level, F3 included) stays with the CMO and the person concerned

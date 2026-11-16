@@ -1,9 +1,9 @@
 import type { SentryMode } from "../../shared/sentry.types.ts";
 
-export const ONBOARDING_KEY = "soma.onboarding.v1";
+export const ONBOARDING_KEY = "soma.onboarding.v2";
 export const ONBOARDING_DONE = "done";
 
-export const SETUP_KINDS = ["color", "role", "source", "xr"] as const;
+export const SETUP_KINDS = ["color", "role", "source", "xr", "account"] as const;
 export type SetupKind = (typeof SETUP_KINDS)[number];
 
 export type OnboardingStep = {
@@ -91,6 +91,13 @@ export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
     mode: "thinking",
     title: "Do you have an XR headset?",
     line: "We'll use it to guide procedures.",
+  },
+  {
+    id: "account",
+    kind: "account",
+    mode: "listening",
+    title: "Join the crew",
+    line: "Create your account to start the simulation.",
   },
 ];
 

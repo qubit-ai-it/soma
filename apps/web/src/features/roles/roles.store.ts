@@ -1,8 +1,9 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
 import { useSyncExternalStore } from "react";
 
-import { isRole } from "./roles.logic.ts";
+import { isRole, roleFromMetadata } from "./roles.logic.ts";
 import type { Role } from "./roles.types.ts";
 
 const STORAGE_KEY = "soma.demo-role";
@@ -43,6 +44,12 @@ export function setDemoRole(role: Role): void {
   listeners.forEach((listener) => listener());
 }
 
+export function getStoredRole(): Role {
+  return getSnapshot();
+}
+
 export function useDemoRole(): Role {
-  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const stored = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const { user } = useUser();
+  return roleFromMetadata(user?.publicMetadata) ?? stored;
 }

@@ -1,14 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import {
-  DEMO_ACTORS,
-  ROLE_LABELS,
-  buildF3Notification,
-  buildOperationalSummary,
-  canAccess,
-  isRole,
-} from "./roles.logic.ts";
+import { DEMO_ACTORS, ROLE_LABELS, buildF3Notification, buildOperationalSummary, canAccess, isRole, actorIdForUser, roleFromMetadata } from "./roles.logic.ts";
 import { LEVELS, RESOURCES, ROLES } from "./roles.types.ts";
 
 describe("clinical detail", () => {
@@ -158,5 +151,22 @@ describe("demo actors and role guard", () => {
     assert.equal(isRole("cmo"), true);
     assert.equal(isRole("admin"), false);
     assert.equal(isRole(undefined), false);
+  });
+});
+
+describe("session identity", () => {
+  it("reads a valid role from Clerk metadata and ignores anything else", () => {
+    assert.equal(roleFromMetadata({ role: "cmo" }), "cmo");
+    assert.equal(roleFromMetadata({ role: "admin" }), null);
+    assert.equal(roleFromMetadata({}), null);
+    assert.equal(roleFromMetadata(null), null);
+    assert.equal(roleFromMetadata("cmo"), null);
+  });
+
+  it("turns a Clerk user id into an identified human actor id", () => {
+    const actorId = actorIdForUser("user_2Abc9XyZ");
+    assert.equal(actorId, "user-2abc9xyz");
+    assert.match(actorId, /^[a-z0-9][a-z0-9-]{2,63}$/);
+    assert.ok(actorIdForUser(`user_${"A".repeat(100)}`).length <= 64);
   });
 });

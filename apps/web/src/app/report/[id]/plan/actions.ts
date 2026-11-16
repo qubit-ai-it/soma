@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { authorizeCaller as authorize } from "@/features/alerts/alerts.authorize";
+import { authorizeSession } from "@/features/alerts/alerts.authorize.session";
 import { getEcosystem } from "@/features/earth/ecosystem.server";
 import { ROLES } from "@/features/roles/roles.types";
 import { getPlanFlow } from "@/server/plans.server";
@@ -23,12 +23,12 @@ function refresh() {
 export async function submitPlanAction(raw: unknown): Promise<Result<void>> {
   const parsed = planSchema.safeParse(raw);
   if (!parsed.success) return err("Invalid request.");
-  const auth = authorize(parsed.data, "plan_board_review");
+  const auth = await authorizeSession("plan_board_review");
   if (!auth.ok) return auth;
 
   const sent = await getPlanFlow().submit({
     planId: parsed.data.planId,
-    actor: { role: parsed.data.role, actorId: auth.value },
+    actor: { role: "cmo", actorId: auth.value },
   });
   if (!sent.ok) return err(sent.error);
   await getEcosystem().earth.flush();
@@ -39,12 +39,12 @@ export async function submitPlanAction(raw: unknown): Promise<Result<void>> {
 export async function approvePlanOnBoardAction(raw: unknown): Promise<Result<void>> {
   const parsed = planSchema.safeParse(raw);
   if (!parsed.success) return err("Invalid request.");
-  const auth = authorize(parsed.data, "plan_board_review");
+  const auth = await authorizeSession("plan_board_review");
   if (!auth.ok) return auth;
 
   const approved = await getPlanFlow().approveBoard({
     planId: parsed.data.planId,
-    actor: { role: parsed.data.role, actorId: auth.value },
+    actor: { role: "cmo", actorId: auth.value },
   });
   if (!approved.ok) return err(approved.error);
   refresh();

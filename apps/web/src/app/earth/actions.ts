@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { authorizeCaller as authorize } from "@/features/alerts/alerts.authorize";
+import { authorizeSession } from "@/features/alerts/alerts.authorize.session";
 import { linkPatchSchema, reviewInputSchema } from "@/features/earth/earth.schema";
 import { getEcosystem } from "@/features/earth/ecosystem.server";
 import { FOLLOWUP_DECISIONS } from "@/features/followup/followup.record";
@@ -41,7 +41,7 @@ function refresh() {
 export async function setLinkAction(raw: unknown): Promise<Result<void>> {
   const parsed = linkSchema.safeParse(raw);
   if (!parsed.success) return err("Invalid request.");
-  const auth = authorize(parsed.data, "earth_console");
+  const auth = await authorizeSession("earth_console");
   if (!auth.ok) return auth;
 
   const { earth } = getEcosystem();
@@ -54,7 +54,7 @@ export async function setLinkAction(raw: unknown): Promise<Result<void>> {
 export async function flushQueueAction(raw: unknown): Promise<Result<void>> {
   const parsed = flushSchema.safeParse(raw);
   if (!parsed.success) return err("Invalid request.");
-  const auth = authorize(parsed.data, "earth_console");
+  const auth = await authorizeSession("earth_console");
   if (!auth.ok) return auth;
 
   await getEcosystem().earth.flush({ force: parsed.data.force });
@@ -67,7 +67,7 @@ export async function reviewProposalAction(raw: unknown): Promise<Result<void>> 
   if (!parsed.success) {
     return err("Check the fields: a modification or rejection needs a note, and a modification needs at least one step.");
   }
-  const auth = authorize(parsed.data, "plan_review");
+  const auth = await authorizeSession("plan_review");
   if (!auth.ok) return auth;
 
   const { earth } = getEcosystem();
@@ -81,7 +81,7 @@ export async function reviewProposalAction(raw: unknown): Promise<Result<void>> 
 export async function reviewPlanAction(raw: unknown): Promise<Result<void>> {
   const parsed = planReviewSchema.safeParse(raw);
   if (!parsed.success) return err("Check the plan fields.");
-  const auth = authorize(parsed.data, "plan_review");
+  const auth = await authorizeSession("plan_review");
   if (!auth.ok) return auth;
 
   const sent = await getPlanFlow().earthRespond({
@@ -101,7 +101,7 @@ export async function reviewPlanAction(raw: unknown): Promise<Result<void>> {
 export async function reviewFollowUpAction(raw: unknown): Promise<Result<void>> {
   const parsed = followUpReviewSchema.safeParse(raw);
   if (!parsed.success) return err("Check the report fields.");
-  const auth = authorize(parsed.data, "plan_review");
+  const auth = await authorizeSession("plan_review");
   if (!auth.ok) return auth;
 
   const sent = await getFollowUpFlow().earthFeedback({

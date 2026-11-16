@@ -6,7 +6,6 @@ import { getEcosystem } from "@/features/earth/ecosystem.server";
 import { getFollowUpFlow } from "@/server/followup.server";
 import { getPlanFlow } from "@/server/plans.server";
 import { RoleGate } from "@/features/roles/components/role-gate";
-import { RoleSwitcher } from "@/features/roles/components/role-switcher";
 import { Icon } from "@/shared/ui/icon";
 
 import { EarthConsole } from "./earth-console";
@@ -24,9 +23,6 @@ export default function EarthPage() {
         Back
       </Link>
       <h1 className="reveal mt-8 text-headline">Earth console</h1>
-      <div className="mt-6">
-        <RoleSwitcher />
-      </div>
       <div className="mt-8">
         <RoleGate resource="earth_console">
           <Suspense fallback={<p className="text-ink">Loading console…</p>}>
