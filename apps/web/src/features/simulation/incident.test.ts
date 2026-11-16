@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { assessTelemetry, equipmentFor, hasCriticalTelemetry, incidentOptions, incidentProgress, needsIncidentReview, validIncidentTransition } from "./incident.ts";
+import { assessTelemetry, canEditTelemetry, equipmentFor, hasCriticalTelemetry, incidentOptions, incidentProgress, isCrewInDanger, needsIncidentReview, validIncidentTransition } from "./incident.ts";
 import { roomCenter, type Decision, type SimulationState } from "./simulation.ts";
 
 const lab = roomCenter("laboratorio");
@@ -13,7 +13,7 @@ const critical: Decision = {
   signals: ["heartRateBpm"],
   instructions: [
     { crewId: "cm-03", message: "Ve al laboratorio.", destination: "laboratorio", via: null },
-    { crewId: "cm-05", message: "Lleva el equipo.", destination: "laboratorio", via: "medica" },
+    { crewId: "cm-02", message: "Lleva el equipo.", destination: "laboratorio", via: "medica" },
   ],
 };
 const resolved: Decision = { status: "resolved", affectedCrewId: null, signals: [], instructions: [] };
@@ -26,7 +26,7 @@ function scenario({ pulse = 0, secondArrives = true }: { pulse?: number; secondA
     crew: [
       { id: "cm-04", name: "Lucía", role: "Tripulante", telemetry: { ...nominal, heartRateBpm: pulse }, position: lab, updatedAt: null },
       { id: "cm-03", name: "Yuki", role: "Tripulante", telemetry: nominal, position: lab, updatedAt: null },
-      { id: "cm-05", name: "Nora", role: "Tripulante", telemetry: nominal, position: secondArrives ? lab : medical, updatedAt: null },
+      { id: "cm-02", name: "Mateo", role: "Tripulante", telemetry: nominal, position: secondArrives ? lab : medical, updatedAt: null },
     ],
   };
 }
@@ -38,6 +38,32 @@ test("arrival of both responders keeps a zero or below-range reading active", ()
     assert.equal(validIncidentTransition(state, critical), true);
     assert.equal(validIncidentTransition(state, resolved), false);
   }
+});
+
+test("a crew member stays immovable until critical readings and the critical decision have cleared", () => {
+  const state = scenario();
+  assert.equal(isCrewInDanger(state, state.crew[0]), true);
+  state.crew[0].telemetry.heartRateBpm = 72;
+  assert.equal(isCrewInDanger(state, state.crew[0]), true);
+  state.decision = resolved;
+  assert.equal(isCrewInDanger(state, state.crew[0]), false);
+});
+
+test("critical readings unlock only after both assigned helpers have arrived", () => {
+  const state = scenario({ secondArrives: false });
+  assert.equal(canEditTelemetry(state, state.crew[0]), false);
+  assert.equal(canEditTelemetry(state, state.crew[1]), true);
+  state.crew[2].position = lab;
+  assert.equal(canEditTelemetry(state, state.crew[0]), true);
+
+  state.decision = { ...critical, instructions: [critical.instructions[0]] };
+  assert.equal(canEditTelemetry(state, state.crew[0]), false);
+  state.decision = critical;
+  state.crew[0].telemetry.heartRateBpm = 72;
+  assert.equal(canEditTelemetry(state, state.crew[0]), true);
+  state.decision = null;
+  state.crew[0].telemetry.heartRateBpm = 0;
+  assert.equal(canEditTelemetry(state, state.crew[0]), false);
 });
 
 test("an early correction keeps the incident and both assignments while one responder is in transit", () => {
@@ -138,5 +164,6 @@ test("an equipment carrier in the destination still needs to visit the pickup mo
   const [direct, carrier] = critical.instructions;
   state.decision = { ...critical, instructions: [direct, { ...carrier, equipmentCollected: false }] };
   assert.equal(incidentProgress(state)?.arrivals[1].pickup, "medica");
+  assert.equal(canEditTelemetry(state, state.crew[0]), false);
   assert.equal(incidentProgress(state)?.canResolve, false);
 });

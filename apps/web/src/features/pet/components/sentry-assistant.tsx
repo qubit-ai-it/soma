@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/shared/ui/button";
 import { Icon } from "@/shared/ui/icon";
 
-import type { ChatMessage } from "../chat.client";
+import { IMAGE_ONLY_PROMPT, type ChatMessage, type ChatReply } from "../chat.types";
 import {
   createConversation,
   parseConversations,
@@ -40,7 +40,6 @@ const SLEEP_AFTER_MS = 45_000;
 const TASK_TICK_MS = 10_000;
 const WORKING_FLASH_MS = 4_000;
 const LANG = "es-ES";
-const IMAGE_ONLY_PROMPT = "Describe esta imagen.";
 
 const GREETING: ChatMessage = {
   role: "assistant",
@@ -224,9 +223,11 @@ export function SentryAssistant() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages: withUser.messages.slice(1) }),
+        body: JSON.stringify({
+          messages: withUser.messages.slice(1).map(({ role, content, images }) => ({ role, content, images })),
+        }),
       });
-      const body = (await response.json().catch(() => null)) as { reply?: string } | null;
+      const body = (await response.json().catch(() => null)) as ChatReply | null;
       if (!response.ok || !body?.reply) {
         throw new Error(
           response.status === 503
@@ -234,9 +235,8 @@ export function SentryAssistant() {
             : "No pude responder. Inténtalo de nuevo.",
         );
       }
-      persist(
-        withMessages(withUser, [...withUser.messages, { role: "assistant", content: body.reply }], Date.now()),
-      );
+      const answer: ChatMessage = { role: "assistant", content: body.reply, research: body.research };
+      persist(withMessages(withUser, [...withUser.messages, answer], Date.now()));
       setSuccessSignal((n) => n + 1);
       if (readAloud || conversationRef.current) {
         setSpeaking(true);

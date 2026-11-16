@@ -10,7 +10,8 @@ type OllamaChatRequest = {
   model: string;
   messages: OllamaMessage[];
   format?: object;
-  options?: { temperature: number };
+  think?: boolean;
+  options?: { temperature: number; num_predict?: number };
 };
 
 type OllamaChatConnection = {
@@ -18,6 +19,7 @@ type OllamaChatConnection = {
   timeoutMs: number;
   headers?: Record<string, string>;
   fetch?: typeof fetch;
+  signal?: AbortSignal;
 };
 
 export async function requestOllamaChat(
@@ -26,12 +28,13 @@ export async function requestOllamaChat(
 ): Promise<Result<string>> {
   const doFetch = connection.fetch ?? fetch;
   try {
+    const timeout = AbortSignal.timeout(connection.timeoutMs);
     const response = await doFetch(connection.url, {
       method: "POST",
       headers: { "content-type": "application/json", ...connection.headers },
       body: JSON.stringify({ ...request, stream: false }),
       cache: "no-store",
-      signal: AbortSignal.timeout(connection.timeoutMs),
+      signal: connection.signal ? AbortSignal.any([timeout, connection.signal]) : timeout,
     });
     if (!response.ok) return err(`Ollama answered HTTP ${response.status}`);
     const body: unknown = await response.json();

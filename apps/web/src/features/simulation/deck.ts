@@ -1,6 +1,21 @@
 import { corridorIds, roomCenter, roomIds, rooms, type CorridorId, type LocationId, type Point, type RoomId } from "./simulation.ts";
 
 export type DeckFloor = { left: number; top: number; width: number; height: number };
+
+export function randomCrewPositions(count: number): Point[] {
+  const choices = [...roomIds];
+  for (let index = choices.length - 1; index > 0; index--) {
+    const swap = Math.floor(Math.random() * (index + 1));
+    [choices[index], choices[swap]] = [choices[swap], choices[index]];
+  }
+  return choices.slice(0, count).map((room) => {
+    const center = roomCenter(room);
+    return {
+      x: Math.round((center.x + (Math.random() - 0.5) * 10) * 10) / 10,
+      y: Math.round((center.y + (Math.random() - 0.5) * 12) * 10) / 10,
+    };
+  });
+}
 const roomCorners: Record<RoomId, readonly [number, number]> = {
   mando: [13, 19], pasillo: [10, 13], laboratorio: [13, 19],
   habitat: [13, 17], medica: [9, 12], ingenieria: [12, 17],

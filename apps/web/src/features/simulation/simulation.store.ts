@@ -2,22 +2,18 @@ import "server-only";
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { createJsonStore } from "../../server/json-store.ts";
 import { crewFileSchema } from "../crew/crew.schema.ts";
 import { evaluateSimulation } from "./orchestrator.ts";
-import { activeIncident, needsIncidentReview } from "./incident.ts";
+import { activeIncident, canEditTelemetry, isCrewInDanger, needsIncidentReview } from "./incident.ts";
 import { constrainToDeck, locationAt } from "./deck.ts";
+import { restartSituation } from "./simulation.reset.ts";
+import { createSessionStore } from "./simulation.sessions.ts";
 import { crewIds, telemetrySchema, type SimulationState, type SimulationUpdate } from "./simulation.ts";
 
 const dataDir = path.join(process.cwd(), "data");
 const seedDir = path.join(dataDir, "seed");
-const store = createJsonStore({
-  seedDir,
-  runtimeDir: path.join(dataDir, "runtime"),
-});
-const key = "simulation";
 const startPositions = [
-  { x: 17, y: 29 }, { x: 17, y: 75 }, { x: 52, y: 31 }, { x: 84, y: 28 }, { x: 52, y: 74 },
+  { x: 17, y: 29 }, { x: 17, y: 75 }, { x: 52, y: 31 }, { x: 84, y: 28 },
 ];
 
 async function initialState(): Promise<SimulationState> {
@@ -28,7 +24,7 @@ async function initialState(): Promise<SimulationState> {
       const member = crew.find((candidate) => candidate.id === id);
       return {
         id,
-        name: member?.name ?? "Nora Vega",
+        name: member?.name ?? `Tripulante ${index + 1}`,
         role: member?.role ?? "Oficial de sistemas",
         position: startPositions[index],
         updatedAt: null,
@@ -43,40 +39,26 @@ async function initialState(): Promise<SimulationState> {
   };
 }
 
-function fitSavedDeck(state: SimulationState): SimulationState {
-  const crew = state.crew.map((member) => {
-    const position = constrainToDeck(member.position);
-    return position === member.position ? member : { ...member, position };
-  });
-  const affected = crew.find(({ id }) => id === state.decision?.affectedCrewId);
-  const destination = affected && locationAt(affected.position);
-  const reroute = state.phase === "done" && state.decision?.status === "critical" && destination
-    && state.decision.instructions.some((instruction) => instruction.destination && instruction.destination !== destination);
-  if (!reroute && crew.every((member, index) => member === state.crew[index])) return state;
-  return { ...state, crew, phase: reroute ? "pending" : state.phase, version: state.version + 1, revision: state.revision + 1 };
+const store = createSessionStore(initialState);
+
+export async function getSimulation(sessionId: string): Promise<SimulationState> {
+  return store.read(sessionId);
 }
 
-export async function getSimulation(): Promise<SimulationState> {
-  const saved = await store.read(key) as SimulationState | null;
-  if (saved && fitSavedDeck(saved) === saved) return saved;
-  return await store.update(key, async (current) => fitSavedDeck((current as SimulationState | null) ?? await initialState())) as SimulationState;
-}
-
-export async function updateSimulation(update: SimulationUpdate): Promise<SimulationState> {
-  await getSimulation();
-  return await store.update(key, (stored) => {
-    const state = stored as SimulationState;
+export async function updateSimulation(sessionId: string, update: SimulationUpdate): Promise<SimulationState> {
+  return await store.update(sessionId, async (state) => {
     const version = state.version + 1;
+    if (update.kind === "reset") {
+      return restartSituation(state, await initialState());
+    }
     if (update.kind === "retry") {
       return state.phase === "idle" || state.phase === "error" || needsIncidentReview(state)
         ? { ...state, version, phase: "pending", error: undefined }
         : state;
     }
-    if (update.kind === "clear-messages") {
-      return state.messages.length > 0 ? { ...state, version, messages: [] } : state;
-    }
-
     const member = state.crew.find(({ id }) => id === update.crewId)!;
+    if (update.kind === "move" && isCrewInDanger(state, member)) return state;
+    if (update.kind === "telemetry" && !canEditTelemetry(state, member)) return state;
     const at = new Date().toISOString();
     const position = update.kind === "move" ? constrainToDeck(update.position) : member.position;
     const before = update.kind === "move" ? member.position : member.telemetry;
@@ -100,16 +82,15 @@ export async function updateSimulation(update: SimulationUpdate): Promise<Simula
       crew: state.crew.map((current) => current.id === member.id ? nextMember : current),
       changes: [...state.changes, { crewId: member.id, at, kind: update.kind, before, after }].slice(-16),
     } satisfies SimulationState;
-  }) as SimulationState;
+  });
 }
 
-async function evaluatePending() {
+async function evaluatePending(sessionId: string) {
   while (true) {
-    const state = await getSimulation();
+    const state = await getSimulation(sessionId);
     if (state.phase !== "pending") return;
     const result = await evaluateSimulation(state);
-    await store.update(key, (stored) => {
-      const current = stored as SimulationState;
+    await store.update(sessionId, (current) => {
       if (current.revision !== state.revision || current.phase !== "pending") return current;
       const version = current.version + 1;
       if (!result.ok) return { ...current, version, phase: "error", error: result.error };
@@ -142,10 +123,6 @@ async function evaluatePending() {
   }
 }
 
-const worker = globalThis as typeof globalThis & { __somaSimulationWorker?: Promise<void> };
-
-export function runPendingSimulation(): Promise<void> {
-  return (worker.__somaSimulationWorker ??= evaluatePending().finally(() => {
-    delete worker.__somaSimulationWorker;
-  }));
+export function runPendingSimulation(sessionId: string): Promise<void> {
+  return store.runWorker(sessionId, () => evaluatePending(sessionId));
 }

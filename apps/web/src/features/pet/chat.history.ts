@@ -1,4 +1,4 @@
-import type { ChatMessage } from "./chat.client.ts";
+import type { ChatMessage } from "./chat.types.ts";
 
 export type Conversation = {
   id: string;
