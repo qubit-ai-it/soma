@@ -2,9 +2,12 @@ import "server-only";
 
 import { getEcosystem } from "../features/earth/ecosystem.server.ts";
 import { createFollowUpFlow, DEFAULT_TIMING, type FollowUpFlow } from "../features/followup/followup.flow.ts";
-import { createPostgresFollowUpsRepository } from "../features/followup/followup.repository.postgres.ts";
-import { getPool } from "./db";
-import { getNotificationsRepository, getObservationsRepository, getPlansRepository } from "./repositories";
+import {
+  getFollowUpsRepository,
+  getNotificationsRepository,
+  getObservationsRepository,
+  getPlansRepository,
+} from "./repositories";
 
 const cache = globalThis as unknown as { somaFollowUp?: FollowUpFlow };
 
@@ -17,7 +20,7 @@ function timing() {
 
 export function getFollowUpFlow(): FollowUpFlow {
   cache.somaFollowUp ??= createFollowUpFlow({
-    followups: createPostgresFollowUpsRepository(getPool()),
+    followups: getFollowUpsRepository(),
     plans: getPlansRepository(),
     observations: getObservationsRepository(),
     notifications: getNotificationsRepository(),

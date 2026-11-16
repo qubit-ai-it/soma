@@ -4,6 +4,8 @@ import { Suspense } from "react";
 
 import { getMissionMember } from "@/features/crew/crew.queries";
 import { FollowUpView } from "@/features/followup/components/followup-view";
+import { StoredFollowUpView } from "@/features/followup/components/stored-followup-view";
+import { getStoredFollowUp } from "@/features/followup/followup.stored";
 import {
   FOLLOWUP_SCENARIOS,
   getFollowUp,
@@ -33,15 +35,20 @@ async function Content({
   const scenarioId: FollowUpScenarioId =
     escenario === "followup-worsening" ? "followup-worsening" : "followup-recovery";
 
+  const stored = await getStoredFollowUp(member.id);
   const followUp = await getFollowUp(member.id, scenarioId);
   if (!followUp) {
-    return (
+    return stored ? (
+      <StoredFollowUpView record={stored.record} nowMs={stored.nowMs} />
+    ) : (
       <p className="text-sm text-ink">Sin escenario de seguimiento para este tripulante.</p>
     );
   }
 
   return (
     <div className="space-y-6">
+      {stored && <StoredFollowUpView record={stored.record} nowMs={stored.nowMs} />}
+      {stored && <h2 className="font-heading text-lg font-bold">Escenarios de ejemplo</h2>}
       <nav aria-label="Escenario" className="flex flex-wrap items-center gap-2">
         <span className="text-sm text-ink">Escenario:</span>
         {FOLLOWUP_SCENARIOS.map((s) => (
