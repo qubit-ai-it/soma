@@ -11,7 +11,7 @@ import { selectionInputFromFlags } from "@/features/plan/plan.selection";
 import { getStoredPlan } from "@/features/plan/plan.stored";
 import { generatedBy } from "@/features/sentry/sentry.display";
 
-export default function PlanPage({ params }: PageProps<"/reporte/[id]/plan">) {
+export default function PlanPage({ params }: PageProps<"/report/[id]/plan">) {
   return (
     <Suspense fallback={<p className="text-ink">Cargando plan…</p>}>
       <Content params={params} />
@@ -19,7 +19,7 @@ export default function PlanPage({ params }: PageProps<"/reporte/[id]/plan">) {
   );
 }
 
-async function Content({ params }: Pick<PageProps<"/reporte/[id]/plan">, "params">) {
+async function Content({ params }: Pick<PageProps<"/report/[id]/plan">, "params">) {
   const member = await getMissionMember((await params).id);
   if (!member) notFound();
 

@@ -9,7 +9,7 @@ import { getEvaluationBoard } from "@/features/evaluation/evaluation.queries";
 import { SentryEvaluationCard } from "@/features/sentry/components/sentry-evaluation-card";
 import { getStoredEvaluation } from "@/features/sentry/sentry.queries";
 
-export default function EvaluationPage({ params }: PageProps<"/reporte/[id]/evaluacion">) {
+export default function EvaluationPage({ params }: PageProps<"/report/[id]/evaluation">) {
   return (
     <Suspense fallback={<p className="text-ink">Evaluando…</p>}>
       <Content params={params} />
@@ -17,7 +17,7 @@ export default function EvaluationPage({ params }: PageProps<"/reporte/[id]/eval
   );
 }
 
-async function Content({ params }: Pick<PageProps<"/reporte/[id]/evaluacion">, "params">) {
+async function Content({ params }: Pick<PageProps<"/report/[id]/evaluation">, "params">) {
   const { id } = await params;
   const member = await getMissionMember(id);
   if (!member) notFound();
@@ -38,7 +38,7 @@ async function Content({ params }: Pick<PageProps<"/reporte/[id]/evaluacion">, "
         <SubjectMismatch
           memberName={member.name}
           scenarioSubjectName={subject?.name ?? null}
-          scenarioHref={subject ? `/reporte/${subject.id}/evaluacion` : null}
+          scenarioHref={subject ? `/report/${subject.id}/evaluation` : null}
         />
       </div>
     );

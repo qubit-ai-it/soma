@@ -16,8 +16,8 @@ const planSchema = z.object({
 });
 
 function refresh() {
-  revalidatePath("/reporte/[id]/plan", "page");
-  revalidatePath("/tierra");
+  revalidatePath("/report/[id]/plan", "page");
+  revalidatePath("/earth");
 }
 
 export async function submitPlanAction(raw: unknown): Promise<Result<void>> {

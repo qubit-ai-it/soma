@@ -35,7 +35,7 @@ const planReviewSchema = callerSchema.extend({
 });
 
 function refresh() {
-  revalidatePath("/tierra");
+  revalidatePath("/earth");
 }
 
 export async function setLinkAction(raw: unknown): Promise<Result<void>> {
@@ -94,7 +94,7 @@ export async function reviewPlanAction(raw: unknown): Promise<Result<void>> {
   if (!sent.ok) return err(sent.error);
   await getEcosystem().earth.flush();
   refresh();
-  revalidatePath("/reporte/[id]/plan", "page");
+  revalidatePath("/report/[id]/plan", "page");
   return ok(undefined);
 }
 
@@ -114,6 +114,6 @@ export async function reviewFollowUpAction(raw: unknown): Promise<Result<void>> 
   if (!sent.ok) return err(sent.error);
   await getEcosystem().earth.flush();
   refresh();
-  revalidatePath("/reporte/[id]/seguimiento", "page");
+  revalidatePath("/report/[id]/follow-up", "page");
   return ok(undefined);
 }

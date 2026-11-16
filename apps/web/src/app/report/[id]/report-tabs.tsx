@@ -5,10 +5,10 @@ import { useSelectedLayoutSegment } from "next/navigation";
 
 const TABS = [
   { segment: null, label: "Resumen", path: "" },
-  { segment: "estado", label: "Estado", path: "/estado" },
-  { segment: "evaluacion", label: "Evaluación", path: "/evaluacion" },
+  { segment: "status", label: "Estado", path: "/status" },
+  { segment: "evaluation", label: "Evaluación", path: "/evaluation" },
   { segment: "plan", label: "Plan", path: "/plan" },
-  { segment: "seguimiento", label: "Seguimiento", path: "/seguimiento" },
+  { segment: "follow-up", label: "Seguimiento", path: "/follow-up" },
 ] as const;
 
 export function ReportTabs({ memberId }: { memberId: string }) {
@@ -24,7 +24,7 @@ export function ReportTabs({ memberId }: { memberId: string }) {
           return (
             <li key={tab.label}>
               <Link
-                href={`/reporte/${memberId}${tab.path}`}
+                href={`/report/${memberId}${tab.path}`}
                 aria-current={isActive ? "page" : undefined}
                 className={`inline-block rounded-full px-4 py-2 font-heading text-sm font-semibold transition-colors duration-[var(--duration-micro)] ease-[var(--ease-editorial)] ${
                   isActive

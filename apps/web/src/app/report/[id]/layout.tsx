@@ -8,10 +8,10 @@ import { AttentionBadge } from "@/features/crew/components/attention-badge";
 import { getMissionMember } from "@/features/crew/crew.queries";
 import { ReportTabs } from "./report-tabs";
 
-export default function ReportLayout({ children, params }: LayoutProps<"/reporte/[id]">) {
+export default function ReportLayout({ children, params }: LayoutProps<"/report/[id]">) {
   return (
     <main className="container-soma flex-1 py-16">
-      <Link href="/mision" className="inline-flex items-center gap-2 text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground">
+      <Link href="/mission" className="inline-flex items-center gap-2 text-sm text-ink transition-colors duration-[var(--duration-micro)] hover:text-foreground">
         <Icon name="arrow_back" />
         Volver al resumen de misión
       </Link>
@@ -23,7 +23,7 @@ export default function ReportLayout({ children, params }: LayoutProps<"/reporte
   );
 }
 
-async function ReportHeader({ params }: Pick<LayoutProps<"/reporte/[id]">, "params">) {
+async function ReportHeader({ params }: Pick<LayoutProps<"/report/[id]">, "params">) {
   const { id } = await params;
   const member = await getMissionMember(id);
   if (!member) notFound();

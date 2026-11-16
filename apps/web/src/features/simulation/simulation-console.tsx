@@ -17,7 +17,7 @@ import {
 } from "./simulation";
 import styles from "./simulation.module.css";
 
-const endpoint = "/api/simulacion";
+const endpoint = "/api/simulation";
 const statusLabel = {
   nominal: "Todo está bien", watch: "Un tripulante necesita atención",
   critical: "Peligro: un tripulante necesita ayuda", resolved: "El tripulante ya está fuera de peligro",
@@ -273,7 +273,7 @@ export function SimulationConsole() {
   return (
     <main className={`container-soma ${styles.console}`}>
       <header className={styles.top}>
-        <Link href="/mision" className={styles.home}><Icon name="arrow_back" /> Panel de misión</Link>
+        <Link href="/mission" className={styles.home}><Icon name="arrow_back" /> Panel de misión</Link>
         <h1 className="text-display">Simulación de tripulación</h1>
         <SimulationGuide />
       </header>

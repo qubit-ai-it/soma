@@ -1,6 +1,6 @@
 "use client";
 
-import { submitPlanAction, approvePlanOnBoardAction } from "@/app/reporte/[id]/plan/actions";
+import { submitPlanAction, approvePlanOnBoardAction } from "@/app/report/[id]/plan/actions";
 import { useCallerAction } from "@/features/roles/use-caller-action";
 import { SomaCard, type CardAction } from "@/shared/ui/soma-card";
 

@@ -10,9 +10,9 @@ export type NavItem = {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { id: "home", label: "Inicio", href: "/", icon: "home" },
-  { id: "report", label: "Reporte", href: "/reporte/cm-01", icon: "monitor_heart" },
-  { id: "devices", label: "Dispositivos", href: "/dispositivos", icon: "devices" },
-  { id: "earth", label: "Tierra", href: "/tierra", icon: "public" },
+  { id: "report", label: "Reporte", href: "/report/cm-01", icon: "monitor_heart" },
+  { id: "devices", label: "Dispositivos", href: "/devices", icon: "devices" },
+  { id: "earth", label: "Tierra", href: "/earth", icon: "public" },
   { id: "alerts", label: "Alertas", icon: "notifications" },
   { id: "sentry", label: "Sentry", href: "/pet", icon: "smart_toy" },
 ];
@@ -30,15 +30,15 @@ export function navItemsFor(role: Role, astronautMemberId: string): NavItem[] {
     .flatMap((id) => NAV_ITEMS.filter((item) => item.id === id))
     .map((item) =>
       item.id === "report" && role === "astronaut"
-        ? { ...item, href: `/reporte/${astronautMemberId}` }
+        ? { ...item, href: `/report/${astronautMemberId}` }
         : item,
     );
 }
 
 const PREFIXES: readonly (readonly [string, string])[] = [
-  ["/reporte", "report"],
-  ["/dispositivos", "devices"],
-  ["/tierra", "earth"],
+  ["/report", "report"],
+  ["/devices", "devices"],
+  ["/earth", "earth"],
   ["/pet", "sentry"],
 ];
 

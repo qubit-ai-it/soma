@@ -15,7 +15,7 @@ import {
 export default function FollowUpPage({
   params,
   searchParams,
-}: PageProps<"/reporte/[id]/seguimiento">) {
+}: PageProps<"/report/[id]/follow-up">) {
   return (
     <Suspense fallback={<p className="text-ink">Cargando seguimiento…</p>}>
       <Content params={params} searchParams={searchParams} />
@@ -26,7 +26,7 @@ export default function FollowUpPage({
 async function Content({
   params,
   searchParams,
-}: Pick<PageProps<"/reporte/[id]/seguimiento">, "params" | "searchParams">) {
+}: Pick<PageProps<"/report/[id]/follow-up">, "params" | "searchParams">) {
   const { id } = await params;
   const member = await getMissionMember(id);
   if (!member) notFound();
@@ -54,7 +54,7 @@ async function Content({
         {FOLLOWUP_SCENARIOS.map((s) => (
           <Link
             key={s.id}
-            href={`/reporte/${member.id}/seguimiento?escenario=${s.id}`}
+            href={`/report/${member.id}/follow-up?escenario=${s.id}`}
             aria-current={s.id === scenarioId ? "page" : undefined}
             className={
               s.id === scenarioId

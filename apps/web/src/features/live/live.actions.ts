@@ -25,6 +25,6 @@ export async function escalateLiveAlert(raw: unknown): Promise<{ ok: boolean; me
   });
   if (!result.ok) return { ok: false, message: "No se pudo generar la alerta." };
 
-  revalidatePath("/tierra");
+  revalidatePath("/earth");
   return { ok: true, message: "Alerta enviada a Tierra." };
 }

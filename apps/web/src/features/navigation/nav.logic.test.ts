@@ -48,8 +48,8 @@ describe("navItemsFor", () => {
   it("opens the astronaut's own report and the first report for the medical officer", () => {
     const report = (role: (typeof ROLES)[number]) =>
       navItemsFor(role, "cm-02").find((i) => i.id === "report")?.href;
-    assert.equal(report("astronaut"), "/reporte/cm-02");
-    assert.equal(report("cmo"), "/reporte/cm-01");
+    assert.equal(report("astronaut"), "/report/cm-02");
+    assert.equal(report("cmo"), "/report/cm-01");
     assert.equal(report("commander"), undefined);
     assert.equal(report("earth"), undefined);
   });
@@ -79,24 +79,24 @@ describe("navigation items", () => {
 describe("activeItemId", () => {
   it("marks the home only on the exact root path", () => {
     assert.equal(activeItemId("/"), "home");
-    assert.notEqual(activeItemId("/dispositivos/experiencias"), "home");
+    assert.notEqual(activeItemId("/devices/experiences"), "home");
   });
 
   it("marks the report for any member and tab", () => {
     for (const path of [
-      "/reporte/cm-01",
-      "/reporte/cm-02/evaluacion",
-      "/reporte/cm-01/plan",
-      "/reporte/cm-01/seguimiento",
+      "/report/cm-01",
+      "/report/cm-02/evaluation",
+      "/report/cm-01/plan",
+      "/report/cm-01/follow-up",
     ]) {
       assert.equal(activeItemId(path), "report");
     }
   });
 
   it("marks the matching section", () => {
-    assert.equal(activeItemId("/dispositivos"), "devices");
-    assert.equal(activeItemId("/dispositivos/experiencias"), "devices");
-    assert.equal(activeItemId("/tierra"), "earth");
+    assert.equal(activeItemId("/devices"), "devices");
+    assert.equal(activeItemId("/devices/experiences"), "devices");
+    assert.equal(activeItemId("/earth"), "earth");
     assert.equal(activeItemId("/pet"), "sentry");
   });
 

@@ -29,7 +29,7 @@ export function useNotifications(viewer: Viewer, onAlert: () => void) {
     async function connect() {
       let after = 0;
       try {
-        const response = await fetch(`/api/notificaciones?${query(scope)}`, { cache: "no-store" });
+        const response = await fetch(`/api/notifications?${query(scope)}`, { cache: "no-store" });
         if (response.ok) {
           const body = (await response.json()) as { notifications?: unknown[] };
           const parsed = (body.notifications ?? []).flatMap((item) => {
@@ -45,7 +45,7 @@ export function useNotifications(viewer: Viewer, onAlert: () => void) {
       }
       if (closed) return;
 
-      source = new EventSource(`/api/notificaciones/stream?${query(scope)}&after=${after}`);
+      source = new EventSource(`/api/notifications/stream?${query(scope)}&after=${after}`);
       source.addEventListener("notification", (event) => {
         try {
           const parsed = notificationSchema.safeParse(JSON.parse((event as MessageEvent<string>).data));
@@ -72,7 +72,7 @@ export function useNotifications(viewer: Viewer, onAlert: () => void) {
       setNotifications((current) => current.map((n) => (ids.includes(n.id) ? { ...n, read: true } : n)));
       await Promise.all(
         ids.map((id) =>
-          fetch("/api/notificaciones", {
+          fetch("/api/notifications", {
             method: "PATCH",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ id, viewer: { role, memberId } }),

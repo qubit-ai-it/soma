@@ -17,7 +17,7 @@ type Props = {
   f3Open: number;
 };
 
-const hrefFor = (id: string) => `/reporte/${id}`;
+const hrefFor = (id: string) => `/report/${id}`;
 
 export function RoleHome({ crew, riskSlots, levels, f3Open }: Props) {
   const role = useDemoRole();
@@ -64,7 +64,7 @@ export function RoleHome({ crew, riskSlots, levels, f3Open }: Props) {
         line="Revisa las propuestas pendientes."
         chip="Tierra"
         tone="info"
-        actions={[{ label: "Abrir consola", icon: "public", href: "/tierra" }]}
+        actions={[{ label: "Abrir consola", icon: "public", href: "/earth" }]}
       />
       <SomaCard
         title={f3Open === 0 ? "Sin alertas F3" : `${f3Open} alertas F3`}

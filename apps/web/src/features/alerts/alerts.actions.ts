@@ -8,7 +8,7 @@ import { getEcosystem } from "@/features/earth/ecosystem.server";
 import { err, ok, type Result } from "@/shared/result";
 
 function refresh() {
-  revalidatePath("/tierra");
+  revalidatePath("/earth");
 }
 
 export async function acknowledgeAlertAction(raw: unknown): Promise<Result<void>> {

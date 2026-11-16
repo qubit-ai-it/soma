@@ -36,7 +36,7 @@ export function createIngestSender(deps: { subjectId: string; device: string; po
 }
 
 export async function postReadings(body: Parameters<Post>[0]): Promise<boolean> {
-  const response = await fetch("/api/ingesta", {
+  const response = await fetch("/api/ingest", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
