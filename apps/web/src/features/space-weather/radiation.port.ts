@@ -3,12 +3,13 @@ import type { SourceInfo } from "../../shared/source.ts";
 
 export type RadiationSample = {
   timestamp: string;
-  // unit assumed to be µGy/h; RadLab does not state it
+  // µGy/h, as defined by the RadLab knowledge base for absorbed dose rate
   doseRate: number;
 };
 
 export type RadiationWindow = {
   samples: RadiationSample[];
+  instrument: string | null;
   source: SourceInfo;
 };
 

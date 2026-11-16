@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { attentionFor, deriveFlags, toCrewCard } from "./crew.logic.ts";
+import { attentionFor, beatDuration, deriveFlags, toCrewCard } from "./crew.logic.ts";
 import type { CrewMember } from "./crew.types.ts";
 
 const nominal: CrewMember = {
@@ -50,5 +50,17 @@ describe("crew logic", () => {
       ]),
       "review",
     );
+  });
+});
+
+describe("beatDuration", () => {
+  it("is one beat per 60 / bpm seconds", () => {
+    assert.equal(beatDuration(60), "1.00s");
+    assert.equal(beatDuration(120), "0.50s");
+  });
+
+  it("keeps an absurd reading from freezing or flickering the animation", () => {
+    assert.equal(beatDuration(0), "2.00s");
+    assert.equal(beatDuration(1000), "0.30s");
   });
 });

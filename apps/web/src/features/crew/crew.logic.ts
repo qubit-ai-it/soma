@@ -12,6 +12,13 @@ export const THRESHOLDS = {
   maxDoseMsv: 100,
 } as const;
 
+export const RESTING_HEART_RATE = { low: 60, high: THRESHOLDS.maxHeartRateBpm } as const;
+
+// One beat every 60 / bpm seconds, so an animation follows the reading
+export function beatDuration(bpm: number): string {
+  return `${(60 / Math.min(Math.max(bpm, 30), 200)).toFixed(2)}s`;
+}
+
 export function deriveFlags(member: CrewMember): CrewFlag[] {
   const flags: CrewFlag[] = [];
   if (member.vitals.spo2Pct < THRESHOLDS.minSpo2Pct) {

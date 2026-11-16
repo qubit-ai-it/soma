@@ -31,7 +31,7 @@ export function createFixtureSpaceWeather(): SpaceWeatherSource {
   return {
     async getSnapshot() {
       const data = await readFixture("space-weather", spaceWeatherSchema);
-      return ok({ ...data, source: mockSource("fixture") });
+      return ok({ ...data, xrayClass: null, source: mockSource("fixture") });
     },
   };
 }
@@ -40,7 +40,7 @@ export function createFixtureRadiation(): RadiationSource {
   return {
     async getWindow() {
       const data = await readFixture("radiation", radiationSchema);
-      return ok({ ...data, source: mockSource("fixture") });
+      return ok({ ...data, instrument: null, source: mockSource("fixture") });
     },
   };
 }

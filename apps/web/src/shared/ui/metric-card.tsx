@@ -25,6 +25,8 @@ type Props = {
   title: string;
   value: string;
   line?: string;
+  // Where the figure comes from, shown under it
+  source?: string;
   icon: string;
   tone?: CardTone;
   actions?: CardAction[];
@@ -33,7 +35,17 @@ type Props = {
 };
 
 // Title, one figure, an outline icon. Buttons only when the card needs one.
-export function MetricCard({ title, value, line, icon, tone = "neutral", actions, children, className }: Props) {
+export function MetricCard({
+  title,
+  value,
+  line,
+  source,
+  icon,
+  tone = "neutral",
+  actions,
+  children,
+  className,
+}: Props) {
   return (
     <article
       aria-label={title}
@@ -44,38 +56,59 @@ export function MetricCard({ title, value, line, icon, tone = "neutral", actions
     >
       <div>
         <h3 className="text-base text-muted-foreground">{title}</h3>
-        <p className={cn("mt-1 font-heading text-4xl font-bold leading-tight", VALUE_TONE[tone])}>{value}</p>
+        <p
+          className={cn(
+            "mt-1 font-heading text-4xl font-bold leading-tight",
+            VALUE_TONE[tone],
+          )}
+        >
+          {value}
+        </p>
         {line && <p className="mt-1 text-sm text-ink">{line}</p>}
       </div>
 
       {children}
 
-      <div className="mt-auto flex items-end justify-between gap-3">
-        <div className="flex flex-1 flex-wrap gap-2">
-          {actions?.map((action) => {
-            const className = cn(ACTION, VARIANT[action.variant ?? "primary"]);
-            const content = (
-              <>
-                {action.icon && <Icon name={action.icon} />}
-                {action.label}
-              </>
-            );
-            return action.href ? (
-              <Link key={action.label} href={action.href} className={className}>
-                {content}
-              </Link>
-            ) : (
-              <button
-                key={action.label}
-                type="button"
-                disabled={action.disabled}
-                onClick={action.onClick}
-                className={className}
-              >
-                {content}
-              </button>
-            );
-          })}
+      <div className="mt-auto flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          {source && (
+            <p className="text-xs font-semibold text-muted-foreground">
+              {source}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            {actions?.map((action) => {
+              const className = cn(
+                ACTION,
+                VARIANT[action.variant ?? "primary"],
+              );
+              const content = (
+                <>
+                  {action.icon && <Icon name={action.icon} />}
+                  {action.label}
+                </>
+              );
+              return action.href ? (
+                <Link
+                  key={action.label}
+                  href={action.href}
+                  className={className}
+                >
+                  {content}
+                </Link>
+              ) : (
+                <button
+                  key={action.label}
+                  type="button"
+                  disabled={action.disabled}
+                  onClick={action.onClick}
+                  className={className}
+                >
+                  {content}
+                </button>
+              );
+            })}
+          </div>
         </div>
         <span
           aria-hidden="true"
