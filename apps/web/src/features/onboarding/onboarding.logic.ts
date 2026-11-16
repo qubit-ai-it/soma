@@ -48,7 +48,7 @@ export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
     kind: "info",
     mode: "working",
     title: "Rules decide",
-    line: "I explain. The decision always belongs to a person.",
+    line: "I explain. A person always makes the final decision.",
   },
   {
     id: "alerts",
@@ -75,7 +75,7 @@ export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
     id: "role",
     kind: "role",
     mode: "listening",
-    title: "What's your role?",
+    title: "What is your role?",
     line: "It sets which information you see.",
   },
   {
