@@ -30,7 +30,7 @@ Supuestos (marcados): roles reales son astronaut/cmo/commander/earth (no "doctor
 | T4 | S2 | inline | hecho | SSE `/api/notificaciones/stream` (cursor seq + Last-Event-ID, ventana 55 s), lista y lectura en `/api/notificaciones`. Falta bandeja por EventSource (con SomaCard, paso 3) |
 | T5 | S7,S3 | inline | hecho | `/api/ingesta` + envío de 5 s desde live.store con reintento; emisor simulado de tripulación (`instrumentation.ts` cada 5 s, `/api/sentry/tick`, apagable con `SENTRY_SIMULATOR=off`) |
 | T6 | S3,S4,S5,S8 | inline | hecho | (paso 2) motor por umbral con antirrebote 10 min e histéresis 30 min, difusión F3 (`crew:all` + `role:earth`), evaluaciones guardadas al cambiar de nivel, la pestaña Evaluación muestra la última guardada |
-| T7 | S5 | inline | pendiente | (paso 3) charla de Sentry |
+| T7 | S5,S4 | inline | hecho | (paso 3) check-in diario (desde 06:00 UTC), cambio de turno (06:00/18:00 UTC, crew + personal), enlace con Tierra solo en cambios, clima espacial NOAA G/S solo de fuentes reales, reloj con throttle de 60 s; bandeja por SSE con SomaCard y avisos menores agrupados (modo resumen). Recordatorios de pasos del plan: paso 4 |
 | T8 | S4,S6 | inline | pendiente | (paso 4) plan automático y revisión de Tierra |
 | T9 | S4,S6 | inline | pendiente | (paso 5) seguimiento automático |
 

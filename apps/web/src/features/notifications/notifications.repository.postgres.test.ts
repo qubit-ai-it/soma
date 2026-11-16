@@ -34,6 +34,29 @@ describe("postgres notifications repository", { skip: !hasDatabase }, () => {
     assert.equal(second.notification.id, first.notification.id);
   });
 
+  it("returns the latest notification of a kind", async () => {
+    const first = await repo.add({
+      dedupeKey: `test:${tag}:link1`,
+      kind: "link",
+      priority: "high",
+      title: "Perdido",
+      audience: ["role:cmo"],
+      payload: { status: "disconnected" },
+    });
+    const second = await repo.add({
+      dedupeKey: `test:${tag}:link2`,
+      kind: "link",
+      priority: "normal",
+      title: "Restablecido",
+      audience: ["role:cmo"],
+      payload: { status: "connected" },
+    });
+    created.push(first.notification.id, second.notification.id);
+    const latest = await repo.latestOfKind("link");
+    assert.equal(latest?.id, second.notification.id);
+    assert.equal(latest?.payload.status, "connected");
+  });
+
   it("lists per recipient and tracks reads per recipient", async () => {
     const { notification } = await repo.add({
       dedupeKey: `test:${tag}:b`,

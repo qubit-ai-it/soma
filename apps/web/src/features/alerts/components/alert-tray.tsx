@@ -3,6 +3,14 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import {
+  KIND_LABEL,
+  sentryFeed,
+  timeLabel,
+  toneFor,
+  unreadIds,
+} from "@/features/notifications/notifications.display";
+import { useNotifications } from "@/features/notifications/use-notifications";
 import { DEMO_ACTORS } from "@/features/roles/roles.logic";
 import { useDemoRole } from "@/features/roles/roles.store";
 import { Icon } from "@/shared/ui/icon";
@@ -13,8 +21,6 @@ import { projectAlert } from "../alerts.logic";
 import { filterTray, trayItems, unreadCount, type TrayFilter } from "../alerts.tray";
 import type { Alert } from "../alerts.types";
 import { AlertDetailDialog } from "./alert-detail-dialog";
-
-const POLL_MS = 10000;
 
 const LEVEL_CHIP = { F3: "F3", F2: "F2", NOT_EVALUABLE: "No evaluable" } as const;
 
@@ -79,11 +85,7 @@ function useAlerts() {
 
   useEffect(() => {
     const first = setTimeout(() => void refresh(), 0);
-    const id = setInterval(() => void refresh(), POLL_MS);
-    return () => {
-      clearTimeout(first);
-      clearInterval(id);
-    };
+    return () => clearTimeout(first);
   }, [refresh]);
 
   return { alerts, refresh };
@@ -92,6 +94,11 @@ function useAlerts() {
 export function AlertTray({ className }: { className?: string }) {
   const role = useDemoRole();
   const { alerts, refresh } = useAlerts();
+  const { notifications, markRead } = useNotifications(
+    { role, memberId: DEMO_ACTORS[role].memberId },
+    refresh,
+  );
+  const feed = useMemo(() => sentryFeed(notifications), [notifications]);
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<TrayFilter>({ status: "all", level: "all" });
@@ -101,7 +108,7 @@ export function AlertTray({ className }: { className?: string }) {
     [alerts, role],
   );
   const visible = useMemo(() => filterTray(items, filter), [items, filter]);
-  const unread = unreadCount(items);
+  const unread = unreadCount(items) + unreadIds(notifications).length;
   const raw = selectedId ? alerts.find((alert) => alert.id === selectedId) : undefined;
   const selected = raw ? projectAlert(raw, { role, memberId: DEMO_ACTORS[role].memberId }) : null;
 
@@ -110,7 +117,10 @@ export function AlertTray({ className }: { className?: string }) {
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (next) void refresh();
+        if (next) {
+          void refresh();
+          void markRead(unreadIds(notifications));
+        }
       }}
     >
       <Dialog.Trigger
@@ -156,12 +166,49 @@ export function AlertTray({ className }: { className?: string }) {
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 pb-5">
-            {visible.length === 0 ? (
+            {visible.length === 0 && feed.primary.length + feed.digest.length === 0 ? (
               <p className="py-6 text-base text-muted-foreground">
                 {items.length === 0 ? "Sin notificaciones." : "Ninguna notificación coincide con el filtro."}
               </p>
             ) : (
               <ul className="flex flex-col gap-3">
+                {feed.primary.map((n) => (
+                  <li key={n.id}>
+                    <SomaCard
+                      title={n.title}
+                      line={n.body}
+                      chip={KIND_LABEL[n.kind]}
+                      tone={toneFor(n.priority)}
+                      footer={timeLabel(n.createdAt)}
+                      actions={
+                        n.kind === "checkin"
+                          ? [{ label: "Responder", icon: "chat", href: "/pet" }]
+                          : undefined
+                      }
+                    />
+                  </li>
+                ))}
+                {feed.digest.length > 0 && (
+                  <li>
+                    <SomaCard
+                      title={`Avisos menores (${feed.digest.length})`}
+                      chip="Resumen"
+                      tone="neutral"
+                      detailLabel="Ver avisos"
+                      detail={
+                        <ul className="space-y-2">
+                          {feed.digest.map((n) => (
+                            <li key={n.id}>
+                              <span className="font-semibold">{n.title}</span>
+                              {n.body ? ` · ${n.body}` : ""}
+                              <span className="block text-xs">{timeLabel(n.createdAt)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      }
+                    />
+                  </li>
+                )}
                 {visible.map((item) => (
                   <li key={item.id}>
                     <SomaCard

@@ -72,6 +72,7 @@ function setup() {
       },
       listFor: async () => [],
       markRead: async () => true,
+      latestOfKind: async () => null,
     },
     raiseAlert: async (input) => {
       raised.push(input);

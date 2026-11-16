@@ -85,6 +85,10 @@ export function createPostgresNotificationsRepository(pool: Pool): Notifications
         .filter((n) => isVisibleTo(n.audience, viewer))
         .filter((n) => !options.unreadOnly || !n.read);
     },
+    latestOfKind: async (kind) => {
+      const { rows } = await pool.query<Row>(`${SELECT} where n.kind = $2 order by n.seq desc limit 1`, ["", kind]);
+      return rows[0] ? toNotification(rows[0]) : null;
+    },
     markRead: async (id, viewer) => {
       const { rows } = await pool.query<Row>(`${SELECT} where n.id = $2`, [readerKey(viewer), id]);
       if (!rows[0] || !isVisibleTo(rows[0].audience, viewer)) return false;

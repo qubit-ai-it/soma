@@ -4,13 +4,18 @@ import { getEcosystem } from "../features/earth/ecosystem.server.ts";
 import { DEMO_ACTORS } from "../features/roles/roles.logic.ts";
 import { LIVE_SUBJECT } from "../features/live/live.logic.ts";
 import { createSentryService, type SentryService } from "../features/sentry/sentry.service.ts";
+import { SIM_SUBJECTS } from "../features/sentry/sentry.simulation.ts";
+import { createSentryTalk, type SentryTalk } from "../features/sentry/sentry.talk.service.ts";
 import {
   getEvaluationsRepository,
   getNotificationsRepository,
   getObservationsRepository,
 } from "./repositories";
+import { getServices } from "./services.ts";
 
-const cache = globalThis as unknown as { somaSentry?: SentryService };
+const cache = globalThis as unknown as { somaSentry?: SentryService; somaSentryTalk?: SentryTalk };
+
+const labelFor = (memberId: string) => `Tripulante ${memberId}`;
 
 export function getSentry(): SentryService {
   cache.somaSentry ??= createSentryService({
@@ -20,7 +25,28 @@ export function getSentry(): SentryService {
     raiseAlert: (input) => getEcosystem().alerts.raise(input),
     memberFor: (subjectId) =>
       subjectId === LIVE_SUBJECT ? (DEMO_ACTORS.astronaut.memberId ?? subjectId) : subjectId,
-    labelFor: (memberId) => `Tripulante ${memberId}`,
+    labelFor,
   });
   return cache.somaSentry;
+}
+
+export function getSentryTalk(): SentryTalk {
+  cache.somaSentryTalk ??= createSentryTalk({
+    notifications: getNotificationsRepository(),
+    members: SIM_SUBJECTS.map((id) => ({ id, label: labelFor(id) })),
+    alerts: () => getEcosystem().alertsRepo.list(),
+    latestStatus: async (memberId) => (await getEvaluationsRepository().latest(memberId))?.status ?? null,
+    earthLink: async () => {
+      const { link } = await getEcosystem().earth.getState();
+      return { status: link.status, updatedAt: link.updatedAt };
+    },
+    spaceWeather: () => getServices().spaceWeather.getSnapshot(),
+  });
+  return cache.somaSentryTalk;
+}
+
+export async function runSentryClock(nowMs: number) {
+  const crew = await getSentry().tick(nowMs);
+  const talk = await getSentryTalk().run(nowMs);
+  return { crew, talk };
 }
