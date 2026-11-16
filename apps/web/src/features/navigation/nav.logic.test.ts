@@ -9,9 +9,9 @@ describe("navItemsFor", () => {
   const idsFor = (role: (typeof ROLES)[number]) => navItemsFor(role, "cm-02").map((i) => i.id);
 
   it("shows only the sections each role can use", () => {
-    assert.deepEqual(idsFor("astronaut"), ["home", "report", "devices", "sentry", "alerts"]);
-    assert.deepEqual(idsFor("cmo"), ["home", "report", "alerts", "devices", "sentry"]);
-    assert.deepEqual(idsFor("commander"), ["home", "alerts", "sentry"]);
+    assert.deepEqual(idsFor("astronaut"), ["sentry", "home", "report", "devices", "alerts"]);
+    assert.deepEqual(idsFor("cmo"), ["sentry", "home", "report", "alerts", "devices"]);
+    assert.deepEqual(idsFor("commander"), ["sentry", "home", "alerts"]);
     assert.deepEqual(idsFor("earth"), ["home", "earth", "alerts"]);
   });
 
@@ -36,13 +36,23 @@ describe("navItemsFor", () => {
     }
   });
 
+  it("puts Sentry first for the crew and the home first for Earth", () => {
+    for (const role of ["astronaut", "cmo", "commander"] as const) {
+      assert.equal(navItemsFor(role, "cm-02")[0].id, "sentry", role);
+      assert.equal(navItemsFor(role, "cm-02")[1].id, "home", role);
+    }
+    assert.equal(navItemsFor("earth", "cm-02")[0].id, "home");
+  });
+
   it("puts the most relevant section right after the home", () => {
-    const second = (role: (typeof ROLES)[number]) => navItemsFor(role, "cm-02")[1].id;
-    assert.equal(second("astronaut"), "report");
-    assert.equal(second("cmo"), "report");
-    assert.equal(second("commander"), "alerts");
-    assert.equal(second("earth"), "earth");
-    for (const role of ROLES) assert.equal(navItemsFor(role, "cm-02")[0].id, "home");
+    const after = (role: (typeof ROLES)[number]) => {
+      const items = navItemsFor(role, "cm-02");
+      return items[items.findIndex((i) => i.id === "home") + 1].id;
+    };
+    assert.equal(after("astronaut"), "report");
+    assert.equal(after("cmo"), "report");
+    assert.equal(after("commander"), "alerts");
+    assert.equal(after("earth"), "earth");
   });
 
   it("opens the astronaut's own report and the crew overview for the medical officer", () => {

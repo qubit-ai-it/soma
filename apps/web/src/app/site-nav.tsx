@@ -9,6 +9,7 @@ import { activeItemId, navItemsFor } from "@/features/navigation/nav.logic";
 import { ROLE_LABELS } from "@/features/roles/roles.logic";
 import { useDemoRole, useMemberId } from "@/features/roles/roles.store";
 import { Icon } from "@/shared/ui/icon";
+import { SentryStill } from "@/shared/ui/sentry-still";
 
 const PILL =
   "inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-2 rounded-full px-0 font-heading text-sm font-semibold outline-none transition-colors duration-[var(--duration-micro)] focus-visible:ring-2 focus-visible:ring-ring sm:px-4";
@@ -43,8 +44,14 @@ export function SiteNav() {
               title={item.label}
               className={style}
             >
-              <Icon name={item.icon} />
-              <span className="hidden sm:inline">{item.label}</span>
+              {item.id === "sentry" ? (
+                <SentryStill label="" eager className="h-7 w-auto" />
+              ) : (
+                <>
+                  <Icon name={item.icon} />
+                  <span className="hidden sm:inline">{item.label}</span>
+                </>
+              )}
             </Link>
           );
         })}

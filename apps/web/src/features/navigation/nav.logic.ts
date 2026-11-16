@@ -19,9 +19,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
 
 // Sections each role can use, in display order
 const ITEMS_BY_ROLE: Record<Role, readonly string[]> = {
-  astronaut: ["home", "report", "devices", "sentry", "alerts"],
-  cmo: ["home", "report", "alerts", "devices", "sentry"],
-  commander: ["home", "alerts", "sentry"],
+  astronaut: ["sentry", "home", "report", "devices", "alerts"],
+  cmo: ["sentry", "home", "report", "alerts", "devices"],
+  commander: ["sentry", "home", "alerts"],
   earth: ["home", "earth", "alerts"],
 };
 
