@@ -19,7 +19,10 @@ export function SiteNav() {
   const items = navItemsFor(role, DEMO_ACTORS.astronaut.memberId ?? NAV_ITEMS[0].id);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3">
+    <div
+      suppressHydrationWarning
+      className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3"
+    >
       <nav
         aria-label="Navegación principal"
         className="pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-1 rounded-3xl bg-card/90 p-1.5 shadow-[0_18px_55px_-20px_rgb(255_255_255/0.14)] backdrop-blur"
