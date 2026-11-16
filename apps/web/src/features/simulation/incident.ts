@@ -26,6 +26,20 @@ export function hasCriticalTelemetry(member: SimCrew) {
   return assessTelemetry(member.telemetry).some(({ severity }) => severity === "critical");
 }
 
+export function isCrewInDanger(state: SimulationState, member: SimCrew) {
+  return hasCriticalTelemetry(member)
+    || (state.decision?.status === "critical" && state.decision.affectedCrewId === member.id);
+}
+
+export function canEditTelemetry(state: SimulationState, member: SimCrew) {
+  if (!isCrewInDanger(state, member)) return true;
+  if (state.decision?.status !== "critical") return false;
+  const progress = incidentProgress(state);
+  return progress?.affectedCrewId === member.id
+    && progress.arrivals.length >= 2
+    && progress.arrivals.every(({ arrived }) => arrived);
+}
+
 export function equipmentFor(telemetry: Telemetry): EquipmentId[] {
   const abnormal = assessTelemetry(telemetry).filter(({ corrected }) => !corrected);
   const critical = abnormal.filter(({ severity }) => severity === "critical");

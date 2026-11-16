@@ -5,8 +5,9 @@ import path from "node:path";
 import { createJsonStore } from "../../server/json-store.ts";
 import { crewFileSchema } from "../crew/crew.schema.ts";
 import { evaluateSimulation } from "./orchestrator.ts";
-import { activeIncident, needsIncidentReview } from "./incident.ts";
+import { activeIncident, canEditTelemetry, isCrewInDanger, needsIncidentReview } from "./incident.ts";
 import { constrainToDeck, locationAt } from "./deck.ts";
+import { restartSituation } from "./simulation.reset.ts";
 import { crewIds, telemetrySchema, type SimulationState, type SimulationUpdate } from "./simulation.ts";
 
 const dataDir = path.join(process.cwd(), "data");
@@ -17,7 +18,7 @@ const store = createJsonStore({
 });
 const key = "simulation";
 const startPositions = [
-  { x: 17, y: 29 }, { x: 17, y: 75 }, { x: 52, y: 31 }, { x: 84, y: 28 }, { x: 52, y: 74 },
+  { x: 17, y: 29 }, { x: 17, y: 75 }, { x: 52, y: 31 }, { x: 84, y: 28 },
 ];
 
 async function initialState(): Promise<SimulationState> {
@@ -28,7 +29,7 @@ async function initialState(): Promise<SimulationState> {
       const member = crew.find((candidate) => candidate.id === id);
       return {
         id,
-        name: member?.name ?? "Nora Vega",
+        name: member?.name ?? `Tripulante ${index + 1}`,
         role: member?.role ?? "Oficial de sistemas",
         position: startPositions[index],
         updatedAt: null,
@@ -44,16 +45,25 @@ async function initialState(): Promise<SimulationState> {
 }
 
 function fitSavedDeck(state: SimulationState): SimulationState {
-  const crew = state.crew.map((member) => {
+  const crew = state.crew.filter(({ id }) => crewIds.includes(id)).map((member) => {
     const position = constrainToDeck(member.position);
     return position === member.position ? member : { ...member, position };
   });
+  const removed = crew.length !== state.crew.length;
   const affected = crew.find(({ id }) => id === state.decision?.affectedCrewId);
   const destination = affected && locationAt(affected.position);
-  const reroute = state.phase === "done" && state.decision?.status === "critical" && destination
+  const reroute = !removed && state.phase === "done" && state.decision?.status === "critical" && destination
     && state.decision.instructions.some((instruction) => instruction.destination && instruction.destination !== destination);
-  if (!reroute && crew.every((member, index) => member === state.crew[index])) return state;
-  return { ...state, crew, phase: reroute ? "pending" : state.phase, version: state.version + 1, revision: state.revision + 1 };
+  if (!removed && !reroute && crew.every((member, index) => member === state.crew[index])) return state;
+  return {
+    ...state, crew,
+    decision: removed ? null : state.decision,
+    messages: removed ? state.messages.filter(({ crewId }) => crewIds.includes(crewId)) : state.messages,
+    changes: removed ? state.changes.filter(({ crewId }) => crewIds.includes(crewId)) : state.changes,
+    incidentOpenedWith: removed ? undefined : state.incidentOpenedWith,
+    phase: removed || reroute ? "pending" : state.phase,
+    version: state.version + 1, revision: state.revision + 1,
+  };
 }
 
 export async function getSimulation(): Promise<SimulationState> {
@@ -64,19 +74,20 @@ export async function getSimulation(): Promise<SimulationState> {
 
 export async function updateSimulation(update: SimulationUpdate): Promise<SimulationState> {
   await getSimulation();
-  return await store.update(key, (stored) => {
+  return await store.update(key, async (stored) => {
     const state = stored as SimulationState;
     const version = state.version + 1;
+    if (update.kind === "reset") {
+      return restartSituation(state, await initialState());
+    }
     if (update.kind === "retry") {
       return state.phase === "idle" || state.phase === "error" || needsIncidentReview(state)
         ? { ...state, version, phase: "pending", error: undefined }
         : state;
     }
-    if (update.kind === "clear-messages") {
-      return state.messages.length > 0 ? { ...state, version, messages: [] } : state;
-    }
-
     const member = state.crew.find(({ id }) => id === update.crewId)!;
+    if (update.kind === "move" && isCrewInDanger(state, member)) return state;
+    if (update.kind === "telemetry" && !canEditTelemetry(state, member)) return state;
     const at = new Date().toISOString();
     const position = update.kind === "move" ? constrainToDeck(update.position) : member.position;
     const before = update.kind === "move" ? member.position : member.telemetry;

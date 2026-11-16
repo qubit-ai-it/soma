@@ -112,5 +112,9 @@ test("equipment can come from Engineering and a direct response can have no equi
   assert.equal(carrier.via, "ingenieria");
   assert.equal(carrier.equipmentCollected, true);
   assert.match(carrier.message, /dosímetro en Ingeniería/);
-  assert.deepEqual(dispatchResponse(crew, affected, null), [direct]);
+  const withoutEquipment = dispatchResponse(crew, affected, null);
+  assert.equal(withoutEquipment.length, 2);
+  assert.equal(withoutEquipment[0].crewId, direct.crewId);
+  assert.notEqual(withoutEquipment[1].crewId, direct.crewId);
+  assert.equal(withoutEquipment[1].via, null);
 });

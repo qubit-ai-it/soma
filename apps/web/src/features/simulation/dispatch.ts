@@ -40,8 +40,9 @@ export function dispatchResponse(
   const destination = locationAt(affected.position);
   const pickup = equipmentId && equipment[equipmentId].room;
   const candidates = crew.filter((member) => member.id !== affected.id && !hasCriticalTelemetry(member));
-  const keep = (via: RoomId | null) => previous.find((instruction) => instruction.destination === destination
-    && instruction.via === via && candidates.some(({ id }) => id === instruction.crewId))?.crewId;
+  const keep = (via: RoomId | null, excluded?: SimCrew["id"]) => previous.find((instruction) => instruction.destination === destination
+    && instruction.via === via && instruction.crewId !== excluded
+    && candidates.some(({ id }) => id === instruction.crewId))?.crewId;
   const nearest = (point: Point, excluded?: SimCrew["id"]) => candidates
     .filter(({ id }) => id !== excluded)
     .map(({ id, position }) => ({ id, distance: shortestWalk(position, point).distance }))
@@ -54,15 +55,16 @@ export function dispatchResponse(
   const assignments: Instruction[] = [{
     crewId: direct, destination, via: null, message: dispatchMessage(destination, affected.name, null, signals),
   }];
-  if (pickup) {
-    const carrier = assignedEquipment ?? nearest(roomCenter(pickup), direct);
-    const member = candidates.find(({ id }) => id === carrier);
-    if (member) assignments.push({
-      crewId: member.id, destination, via: pickup, message: dispatchMessage(destination, affected.name, equipmentId),
-      equipmentCollected: locationAt(member.position) === pickup || previous.some((instruction) => (
-        instruction.crewId === member.id && instruction.via === pickup && instruction.equipmentCollected === true
-      )),
-    });
-  }
+  const second = pickup
+    ? assignedEquipment ?? nearest(roomCenter(pickup), direct)
+    : keep(null, direct) ?? nearest(affected.position, direct);
+  const member = candidates.find(({ id }) => id === second && id !== direct);
+  if (member) assignments.push({
+    crewId: member.id, destination, via: pickup || null,
+    message: dispatchMessage(destination, affected.name, equipmentId, signals),
+    equipmentCollected: pickup ? locationAt(member.position) === pickup || previous.some((instruction) => (
+      instruction.crewId === member.id && instruction.via === pickup && instruction.equipmentCollected === true
+    )) : undefined,
+  });
   return assignments;
 }

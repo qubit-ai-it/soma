@@ -7,7 +7,8 @@ import { Button } from "@/shared/ui/button";
 import { Icon } from "@/shared/ui/icon";
 import { ZONE_REGION_IDS } from "@/features/crew/crew.body";
 import { AssignmentRoutes } from "./assignment-routes";
-import { assessTelemetry, incidentProgress } from "./incident";
+import { SimulationGuide } from "./simulation-guide";
+import { assessTelemetry, canEditTelemetry, incidentProgress, isCrewInDanger } from "./incident";
 import { constrainToDeck, corridorFloors, isCorridor, locationAt, locationNames, roomFloor, type DeckFloor } from "./deck";
 import {
   crewColorTokens, crewIds, equipment, roomIds, rooms,
@@ -18,7 +19,8 @@ import styles from "./simulation.module.css";
 
 const endpoint = "/api/simulacion";
 const statusLabel = {
-  nominal: "Sin incidente", watch: "En atención", critical: "Incidente crítico", resolved: "Incidente resuelto",
+  nominal: "Todo está bien", watch: "Un tripulante necesita atención",
+  critical: "Peligro: un tripulante necesita ayuda", resolved: "El tripulante ya está fuera de peligro",
 };
 const timeLabel = new Intl.DateTimeFormat("es-PE", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 const crewColor = (id: SimCrew["id"]) => `var(${crewColorTokens[crewIds.indexOf(id)]})`;
@@ -36,9 +38,11 @@ function mapPoint(event: PointerEvent, map: HTMLDivElement): Point {
   return constrainToDeck({ x: percent(event.clientX - box.left, box.width), y: percent(event.clientY - box.top, box.height) });
 }
 
-function TelemetryInput({ name, value, onChange }: {
+function TelemetryInput({ name, value, reference, disabled, onChange }: {
   name: keyof Telemetry;
   value: number;
+  reference?: { min: number; max: number; outside: boolean };
+  disabled: boolean;
   onChange: (value: number) => void;
 }) {
   const [entry, setEntry] = useState<string | null>(null);
@@ -55,6 +59,7 @@ function TelemetryInput({ name, value, onChange }: {
         min={range.minValue ?? undefined}
         max={range.maxValue ?? undefined}
         value={entry ?? value}
+        disabled={disabled}
         aria-invalid={invalid}
         onChange={(event) => { setEntry(event.target.value); setInvalid(false); }}
         onBlur={() => {
@@ -69,13 +74,19 @@ function TelemetryInput({ name, value, onChange }: {
         }}
         onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
       />
+      <span className={styles.normalRange} data-outside={reference?.outside ?? false}>
+        {reference ? <>Normal: <strong>{reference.min}–{reference.max}</strong></>
+          : "Informativo · sin alerta"}
+      </span>
       {invalid && <small role="alert">Ingresa un valor válido entre {range.minValue} y {range.maxValue}.</small>}
     </label>
   );
 }
 
-function CrewDetails({ member, onClose, onUpdate }: {
+function CrewDetails({ member, locked, canEdit, onClose, onUpdate }: {
   member: SimCrew;
+  locked: boolean;
+  canEdit: boolean;
   onClose: () => void;
   onUpdate: (update: SimulationUpdate) => void;
 }) {
@@ -93,17 +104,24 @@ function CrewDetails({ member, onClose, onUpdate }: {
       <header className={styles.cardHeader}>
         <div>
           <h3><Dot color={crewColor(member.id)} /> {member.name}</h3>
-          <p>{locationNames[locationAt(member.position)]} · {member.position.x.toFixed(1)}, {member.position.y.toFixed(1)}</p>
+          <p>{locationNames[locationAt(member.position)]}</p>
         </div>
         <Button type="button" variant="outline" size="icon-sm" onClick={onClose} aria-label="Cerrar ficha">
           <Icon name="close" />
         </Button>
       </header>
+      {locked && <p className={styles.dangerHelp}>{canEdit
+        ? "Los dos compañeros ya llegaron. Puedes actualizar las lecturas, pero aún no mover al tripulante."
+        : "En peligro: no lo muevas ni cambies sus lecturas hasta que dos compañeros aparezcan como «Ya llegó»."}</p>}
+      {canEdit && <p className={styles.analysisHelp}>Al cambiar un valor, la IA revisa la situación. Una lectura fuera del rango puede generar una alerta; el sueño es informativo.</p>}
       <div className={styles.fields}>
-        {(Object.keys(telemetryLabels) as (keyof Telemetry)[]).map((name) => (
-          <TelemetryInput key={name} name={name} value={member.telemetry[name]}
-            onChange={(value) => onUpdate({ kind: "telemetry", crewId: member.id, telemetry: { [name]: value } })} />
-        ))}
+        {(Object.keys(telemetryLabels) as (keyof Telemetry)[]).map((name) => {
+          const reading = readings.find(({ signal }) => signal === name);
+          return <TelemetryInput key={name} name={name} value={member.telemetry[name]}
+            reference={reading && { min: reading.min, max: reading.max, outside: !reading.corrected }}
+            disabled={!canEdit}
+            onChange={(value) => onUpdate({ kind: "telemetry", crewId: member.id, telemetry: { [name]: value } })} />;
+        })}
       </div>
       <details className={styles.bodyDetails}>
         <summary>Ver mapa corporal</summary>
@@ -118,6 +136,33 @@ function Dot({ color }: { color: string }) {
   return <span className={styles.dot} style={{ color }} aria-hidden="true" />;
 }
 
+function CrewChat({ person, messages, selected, onSelect }: {
+  person: SimCrew;
+  messages: SimulationState["messages"];
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const thread = messages.filter(({ crewId }) => crewId === person.id);
+  return (
+    <article className={styles.chat} data-selected={selected}>
+      <button type="button" onClick={onSelect} className={styles.chatHeader}>
+        <Dot color={crewColor(person.id)} />
+        <span><strong>{person.name}</strong><small>{locationNames[locationAt(person.position)]}</small></span>
+        {thread.length > 0 && <span className={styles.count} aria-label={`${thread.length} mensajes`}>{thread.length}</span>}
+      </button>
+      <div className={styles.thread} role="log" aria-label={`Mensajes para ${person.name}`}>
+        {thread.length === 0 && <p className={styles.empty}>Sin instrucciones</p>}
+        {thread.slice().reverse().map(({ id, message, at }) => (
+          <div key={id} className={styles.message}>
+            <span>MedGemma <time dateTime={at}>{timeLabel.format(new Date(at))}</time></span>
+            <p>{message}</p>
+          </div>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 function floorStyle({ left, top, width, height }: DeckFloor) {
   return { left: `${left}%`, top: `${top}%`, width: `${width}%`, height: `${height}%` };
 }
@@ -128,7 +173,7 @@ export function SimulationConsole() {
   const [preview, setPreview] = useState<{ id: SimCrew["id"]; position: Point } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [connectionError, setConnectionError] = useState(false);
-  const [clearingMessages, setClearingMessages] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const map = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
   const writes = useRef(Promise.resolve());
@@ -163,16 +208,16 @@ export function SimulationConsole() {
         if (!response.ok) throw new Error();
         accept(await response.json());
       } catch {
-        setError(update.kind === "clear-messages"
-          ? "No se pudieron limpiar los chats. Inténtalo de nuevo."
+        setError(update.kind === "reset"
+          ? "No se pudo reiniciar la situación. Inténtalo de nuevo."
           : "No se pudo guardar el cambio. Inténtalo de nuevo.");
       }
     });
     return writes.current;
   }
 
-  function startDrag(event: PointerEvent<HTMLButtonElement>, crewId: SimCrew["id"]) {
-    if (event.button !== 0 || !event.isPrimary) return;
+  function startDrag(event: PointerEvent<HTMLButtonElement>, crewId: SimCrew["id"], locked: boolean) {
+    if (locked || event.button !== 0 || !event.isPrimary) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     drag.current = { crewId, start: { x: event.clientX, y: event.clientY }, pointer: event.pointerId };
   }
@@ -215,17 +260,14 @@ export function SimulationConsole() {
     assessTelemetry(telemetry).filter(({ severity }) => severity === "critical"),
   ]));
   const alerts = state?.crew.filter(({ id }) => criticalReadings.get(id)?.length) ?? [];
+  const otherAlerts = alerts.filter(({ id }) => incidentStatus !== "critical" || affected?.id !== id);
 
   return (
     <main className={`container-soma ${styles.console}`}>
       <header className={styles.top}>
         <Link href="/mision" className={styles.home}><Icon name="arrow_back" /> Panel de misión</Link>
         <h1 className="text-display">Simulación de tripulación</h1>
-        <ul className={styles.context}>
-          <li>Demostración</li>
-          <li>Fuente sintética</li>
-          <li>Uso no clínico</li>
-        </ul>
+        <SimulationGuide />
       </header>
 
       {connectionError && <p role="alert" className={styles.error}>Se perdió la conexión con el simulador. Reconectando…</p>}
@@ -234,10 +276,20 @@ export function SimulationConsole() {
           <div className={styles.workspace}>
             <section className={styles.mapCard}>
               <header className={styles.sectionHeader}>
-                <div>
+                <div className={styles.mapTitleRow}>
                   <h2 className="text-headline">Plano de la nave</h2>
-                  <p>Arrastra para mover. Haz clic para ver la ficha.</p>
+                  <Button type="button" variant="destructive" size="sm"
+                    disabled={resetting}
+                    onClick={() => {
+                      setResetting(true);
+                      setSelected(null);
+                      cancelDrag();
+                      void save({ kind: "reset" }).finally(() => setResetting(false));
+                    }}>
+                    {resetting ? "Reiniciando…" : "Reiniciar situación"}
+                  </Button>
                 </div>
+                <p>Haz clic para ver lecturas; arrastra para mover.</p>
               </header>
               <div ref={map} className={styles.map} aria-label="Plano de la nave">
                 <div className={styles.rooms} aria-hidden="true">
@@ -267,16 +319,16 @@ export function SimulationConsole() {
                   const { id, name } = crewMember;
                   const position = preview?.id === id ? preview.position : crewMember.position;
                   const location = locationAt(position);
-                  const readingAlert = criticalReadings.get(id)?.length;
-                  const critical = !!readingAlert || (incidentStatus === "critical" && decision?.affectedCrewId === id);
+                  const critical = isCrewInDanger(state, crewMember);
                   return (
                     <button key={id} type="button"
-                      className={styles.marker} data-critical={critical} data-corridor={isCorridor(location)} data-selected={selected === id}
+                      className={styles.marker} data-critical={critical} data-locked={critical} data-corridor={isCorridor(location)} data-selected={selected === id}
                       style={{ "--marker-color": crewColor(id), color: crewColor(id), left: `${position.x}%`, top: `${position.y}%` } as CSSProperties}
-                      aria-label={`${name}, ${locationNames[location]}${critical ? ", alerta crítica" : ""}`} aria-expanded={selected === id}
-                      onPointerDown={(event) => startDrag(event, id)}
+                      aria-label={`${name}, ${locationNames[location]}${critical ? ", en peligro: no se puede mover hasta que mejore" : ""}`} aria-expanded={selected === id}
+                      title={critical ? "Está en peligro. Revisa sus lecturas; no puedes moverlo hasta que mejore." : "Arrastra para mover o haz clic para ver sus lecturas."}
+                      onPointerDown={(event) => startDrag(event, id, critical)}
                       onPointerMove={moveDrag} onPointerUp={endDrag} onPointerCancel={cancelDrag}
-                      onClick={(event) => { if (event.detail === 0) setSelected(id); }}
+                      onClick={(event) => { if (critical || event.detail === 0) setSelected(id); }}
                       onKeyDown={(event) => {
                         const offsets: Record<string, Point> = {
                           ArrowLeft: { x: -3, y: 0 }, ArrowRight: { x: 3, y: 0 },
@@ -285,6 +337,7 @@ export function SimulationConsole() {
                         const offset = offsets[event.key];
                         if (!offset) return;
                         event.preventDefault();
+                        if (critical) return;
                         const clamp = (value: number) => Math.max(2, Math.min(98, value));
                         void save({ kind: "move", crewId: id, position: constrainToDeck({ x: clamp(position.x + offset.x), y: clamp(position.y + offset.y) }) });
                       }}
@@ -294,7 +347,9 @@ export function SimulationConsole() {
                   );
                 })}
               </div>
-              {member && <CrewDetails key={member.id} member={member} onClose={() => setSelected(null)} onUpdate={save} />}
+              {member && <CrewDetails key={member.id} member={member} locked={isCrewInDanger(state, member)}
+                canEdit={canEditTelemetry(state, member)}
+                onClose={() => setSelected(null)} onUpdate={save} />}
             </section>
 
             <aside className={styles.overview}>
@@ -303,105 +358,77 @@ export function SimulationConsole() {
                   <h2 className="text-headline">Evaluación</h2>
                   <span className={styles.model}><Dot color="var(--signal)" /> MedGemma</span>
                 </header>
-                {alerts.length > 0 && (
+                {otherAlerts.length > 0 && (
                   <div className={styles.decision} data-status="critical">
-                    <strong>Lecturas críticas</strong>
-                    {alerts.map(({ id, name }) => (
+                    <strong>{incidentStatus === "critical" ? "Otro tripulante también necesita ayuda" : "Hay una lectura de peligro"}</strong>
+                    <p>Abre su ficha y revisa la lectura. No lo muevas.</p>
+                    {otherAlerts.map(({ id, name }) => (
                       <p key={id}>{name} · {criticalReadings.get(id)?.map(({ signal, value }) => `${telemetryLabels[signal]} ${value}`).join(", ")}</p>
                     ))}
                   </div>
                 )}
-                {state.phase === "pending" && <p className={styles.pending}><Dot color="var(--signal)" /> Evaluando con MedGemma…</p>}
+                {state.phase === "pending" && <p className={styles.pending}><Dot color="var(--signal)" /> Comprobando cómo está la tripulación…</p>}
                 {state.error && <p className={styles.error}>{state.error}</p>}
-                {decision && (alerts.length === 0 || decision.status !== "nominal") && (
+                {decision && (otherAlerts.length === 0 || decision.status !== "nominal") && (
                   <div className={styles.decision} data-status={awaitingReview ? "pending" : incidentStatus}>
-                    <strong>{awaitingReview ? "Reevaluación pendiente" : statusLabel[incidentStatus ?? decision.status]}</strong>
+                    <strong>{awaitingReview ? "Comprobando si ya está mejor" : statusLabel[incidentStatus ?? decision.status]}</strong>
                     {affected && <p>{affected.name} · {locationNames[locationAt(affected.position)]}</p>}
+                    {affected && incidentStatus === "critical" &&
+                      <p className={styles.actionHelp}>{canEditTelemetry(state, affected)
+                        ? "Los dos llegaron. Abre la ficha y actualiza sus lecturas."
+                        : "Mueve a los dos compañeros según sus chats. Después podrás cambiar las lecturas."}</p>}
+                    {affected && incidentStatus === "watch" &&
+                      <p className={styles.actionHelp}>Revisa las lecturas de {affected.name}.</p>}
+                    {incidentStatus === "resolved" &&
+                      <p className={styles.actionHelp}>Sus lecturas mejoraron. Ya puedes moverlo.</p>}
                     {decision.equipmentId && decision.instructions.some(({ via }) => via !== null) && (
-                      <p>Equipo asignado · {equipment[decision.equipmentId].label}</p>
+                      <p>Equipo necesario: {equipment[decision.equipmentId].label}</p>
                     )}
                     {progress && (
                       <div className={styles.incidentProgress}>
                         {progress.arrivals.length > 0 && (
                           <>
-                            <p>{arrived} de {progress.arrivals.length} en destino</p>
+                            <p>Ayuda en camino: {arrived} de {progress.arrivals.length} llegaron.</p>
                             <ul>
                               {progress.arrivals.map((arrival) => (
                                 <li key={arrival.crewId}>
                                   <Dot color={crewColor(arrival.crewId)} />
                                   <span>{state.crew.find(({ id }) => id === arrival.crewId)?.name}</span>
-                                  <span data-arrived={arrival.arrived}>{arrival.arrived ? "En destino"
-                                    : arrival.pickup ? `Recogida en ${rooms[arrival.pickup]}` : `Rumbo a ${locationNames[arrival.destination]}`}</span>
+                                  <span data-arrived={arrival.arrived}>{arrival.arrived ? "Ya llegó"
+                                    : arrival.pickup ? `Debe recoger equipo en ${rooms[arrival.pickup]}` : `Debe ir a ${locationNames[arrival.destination]}`}</span>
                                 </li>
                               ))}
                             </ul>
                           </>
                         )}
-                        {arrived === progress.arrivals.length && state.phase !== "error" && (
-                          <p>{progress.canResolve ? "Reevaluando las lecturas con MedGemma…" : "En espera de la corrección de telemetría."}</p>
+                        {progress.readings.length > 0 && (
+                          <details className={styles.readingDetails}>
+                            <summary>Ver lecturas</summary>
+                            {progress.readings.map(({ signal, value, min, max, corrected }) => (
+                              <p key={signal} className={styles.metric}>{telemetryLabels[signal]} <strong>{value}</strong> · {corrected ? "Bien" : `Meta: ${min}–${max}`}</p>
+                            ))}
+                          </details>
                         )}
-                        {progress.readings.map(({ signal, value, min, max, corrected }) => (
-                          <p key={signal} className={styles.metric}>{telemetryLabels[signal]} <strong>{value}</strong> · {corrected ? "Corregido" : `Rango del ejercicio: ${min}–${max}`}</p>
-                        ))}
                       </div>
                     )}
                   </div>
                 )}
-                {state.phase === "idle" && <p>Modifica una lectura o mueve un tripulante para iniciar el análisis.</p>}
+                {state.phase === "idle" && <p>Mueve a alguien o cambia una lectura para comenzar.</p>}
                 {state.phase === "error" && <Button type="button" variant="outline" size="sm" className="justify-self-start"
                   onClick={() => void save({ kind: "retry" })}>Reintentar análisis</Button>}
               </div>
-              <div className={styles.roster}>
-                {state.crew.map((person) => (
-                  <button type="button" key={person.id} data-selected={person.id === selected} onClick={() => setSelected(person.id)}>
-                    <Dot color={crewColor(person.id)} />
-                    <strong>{person.name}</strong>
-                    <small>{locationNames[locationAt(person.position)]}{!!criticalReadings.get(person.id)?.length && (
-                      <span className={styles.rosterAlert}> · Alerta crítica</span>
-                    )}</small>
-                  </button>
-                ))}
-              </div>
             </aside>
           </div>
-
-          {error && <p role="alert" className={styles.error}>{error}</p>}
           <section aria-label="Chats de la tripulación" className={styles.comms}>
-            <div className={styles.sectionHeader}>
-              <h2 className="text-headline">Chats de la tripulación</h2>
-              <Button type="button" variant="destructive" size="sm"
-                disabled={clearingMessages || state.messages.length === 0}
-                onClick={() => {
-                  setClearingMessages(true);
-                  void save({ kind: "clear-messages" }).finally(() => setClearingMessages(false));
-                }}>
-                {clearingMessages ? "Limpiando…" : "Limpiar chats"}
-              </Button>
-            </div>
+            <h2>Chats de la tripulación</h2>
             <div className={styles.chatGrid}>
-              {state.crew.map((person) => {
-                const messages = state.messages.filter(({ crewId }) => crewId === person.id);
-                return (
-                  <article key={person.id} className={styles.chat} data-selected={person.id === selected}>
-                    <button type="button" onClick={() => setSelected(person.id)} className={styles.chatHeader}>
-                      <Dot color={crewColor(person.id)} />
-                      <span><strong>{person.name}</strong><small>{locationNames[locationAt(person.position)]}</small></span>
-                      {messages.length > 0 && <span className={styles.count} aria-label={`${messages.length} mensajes`}>{messages.length}</span>}
-                    </button>
-                    <div className={styles.thread} role="log" aria-label={`Mensajes para ${person.name}`}>
-                      {messages.length === 0 && <p className={styles.empty}>Sin instrucciones</p>}
-                      {messages.slice().reverse().map(({ id, message, at }) => (
-                        <div key={id} className={styles.message}>
-                          <span>MedGemma <time dateTime={at}>{timeLabel.format(new Date(at))}</time></span>
-                          <p>{message}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                );
-              })}
+              {state.crew.map((person) => (
+                <CrewChat key={person.id} person={person} messages={state.messages}
+                  selected={person.id === selected} onSelect={() => setSelected(person.id)} />
+              ))}
             </div>
           </section>
+          {error && <p role="alert" className={styles.error}>{error}</p>}
         </>
       )}
     </main>
