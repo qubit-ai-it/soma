@@ -2,6 +2,7 @@
 
 import { SignIn, SignUp, useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState, useSyncExternalStore } from "react";
 
 import {
@@ -27,6 +28,7 @@ import {
   type DeviceProfile,
 } from "@/features/xr/device-profile.logic";
 import { useLocalStore } from "@/shared/local-store";
+import { isAuthPath } from "@/shared/route-access";
 import { Icon } from "@/shared/ui/icon";
 import { Sentry } from "@/shared/ui/sentry";
 
@@ -109,10 +111,14 @@ export function OnboardingGate() {
   const [profile, setProfile] = useState<DeviceProfile | null>(null);
   const [bluetoothMessage, setBluetoothMessage] = useState<string | null>(null);
   const [hasAccount, setHasAccount] = useState(false);
-  const { isSignedIn, user } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
+  const pathname = usePathname();
+  const router = useRouter();
+  const onAuthPage = isAuthPath(pathname);
   const live = useLiveState();
 
-  const open = mounted && shouldShowOnboarding(stored || null) && !closed;
+  const open = mounted && shouldShowOnboarding(stored || null) && !closed && !onAuthPage;
+  const mustSignIn = mounted && isLoaded && !isSignedIn && !open && !onAuthPage;
   const step = ONBOARDING_STEPS[index];
 
   function finish() {
@@ -144,6 +150,10 @@ export function OnboardingGate() {
       active = false;
     };
   }, [open, step.kind, setSettings]);
+
+  useEffect(() => {
+    if (mustSignIn) router.replace("/sign-up");
+  }, [mustSignIn, router]);
 
   async function pairDevice() {
     setBluetoothMessage(null);
@@ -317,13 +327,15 @@ export function OnboardingGate() {
         <div className="flex w-full flex-col gap-2">
           {last ? (
             <>
-              <Link
-                href="/"
-                onClick={finish}
-                className={`${ACTION} bg-primary text-primary-foreground hover:bg-primary/85`}
-              >
-                {isSignedIn ? "Get started" : "Continue as guest"}
-              </Link>
+              {isSignedIn && (
+                <Link
+                  href="/"
+                  onClick={finish}
+                  className={`${ACTION} bg-primary text-primary-foreground hover:bg-primary/85`}
+                >
+                  Get started
+                </Link>
+              )}
               <button
                 type="button"
                 onClick={goBack}

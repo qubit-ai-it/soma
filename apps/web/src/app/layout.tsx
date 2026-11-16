@@ -39,7 +39,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Suspense fallback={null}>
               <SiteNav />
             </Suspense>
-            <OnboardingGate />
+            <Suspense fallback={null}>
+              <OnboardingGate />
+            </Suspense>
             <RoleSync />
           </SentryFileProvider>
         </ClerkProvider>
