@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createOllamaChat } from "@/features/pet/chat.client";
+import { createGeminiChat, createOllamaChat } from "@/features/pet/chat.client";
 import { getConfig } from "@/server/config";
 
 // Allow the planning, research, and final answer requests to complete.
@@ -28,15 +28,17 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const { url, model, authorization } = getConfig().chat;
-  if (!url) {
+  const { chat, gemini } = getConfig();
+  const assistant = chat.url
+    ? createOllamaChat({ url: chat.url, model: chat.model, authorization: chat.authorization })
+    : gemini.apiKey
+      ? createGeminiChat({ apiKey: gemini.apiKey, model: gemini.model })
+      : null;
+  if (!assistant) {
     return Response.json({ error: "Chat is unavailable" }, { status: 503 });
   }
 
-  const result = await createOllamaChat({ url, model, authorization }).replyWithResearch(
-    parsed.data.messages,
-    request.signal,
-  );
+  const result = await assistant.replyWithResearch(parsed.data.messages, request.signal);
   if (!result.ok) {
     console.error("[chat]", result.error);
     return Response.json({ error: "Chat provider failed" }, { status: 502 });

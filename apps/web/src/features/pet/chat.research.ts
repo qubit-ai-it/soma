@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { requestOllamaChat } from "../../server/ollama-chat.ts";
+import type { ChatTransport } from "./chat.transport.ts";
 import { officialResearchURL, type ResearchLookup, type ResearchSource } from "./chat.types.ts";
 import {
   BASE_RESEARCH_VOCABULARY,
@@ -131,7 +131,7 @@ async function searchResearch(query: string, doFetch: typeof fetch, signal?: Abo
   return results;
 }
 
-type Options = Parameters<typeof requestOllamaChat>[0] & { model: string };
+type Options = { transport: ChatTransport; fetch?: typeof fetch; signal?: AbortSignal };
 
 export async function lookUpResearch(
   question: string,
@@ -146,13 +146,13 @@ export async function lookUpResearch(
     return { research: { status: "skipped", reason: "image-only" }, passages: [] };
   }
 
-  const { model, signal } = connection;
-  const reply = await requestOllamaChat({ ...connection, timeoutMs: PLANNING_TIMEOUT_MS }, {
-    model,
+  const { signal } = connection;
+  const reply = await connection.transport({
     messages: [{ role: "system", content: planPrompt }, { role: "user", content: question }],
-    format: planFormat,
-    think: false,
-    options: { temperature: 0, num_predict: 112 },
+    timeoutMs: PLANNING_TIMEOUT_MS,
+    signal,
+    json: planFormat,
+    maxTokens: 112,
   });
   signal?.throwIfAborted();
 

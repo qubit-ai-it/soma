@@ -1,6 +1,7 @@
-import { requestOllamaChat, type OllamaMessage } from "../../server/ollama-chat.ts";
+import type { OllamaMessage } from "../../server/ollama-chat.ts";
 
 import { lookUpResearch, researchContext } from "./chat.research.ts";
+import { geminiTransport, ollamaTransport, type ChatTransport } from "./chat.transport.ts";
 import { IMAGE_ONLY_PROMPT, type ChatMessage, type ChatReply } from "./chat.types.ts";
 import { err, ok, type Result } from "../../shared/result.ts";
 
@@ -51,22 +52,26 @@ function toMessages(history: ChatMessage[], evidence?: string): OllamaMessage[] 
   return [{ role: "system", content }, ...turns];
 }
 
+type GeminiChatOptions = {
+  apiKey: string;
+  model: string;
+  timeoutMs?: number;
+  fetch?: typeof fetch;
+};
+
 export function createOllamaChat(options: OllamaChatOptions) {
-  const connection = {
-    url: options.url,
-    timeoutMs: options.timeoutMs ?? DEFAULT_CHAT_TIMEOUT_MS,
-    fetch: options.fetch,
-    headers: {
-      "ngrok-skip-browser-warning": "1",
-      ...(options.authorization ? { authorization: options.authorization } : {}),
-    },
-  };
+  return createChat(ollamaTransport(options), { timeoutMs: options.timeoutMs, fetch: options.fetch });
+}
+
+export function createGeminiChat(options: GeminiChatOptions) {
+  return createChat(geminiTransport(options), { timeoutMs: options.timeoutMs, fetch: options.fetch });
+}
+
+export function createChat(transport: ChatTransport, options: { timeoutMs?: number; fetch?: typeof fetch } = {}) {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_CHAT_TIMEOUT_MS;
 
   function reply(history: ChatMessage[], evidence?: string, signal?: AbortSignal) {
-    return requestOllamaChat({ ...connection, signal }, {
-      model: options.model,
-      messages: toMessages(history, evidence),
-    });
+    return transport({ messages: toMessages(history, evidence), timeoutMs, signal });
   }
 
   return {
@@ -77,8 +82,8 @@ export function createOllamaChat(options: OllamaChatOptions) {
       try {
         const imageOnly = Boolean(latest.images?.length) && latest.content === IMAGE_ONLY_PROMPT;
         const { research, passages } = await lookUpResearch(latest.content, imageOnly, {
-          ...connection,
-          model: options.model,
+          transport,
+          fetch: options.fetch,
           signal,
         });
         signal?.throwIfAborted();
