@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { isAuthPath, isPublicPage } from "./route-access.ts";
+import { isAuthPath, isPublicAsset, isPublicPage } from "./route-access.ts";
 
 describe("route access", () => {
   it("keeps only the onboarding home and the Clerk pages public", () => {
@@ -21,5 +21,17 @@ describe("route access", () => {
     assert.equal(isAuthPath("/sign-in/factor-one"), true);
     assert.equal(isAuthPath("/"), false);
     assert.equal(isAuthPath("/sign-uptown"), false);
+  });
+
+  it("serves the Rive runtime, the mascot files and the 3D models without a session", () => {
+    for (const path of ["/rive/rive.wasm", "/rive/rive_fallback.wasm", "/mascot/soma.riv", "/mascot/sentry.png", "/models/body.glb"]) {
+      assert.equal(isPublicAsset(path), true, path);
+    }
+  });
+
+  it("does not open any page by treating it as an asset", () => {
+    for (const path of ["/mission", "/rive", "/mascots", "/report/rive/x"]) {
+      assert.equal(isPublicAsset(path), false, path);
+    }
   });
 });

@@ -1,11 +1,11 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 
-import { isPublicPage } from "./shared/route-access";
+import { isPublicAsset, isPublicPage } from "./shared/route-access";
 
 // Pages need a session; API routes answer 401 themselves; "/" stays open for the onboarding
 export default clerkMiddleware(async (auth, request) => {
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith("/api") || pathname.startsWith("/__clerk") || isPublicPage(pathname)) return;
+  if (pathname.startsWith("/api") || pathname.startsWith("/__clerk") || isPublicAsset(pathname) || isPublicPage(pathname)) return;
   await auth.protect();
 });
 
