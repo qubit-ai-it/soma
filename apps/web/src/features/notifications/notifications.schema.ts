@@ -32,6 +32,7 @@ export const newNotificationSchema = z.object({
 
 export const notificationSchema = newNotificationSchema.extend({
   id: z.string().min(1),
+  seq: z.number().int(),
   createdAt: z.iso.datetime(),
   read: z.boolean(),
 });

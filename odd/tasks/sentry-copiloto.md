@@ -26,10 +26,10 @@ Supuestos (marcados): roles reales son astronaut/cmo/commander/earth (no "doctor
 | T0 | S2 | inline | hecho | 49a1605 (Neon cableado) |
 | T1 | S2,S9 | inline | hecho | migraciones + runner (`pnpm db:migrate`) + repo observaciones PG |
 | T2 | S2,S5,S8 | inline | hecho | notificaciones por destinatario (lógica + repo PG, F3 = crew:all + role:earth) |
-| T3 | S2,S1 | inline | pendiente | repos Postgres de alertas y auditoría; actor sentry |
-| T4 | S2 | inline | pendiente | canal SSE + bandeja por EventSource |
-| T5 | S7,S3 | inline | pendiente | endpoint de ingesta + emisor simulado |
-| T6 | S3,S4,S5 | inline | pendiente | (paso 2) motor de alertas por umbral y evaluación persistida |
+| T3 | S2,S1 | inline | movido a paso 2 | repos Postgres de alertas y auditoría; actor sentry |
+| T4 | S2 | inline | hecho | SSE `/api/notificaciones/stream` (cursor seq + Last-Event-ID, ventana 55 s), lista y lectura en `/api/notificaciones`. Falta bandeja por EventSource (con SomaCard, paso 3) |
+| T5 | S7,S3 | inline | parcial | hecho: `/api/ingesta` + envío de 5 s desde live.store con reintento. Falta: emisor simulado de tripulación (paso 2) |
+| T6 | S3,S4,S5 | inline | pendiente | (paso 2) repos PG alertas/auditoría + actor sentry, motor por umbral, difusión F3, evaluación persistida, emisor simulado |
 | T7 | S5 | inline | pendiente | (paso 3) charla de Sentry |
 | T8 | S4,S6 | inline | pendiente | (paso 4) plan automático y revisión de Tierra |
 | T9 | S4,S6 | inline | pendiente | (paso 5) seguimiento automático |

@@ -9,6 +9,7 @@ import type { Notification, Viewer } from "./notifications.types.ts";
 
 type Row = {
   id: string;
+  seq: string | number;
   dedupe_key: string;
   kind: string;
   priority: string;
@@ -24,6 +25,7 @@ type Row = {
 function toNotification(row: Row): Notification {
   return notificationSchema.parse({
     id: row.id,
+    seq: Number(row.seq),
     dedupeKey: row.dedupe_key,
     kind: row.kind,
     priority: row.priority,
@@ -69,12 +71,14 @@ export function createPostgresNotificationsRepository(pool: Pool): Notifications
     },
     listFor: async (viewer: Viewer, options = {}) => {
       const limit = Math.min(Math.max(options.limit ?? 50, 1), 200);
+      const order = options.afterSeq === undefined ? "desc" : "asc";
       const { rows } = await pool.query<Row>(
         `${SELECT}
          where n.audience && $2::text[]
-         order by n.created_at desc
+           and ($4::bigint is null or n.seq > $4)
+         order by n.seq ${order}
          limit $3`,
-        [readerKey(viewer), viewerKeys(viewer), limit],
+        [readerKey(viewer), viewerKeys(viewer), limit, options.afterSeq ?? null],
       );
       return rows
         .map(toNotification)

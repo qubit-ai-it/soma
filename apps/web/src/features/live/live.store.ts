@@ -8,7 +8,12 @@ import {
   type BluetoothLike,
   type HeartRateConnection,
 } from "./bluetooth.logic";
-import type { Reading } from "./live.logic";
+import {
+  createIngestSender,
+  INGEST_INTERVAL_MS,
+  postReadings,
+} from "../ingest/ingest.client";
+import { LIVE_SUBJECT, type Reading } from "./live.logic";
 
 export type LiveState = {
   status: "idle" | "connecting" | "connected";
@@ -23,6 +28,21 @@ const IDLE: LiveState = { status: "idle", deviceName: null, error: null, reading
 const listeners = new Set<() => void>();
 let state: LiveState = IDLE;
 let connection: HeartRateConnection | null = null;
+let sender: ReturnType<typeof createIngestSender> | null = null;
+let ingestTimer: ReturnType<typeof setInterval> | null = null;
+
+function stopIngest() {
+  if (ingestTimer) clearInterval(ingestTimer);
+  ingestTimer = null;
+  void sender?.flush();
+  sender = null;
+}
+
+function startIngest(device: string) {
+  stopIngest();
+  sender = createIngestSender({ subjectId: LIVE_SUBJECT, device, post: postReadings });
+  ingestTimer = setInterval(() => void sender?.flush(), INGEST_INTERVAL_MS);
+}
 
 function update(next: Partial<LiveState>) {
   state = { ...state, ...next };
@@ -37,7 +57,9 @@ function subscribe(listener: () => void) {
 }
 
 function addReading(bpm: number) {
-  const readings = [...state.readings, { at: Date.now(), bpm }];
+  const reading = { at: Date.now(), bpm };
+  sender?.push(reading);
+  const readings = [...state.readings, reading];
   update({ readings: readings.length > MAX_READINGS ? readings.slice(-MAX_READINGS) : readings });
 }
 
@@ -48,12 +70,14 @@ export function getLiveState(): LiveState {
 export function disconnectLive() {
   connection?.stop();
   connection = null;
+  stopIngest();
   update({ status: "idle", deviceName: null, readings: [] });
 }
 
 export async function connectLive(): Promise<BluetoothError | null> {
   connection?.stop();
   connection = null;
+  stopIngest();
   update({ status: "connecting", error: null, readings: [] });
 
   const bluetooth = (navigator as unknown as { bluetooth?: BluetoothLike }).bluetooth;
@@ -63,6 +87,7 @@ export async function connectLive(): Promise<BluetoothError | null> {
     return result.error;
   }
   connection = result.value;
+  startIngest(result.value.name);
   update({ status: "connected", deviceName: result.value.name });
   return null;
 }

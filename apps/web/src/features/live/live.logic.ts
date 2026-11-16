@@ -8,7 +8,7 @@ export const BIN_MS = 5000;
 export const LIVE_CALIBRATION_BINS = 6;
 export const LIVE_SUBJECT = "live-astronaut";
 
-const PLAUSIBLE_BPM = { min: 30, max: 220 };
+export const PLAUSIBLE_BPM = { min: 30, max: 220 };
 
 export const LIVE_RULESET = ruleSetSchema.parse({
   version: "live-0.1.0",
