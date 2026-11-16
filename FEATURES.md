@@ -1,139 +1,139 @@
 # Features — Soma
 
-> Estado: **propuesta de la Fase 1, pendiente de tu elección**. Arquitectura: `docs/ARCHITECTURE.md`. Servicios: `docs/SERVICES.md`.
-> Tamaños: **S** ≈ 1 sesión corta · **M** ≈ media jornada · **L** ≈ más de una jornada. Son estimaciones, no medidas.
-> Reglas comunes a todas: `pnpm test`, `pnpm lint` y `pnpm build` en verde; probada con `SOMA_OFFLINE=true`; toda salida clínica muestra incertidumbre y exige validación humana; integraciones externas con versión real y mock.
+> Status: **Phase 1 proposal, pending your choice**. Architecture: `docs/ARCHITECTURE.md`. Services: `docs/SERVICES.md`.
+> Sizes: **S** ≈ 1 short session · **M** ≈ half a day · **L** ≈ more than a day. They are estimates, not measurements.
+> Rules common to all: `pnpm test`, `pnpm lint` and `pnpm build` green; tried with `SOMA_OFFLINE=true`; every clinical output shows uncertainty and requires human validation; external integrations with a real version and a mock.
 
-## Cambios respecto a la lista inicial
+## Changes from the initial list
 
-- **Feature 1:** las tarjetas de tripulación ya existen (corte vertical de la Fase 0b). Queda el historial, las tendencias y el diseño de la web de misión. El badge de riesgo se enchufa en la feature 2, no aquí.
-- **Feature 8** baja a **S**: `SOMA_OFFLINE`, los mocks y los fixtures ya existen. Falta la cadena de respaldo, el aviso en la UI y la verificación de extremo a extremo.
-- **Feature 6** se parte en dos pasos internos (motor de estados primero, vista inmersiva después). Sigue siendo una sola feature.
-- **Rutas (tarea 1b ✅):** la información se reparte por rutas según `docs/ROUTES.md`: `/` resume la misión y `/reporte/[id]/...` tiene una pestaña por tema. Las features 3 a 9 añaden su ruta siguiendo esa tabla.
-- **Orden sugerido:** 1 → 2 → 3 → 4 → 5 → 7 → 6 → 8 → 9. La 6 va tarde porque es la más grande y no bloquea a las demás.
-
----
-
-## 1. ✅ Web de misión: tripulación, tendencias y mapa corporal · L · sin dependencias
-
-- **Objetivo:** que `/` sea el panel de la misión: tarjetas de tripulación, tendencias de signos vitales y, por cada miembro, un mapa del cuerpo con las zonas pintadas según su gravedad: **verde** = todo bien, **ámbar** = posible riesgo, **rojo** = riesgoso.
-- **Librería:** [OrganUI](https://organui.com/) (MIT), componente `BodyMap`. Verificado en su documentación: no es un paquete npm, se instala como **código fuente** con el CLI de shadcn (`shadcn add @organui/body-map`, o `https://organui.com/r/body-map.json`); requiere React 19 y Tailwind 4; trae las dependencias `@base-ui/react`, `class-variance-authority` y `cn`, y el componente `button` de shadcn. `BodyMap` es un **selector de regiones** (vistas frontal y posterior, teclado accesible): **no tiene prop de color ni de severidad**, su doc indica editar el código instalado para sombrear por gravedad.
-- **Archivos esperados:** `components.json`, `src/shared/ui/{body-map,button}.tsx` (+ `src/shared/lib/utils.ts` si shadcn lo pide), `data/seed/crew.json` (con historial), `features/crew/{crew.schema,crew.types,crew.logic}.ts` (tendencias y severidad por zona), `features/crew/components/{trend-chart,body-status,mission-header}.tsx`, `app/page.tsx`, `app/layout.tsx`.
-- **Criterios de aceptación:**
-  1. Cada tarjeta muestra la tendencia de al menos 3 señales (frecuencia cardíaca, SpO₂, sueño) a partir del historial del seed; la función de tendencia es pura y tiene tests (subiendo, bajando, estable, datos insuficientes).
-  2. Cada miembro tiene un mapa corporal (OrganUI `BodyMap`, frontal y posterior) con sus zonas en verde, ámbar o rojo, calculadas por una función pura con tests (por señal: `ok` / `posible riesgo` / `riesgoso`; por zona: la peor de las señales que la afectan).
-  3. Seleccionar una zona muestra qué señales y valores la pintaron, con el aviso "ilustrativo, no clínico". El color nunca es el único canal: cada zona y leyenda lleva texto (`Todo bien`, `Posible riesgo`, `Riesgoso`).
-  4. El historial se valida con Zod; un JSON malformado produce el error de `error.tsx`, no una pantalla rota. Sin scroll horizontal a 375 px.
-  5. OrganUI instalado como código fuente bajo `src/shared/ui` (alias de `components.json`), respetando `docs/ARCHITECTURE.md`; las dependencias nuevas listadas con su versión en el `REPORT.md`; `pnpm test`, `pnpm lint` y `pnpm build` en verde.
-- **Supuestos (a validar por el usuario):**
-  - Mapeo ilustrativo señal → zona: SpO₂ y frecuencia cardíaca → tórax; sueño → cabeza; dosis acumulada → abdomen y pelvis.
-  - Dos umbrales por señal (ámbar y rojo). Ámbar conserva los de hoy: SpO₂ < 94, FC > 100, sueño < 6 h, dosis > 100 mSv. Rojo: SpO₂ < 90, FC > 120, sueño < 4 h, dosis > 150 mSv. Ninguno es orientación clínica.
-- **Fuera de alcance:** clasificación de riesgo (feature 2), escritura de datos, alertas, autenticación, modelos 3D de órganos de OrganUI.
-
-## 2. ✅ Clasificación de riesgo (Jev, Laya, mock) · M · depende de 1
-
-- **Objetivo:** clasificar el riesgo por tripulante con el puerto `RiskClassifier` y mostrarlo en la tarjeta con su incertidumbre.
-- **Archivos esperados:** `features/risk/{systemone.client,classifier.laya,classifier.jev}.ts`, `risk.logic.ts` (preguntas y umbrales por proveedor), `risk.queries.ts`, `components/risk-badge.tsx`, `server/services.ts`, `server/config.ts`.
-- **Criterios de aceptación:**
-  1. Un único cliente System One sirve a Jev y a Laya, parametrizado por URL, clave, mapa de modelos y umbrales.
-  2. La cadena de respaldo es Jev → Laya → mock, y la UI muestra `source.provider` y `source.mode`.
-  3. Las clasificaciones de Laya llevan la etiqueta "respaldo local · sin calibrar" (`calibrated: false`).
-  4. Se muestran las probabilidades y la confianza, no solo la etiqueta.
-  5. Las respuestas de los proveedores se validan con Zod; 401/429/529 se manejan sin lanzar (`Result`).
-- **Fuera de alcance:** recalibrar Laya, entrenar modelos, usar el tipo `box`, guardar historial de clasificaciones.
-- **Riesgo conocido:** el JSON exacto de `laya-serve` no está verificado (ver `SERVICES.md`). La primera tarea es una llamada real o un test de contrato.
-
-## 3. ✅ Plan o tratamiento con MedGemma y respaldo · M · depende de 2
-
-- **Objetivo:** generar un borrador de rutina o tratamiento a partir del riesgo y las señales, con aviso obligatorio de validación humana.
-- **Archivos esperados:** `features/plan/{ollama.client,planner.schema}.ts`, `plan.actions.ts` o `plan.queries.ts`, `components/care-plan.tsx`, `data/fixtures/plan.json`, `app/reporte/[id]/plan/page.tsx` (pestaña "Plan").
-- **Criterios de aceptación:**
-  1. La salida del modelo se pide con `format: <JSON schema>` y se valida con Zod antes de mostrarse.
-  2. Todo plan muestra "Borrador · requiere validación humana" y el campo `uncertainty`; el tipo no admite `requiresHumanValidation: false`.
-  3. Si Ollama no responde, cae al plan de fixture y la UI lo indica (`source.mode`).
-  4. Hay un test que prueba que una respuesta que no cumple el esquema se rechaza.
-  5. Con `SOMA_OFFLINE=true` no se intenta ninguna conexión a Ollama.
-- **Fuera de alcance:** historial médico, interacciones entre fármacos, cualquier afirmación de uso clínico.
-
-## 4. Clima espacial y radiación (DONKI, SWPC, RadLab) · L · depende de 1
-
-- **Objetivo:** mostrar el estado del clima espacial y la dosis de radiación, con caché y datos de respaldo.
-- **Archivos esperados:** `features/space-weather/{donki.client,swpc.client,space-weather.queries}.ts`, `radiation.fixture.ts`, `components/*`, `data/runtime/cache/` (ignorado), `scripts/make-radiation-fixture.ts`.
-- **Criterios de aceptación:**
-  1. DONKI pide como máximo 30 días (el límite de la API es 60) y se cachea con `'use cache'` + `cacheLife`.
-  2. La cadena de respaldo es live → última respuesta en disco → fixture, y la UI muestra el modo.
-  3. SWPC aporta protones GOES, Kp y alertas, validados con Zod.
-  4. Los datos de RadLab se rotulan como históricos (datos hasta ~2024) y no como "en vivo".
-  5. El script regenera un fixture de RadLab con una ventana real de 24 h.
-- **Fuera de alcance:** predecir eventos, modelar dosis por tripulante a partir del clima.
-- **Riesgo conocido:** unidad de `absorbed_dose_rate` supuesta (µGy/h), sin verificar.
-
-## 5. Sentry: check-in adaptativo · M · depende de 2
-
-- **Objetivo:** un check-in conversacional que empieza simple y sube de complejidad solo cuando hay señal.
-- **Archivos esperados:** `features/sentry/{sentry.logic,sentry.types,sentry.actions}.ts`, `components/{checkin-chat,voice-toggle}.tsx`, `app/sentry/page.tsx`.
-- **Criterios de aceptación:**
-  1. La lógica de escalado es pura y tiene tests: sin señal, 1 pregunta; con señal, preguntas de seguimiento.
-  2. Las respuestas se validan en el servidor con Zod (las Server Actions son invocables por POST directo).
-  3. La voz usa Web Speech API solo con `voice.localService === true` si no hay red; sin voz, hay texto.
-  4. El resultado del check-in alimenta la clasificación de riesgo por el puerto, sin importar internos de otra feature.
-  5. Operable solo con teclado y con lector de pantalla.
-- **Fuera de alcance:** diagnóstico, voz en la nube, grabación de audio.
-
-## 6. Motor de procedimientos AR/VR · L · depende de 1
-
-- **Objetivo:** un motor de pasos y estados para procedimientos guiados, con modo práctica y modo en vivo, simulado en la web (`/xr`).
-- **Archivos esperados:** `features/xr/{procedure.types,procedure.schema,procedure.machine}.ts`, `data/seed/procedures.json`, `components/stepper.tsx`, `app/xr/page.tsx`.
-- **Criterios de aceptación:**
-  1. La máquina de estados es pura y tiene tests: avanzar, retroceder, saltar, fallar un paso, completar.
-  2. Práctica vs. en vivo: en práctica se puede reiniciar y no se registra nada; en vivo cada paso queda registrado.
-  3. Los procedimientos se cargan desde JSON validado con Zod.
-  4. `/xr` simula los pasos en la web; no hay dependencias de Unity ni del SDK de Meta.
-  5. El estado sobrevive a un refresco de la página.
-- **Fuera de alcance:** app de Quest 3, Ray-Ban Meta, seguimiento de manos, anclaje espacial.
-- **Decisión tomada:** la guía visual real apunta a Quest 3 (las Ray-Ban Meta normales no tienen pantalla).
-
-## 7. Alertas y escalamiento con registro de auditoría · M · depende de 2
-
-- **Objetivo:** escalar al médico de a bordo o a Tierra según el riesgo, y dejar un registro inalterable de quién hizo qué.
-- **Archivos esperados:** `features/alerts/{alerts.types,alerts.logic,alerts.repository,alerts.repository.json,alerts.actions,alerts.queries}.ts`, `data/seed/alerts.json`, `data/seed/audit.json`, `components/*`.
-- **Criterios de aceptación:**
-  1. Las reglas de escalamiento son funciones puras con tests (nivel de riesgo → destinatario).
-  2. Cada alerta y cada acción (reconocer, escalar, cerrar) agrega una entrada al registro; las entradas solo se agregan, nunca se editan.
-  3. Reconocer o cerrar una alerta exige un humano identificado; el sistema no cierra alertas por sí solo.
-  4. Escritura concurrente segura con `json-store` (test con acciones simultáneas).
-  5. El registro es visible y exportable a JSON.
-- **Fuera de alcance:** notificaciones push o por correo, integración con sistemas reales de Tierra, autenticación real.
-
-## 8. Modo degradado offline · S · depende de 2, 3 y 4
-
-- **Objetivo:** asegurar y hacer visible que la app funciona sin internet ni claves.
-- **Archivos esperados:** `server/services.ts`, `components/offline-banner.tsx`, `docs/SERVICES.md`, tests de composición.
-- **Criterios de aceptación:**
-  1. Con `SOMA_OFFLINE=true`, ninguna ruta intenta una conexión de red (verificado cortando la red).
-  2. Un banner global indica el modo y qué datos son de respaldo.
-  3. Un servicio externo caído degrada esa sola feature; el resto de la página sigue funcionando.
-  4. Hay un test que comprueba que `SOMA_OFFLINE` gana sobre cada variable `*_PROVIDER`.
-  5. `pnpm db:reset` deja el estado listo para la demo.
-- **Fuera de alcance:** sincronización posterior, PWA o service worker.
-
-## 9. Modo demo para el pitch · M · depende de 1 a 8
-
-- **Objetivo:** un escenario guiado de 3 minutos, repetible y sin sorpresas.
-- **Archivos esperados:** `features/demo/{demo.script,demo.logic}.ts`, `data/seed/demo-scenario.json`, `components/demo-controller.tsx`, `app/demo/page.tsx`.
-- **Criterios de aceptación:**
-  1. El guion tiene pasos con tiempos y se recorre con teclado (avanzar, retroceder, reiniciar).
-  2. El escenario corre completo con `SOMA_OFFLINE=true` y vuelve al estado inicial con un comando.
-  3. La interfaz distingue datos de demostración de datos reales.
-  4. Un test recorre el guion entero y comprueba que todos los pasos referencian datos existentes.
-  5. Se puede saltar a cualquier paso sin romper el estado.
-- **Fuera de alcance:** grabación de video, narración automática, analítica.
+- **Feature 1:** the crew cards already exist (Phase 0b vertical slice). What remains is the history, the trends and the mission web app design. The risk badge plugs in at feature 2, not here.
+- **Feature 8** drops to **S**: `SOMA_OFFLINE`, the mocks and the fixtures already exist. What is missing is the fallback chain, the UI notice and end-to-end verification.
+- **Feature 6** is split into two internal steps (state engine first, immersive view later). It is still a single feature.
+- **Routes (task 1b ✅):** information is distributed across routes according to `docs/ROUTES.md`: `/` summarizes the mission and `/report/[id]/...` has one tab per topic. Features 3 to 9 add their route following that table.
+- **Suggested order:** 1 → 2 → 3 → 4 → 5 → 7 → 6 → 8 → 9. Feature 6 goes late because it is the biggest and does not block the others.
 
 ---
 
-## Decisiones abiertas (afectan a varias features)
+## 1. ✅ Mission web app: crew, trends and body map · L · no dependencies
 
-1. **Resuelto:** `ORCHESTRATOR.md` creado en la raíz.
-2. **Resuelto por ahora:** no hay clave de Jev. Jev y MedGemma se **simulan con datos aleatorios** (`simulated-jev`, `simulated-medgemma`). Las features 2 y 3 usan esas simulaciones como proveedor por defecto; los clientes reales se añaden cuando haya clave y hardware.
-3. **Pendiente (ya no bloquea):** ¿las máquinas de demo pueden correr Ollama con MedGemma 1.5 4B (unos 3.3 GB) y Laya (unos 2.3 GB)? Solo importa para pasar de la simulación a los proveedores reales.
-4. **Pendiente:** el nombre "SOMA" coincide con el *Space Omics and Medical Atlas* (Weill Cornell / OSDR). Conviene una línea en el pitch (feature 9).
+- **Goal:** make `/` the mission dashboard: crew cards, vital sign trends and, for each member, a body map with the zones painted by severity: **green** = all good, **amber** = possible risk, **red** = risky.
+- **Library:** [OrganUI](https://organui.com/) (MIT), `BodyMap` component. Verified in its documentation: it is not an npm package, it is installed as **source code** with the shadcn CLI (`shadcn add @organui/body-map`, or `https://organui.com/r/body-map.json`); it requires React 19 and Tailwind 4; it brings the dependencies `@base-ui/react`, `class-variance-authority` and `cn`, and shadcn's `button` component. `BodyMap` is a **region selector** (front and back views, keyboard accessible): it **has no color or severity prop**, and its docs say to edit the installed code to shade by severity.
+- **Expected files:** `components.json`, `src/shared/ui/{body-map,button}.tsx` (+ `src/shared/lib/utils.ts` if shadcn asks for it), `data/seed/crew.json` (with history), `features/crew/{crew.schema,crew.types,crew.logic}.ts` (trends and severity per zone), `features/crew/components/{trend-chart,body-status,mission-header}.tsx`, `app/page.tsx`, `app/layout.tsx`.
+- **Acceptance criteria:**
+  1. Each card shows the trend of at least 3 signals (heart rate, SpO₂, sleep) from the seed history; the trend function is pure and has tests (rising, falling, stable, insufficient data).
+  2. Each member has a body map (OrganUI `BodyMap`, front and back) with their zones in green, amber or red, computed by a pure function with tests (per signal: `ok` / `possible risk` / `risky`; per zone: the worst of the signals that affect it).
+  3. Selecting a zone shows which signals and values painted it, with the notice "illustrative, not clinical". Color is never the only channel: each zone and legend carries text (`All good`, `Possible risk`, `Risky`).
+  4. The history is validated with Zod; a malformed JSON produces the `error.tsx` error, not a broken screen. No horizontal scroll at 375 px.
+  5. OrganUI installed as source code under `src/shared/ui` (alias in `components.json`), respecting `docs/ARCHITECTURE.md`; new dependencies listed with their version in `REPORT.md`; `pnpm test`, `pnpm lint` and `pnpm build` green.
+- **Assumptions (to be validated by the user):**
+  - Illustrative signal → zone mapping: SpO₂ and heart rate → chest; sleep → head; cumulative dose → abdomen and pelvis.
+  - Two thresholds per signal (amber and red). Amber keeps today's: SpO₂ < 94, HR > 100, sleep < 6 h, dose > 100 mSv. Red: SpO₂ < 90, HR > 120, sleep < 4 h, dose > 150 mSv. None of them is clinical guidance.
+- **Out of scope:** risk classification (feature 2), data writes, alerts, authentication, OrganUI's 3D organ models.
+
+## 2. ✅ Risk classification (Jev, LAYA, mock) · M · depends on 1
+
+- **Goal:** classify risk per crew member with the `RiskClassifier` port and show it on the card with its uncertainty.
+- **Expected files:** `features/risk/{systemone.client,classifier.laya,classifier.jev}.ts`, `risk.logic.ts` (questions and thresholds per provider), `risk.queries.ts`, `components/risk-badge.tsx`, `server/services.ts`, `server/config.ts`.
+- **Acceptance criteria:**
+  1. A single System One client serves Jev and LAYA, parameterized by URL, key, model map and thresholds.
+  2. The fallback chain is Jev → LAYA → mock, and the UI shows `source.provider` and `source.mode`.
+  3. LAYA classifications carry the label "local fallback · uncalibrated" (`calibrated: false`).
+  4. Probabilities and confidence are shown, not just the label.
+  5. Provider responses are validated with Zod; 401/429/529 are handled without throwing (`Result`).
+- **Out of scope:** recalibrating LAYA, training models, using the `box` type, storing a history of classifications.
+- **Known risk:** the exact JSON of `laya-serve` is not verified (see `SERVICES.md`). The first task is a real call or a contract test.
+
+## 3. ✅ Plan or treatment with MedGemma and fallback · M · depends on 2
+
+- **Goal:** generate a routine or treatment draft from the risk and the signals, with a mandatory human validation notice.
+- **Expected files:** `features/plan/{ollama.client,planner.schema}.ts`, `plan.actions.ts` or `plan.queries.ts`, `components/care-plan.tsx`, `data/fixtures/plan.json`, `app/report/[id]/plan/page.tsx` ("Plan" tab).
+- **Acceptance criteria:**
+  1. The model output is requested with `format: <JSON schema>` and validated with Zod before being shown.
+  2. Every plan shows "Draft · requires human validation" and the `uncertainty` field; the type does not allow `requiresHumanValidation: false`.
+  3. If Ollama does not respond, it falls back to the fixture plan and the UI says so (`source.mode`).
+  4. A test proves that a response that does not meet the schema is rejected.
+  5. With `SOMA_OFFLINE=true` no connection to Ollama is attempted.
+- **Out of scope:** medical history, drug interactions, any claim of clinical use.
+
+## 4. Space weather and radiation (DONKI, SWPC, RadLab) · L · depends on 1
+
+- **Goal:** show the space weather status and the radiation dose, with cache and fallback data.
+- **Expected files:** `features/space-weather/{donki.client,swpc.client,space-weather.queries}.ts`, `radiation.fixture.ts`, `components/*`, `data/runtime/cache/` (ignored), `scripts/make-radiation-fixture.ts`.
+- **Acceptance criteria:**
+  1. DONKI requests at most 30 days (the API limit is 60) and is cached with `'use cache'` + `cacheLife`.
+  2. The fallback chain is live → last response on disk → fixture, and the UI shows the mode.
+  3. SWPC provides GOES protons, Kp and alerts, validated with Zod.
+  4. RadLab data is labeled as historical (data up to ~2024) and not as "live".
+  5. The script regenerates a RadLab fixture with a real 24 h window.
+- **Out of scope:** predicting events, modeling per-crew-member dose from weather.
+- **Known risk:** the unit of `absorbed_dose_rate` is assumed (µGy/h), unverified.
+
+## 5. Sentry: adaptive check-in · M · depends on 2
+
+- **Goal:** a conversational check-in that starts simple and increases in complexity only when there is a signal.
+- **Expected files:** `features/sentry/{sentry.logic,sentry.types,sentry.actions}.ts`, `components/{checkin-chat,voice-toggle}.tsx`, `app/sentry/page.tsx`.
+- **Acceptance criteria:**
+  1. The escalation logic is pure and has tests: no signal, 1 question; with a signal, follow-up questions.
+  2. Responses are validated on the server with Zod (Server Actions can be invoked by direct POST).
+  3. Voice uses the Web Speech API only with `voice.localService === true` if there is no network; without voice, there is text.
+  4. The check-in result feeds the risk classification through the port, without importing another feature's internals.
+  5. Operable with only a keyboard and with a screen reader.
+- **Out of scope:** diagnosis, cloud voice, audio recording.
+
+## 6. AR/VR procedures engine · L · depends on 1
+
+- **Goal:** a step and state engine for guided procedures, with practice mode and live mode, simulated on the web (`/xr`).
+- **Expected files:** `features/xr/{procedure.types,procedure.schema,procedure.machine}.ts`, `data/seed/procedures.json`, `components/stepper.tsx`, `app/xr/page.tsx`.
+- **Acceptance criteria:**
+  1. The state machine is pure and has tests: advance, go back, skip, fail a step, complete.
+  2. Practice vs. live: in practice mode it can be restarted and nothing is recorded; in live mode each step is recorded.
+  3. Procedures are loaded from JSON validated with Zod.
+  4. `/xr` simulates the steps on the web; there are no dependencies on Unity or the Meta SDK.
+  5. The state survives a page refresh.
+- **Out of scope:** Quest 3 app, Ray-Ban Meta, hand tracking, spatial anchoring.
+- **Decision made:** the real visual guide targets Quest 3 (regular Ray-Ban Meta have no display).
+
+## 7. Alerts and escalation with an audit log · M · depends on 2
+
+- **Goal:** escalate to the onboard physician or to Earth according to risk, and leave a tamper-proof record of who did what.
+- **Expected files:** `features/alerts/{alerts.types,alerts.logic,alerts.repository,alerts.repository.json,alerts.actions,alerts.queries}.ts`, `data/seed/alerts.json`, `data/seed/audit.json`, `components/*`.
+- **Acceptance criteria:**
+  1. Escalation rules are pure functions with tests (risk level → recipient).
+  2. Each alert and each action (acknowledge, escalate, close) adds an entry to the log; entries are only appended, never edited.
+  3. Acknowledging or closing an alert requires an identified human; the system does not close alerts on its own.
+  4. Safe concurrent writes with `json-store` (test with simultaneous actions).
+  5. The log is visible and exportable to JSON.
+- **Out of scope:** push or email notifications, integration with real Earth systems, real authentication.
+
+## 8. Degraded offline mode · S · depends on 2, 3 and 4
+
+- **Goal:** ensure and make visible that the app works without internet or keys.
+- **Expected files:** `server/services.ts`, `components/offline-banner.tsx`, `docs/SERVICES.md`, composition tests.
+- **Acceptance criteria:**
+  1. With `SOMA_OFFLINE=true`, no route attempts a network connection (verified by cutting the network).
+  2. A global banner indicates the mode and which data is fallback data.
+  3. A failed external service degrades only that feature; the rest of the page keeps working.
+  4. A test checks that `SOMA_OFFLINE` wins over every `*_PROVIDER` variable.
+  5. `pnpm db:reset` leaves the state ready for the demo.
+- **Out of scope:** later synchronization, PWA or service worker.
+
+## 9. Demo mode for the pitch · M · depends on 1 to 8
+
+- **Goal:** a guided 3-minute scenario, repeatable and with no surprises.
+- **Expected files:** `features/demo/{demo.script,demo.logic}.ts`, `data/seed/demo-scenario.json`, `components/demo-controller.tsx`, `app/demo/page.tsx`.
+- **Acceptance criteria:**
+  1. The script has timed steps and is navigated with the keyboard (advance, go back, restart).
+  2. The scenario runs completely with `SOMA_OFFLINE=true` and returns to the initial state with one command.
+  3. The interface distinguishes demo data from real data.
+  4. A test walks through the entire script and checks that all steps reference existing data.
+  5. You can jump to any step without breaking the state.
+- **Out of scope:** video recording, automatic narration, analytics.
+
+---
+
+## Open decisions (affect several features)
+
+1. **Resolved:** `ORCHESTRATOR.md` created at the root.
+2. **Resolved for now:** there is no Jev key. Jev and MedGemma are **simulated with random data** (`simulated-jev`, `simulated-medgemma`). Features 2 and 3 use those simulations as the default provider; the real clients are added when there is a key and hardware.
+3. **Pending (no longer blocking):** can the demo machines run Ollama with MedGemma 1.5 4B (about 3.3 GB) and LAYA (about 2.3 GB)? It only matters for moving from the simulation to the real providers.
+4. **Pending:** the name "SOMA" coincides with the *Space Omics and Medical Atlas* (Weill Cornell / OSDR). A line in the pitch is advisable (feature 9).

@@ -1,89 +1,89 @@
 # SOMA — DESIGN.md
 
-Sistema de diseño de la landing de SOMA, para aplicarlo a la plataforma web.
-Principio: **producto primero, personaje después.** SOMA protagoniza; Sentry acompaña.
+SOMA landing page design system, to apply to the web platform.
+Principle: **product first, character second.** SOMA is the lead; Sentry accompanies.
 
-## 1. Reglas de estilo
-- Fondo negro predominante, textos blancos.
-- Sin etiquetas en mayúsculas (eyebrows), sin textos explicativos de apoyo, sin líneas divisorias ni bordes decorativos.
-- Superficies separadas por cambio de tono, nunca por trazos.
-- Textos en español. Sin afirmaciones médicas, certificaciones clínicas ni aval de NASA.
-- Datos reales, históricos y sintéticos siempre distinguibles.
+## 1. Style rules
+- Predominantly black background, white text.
+- No uppercase labels (eyebrows), no supporting explanatory text, no divider lines or decorative borders.
+- Surfaces separated by a change of tone, never by strokes.
+- Text in English. No medical claims, clinical certifications or NASA endorsement.
+- Real, historical and synthetic data always distinguishable.
 
 ## 2. Color (tokens)
-| Token | Valor | Uso |
+| Token | Value | Use |
 |---|---|---|
-| background | oklch(0 0 0) — #000 | Fondo general |
-| foreground | oklch(1 0 0) — #FFF | Texto |
-| card | oklch(0.17 0 0) | Tarjetas, ventana de producto |
-| secondary | oklch(0.24 0 0) | Hover/foco de tarjetas, mosaicos F0–F3 |
-| muted | oklch(0.12 0 0) | Barra lateral, sección proyecto |
-| muted-foreground | oklch(0.9 0 0) | Texto secundario |
-| ink | oklch(0.74 0.015 265) — #A8ADB8 | Gris frío |
-| accent | oklch(0.52 0.22 264) | Azul derivado de Sentry |
-| signal | oklch(0.72 0.13 250) | Puntos de señal / gráficos |
-| accent-soft | oklch(0.22 0.03 264) | Fondos de acento |
-| primary | blanco, texto negro | Botones principales |
-| ring | blanco | Anillo de foco |
+| background | oklch(0 0 0) — #000 | General background |
+| foreground | oklch(1 0 0) — #FFF | Text |
+| card | oklch(0.17 0 0) | Cards, product window |
+| secondary | oklch(0.24 0 0) | Card hover/focus, F0–F3 tiles |
+| muted | oklch(0.12 0 0) | Sidebar, project section |
+| muted-foreground | oklch(0.9 0 0) | Secondary text |
+| ink | oklch(0.74 0.015 265) — #A8ADB8 | Cool gray |
+| accent | oklch(0.52 0.22 264) | Blue derived from Sentry |
+| signal | oklch(0.72 0.13 250) | Signal dots / charts |
+| accent-soft | oklch(0.22 0.03 264) | Accent backgrounds |
+| primary | white, black text | Primary buttons |
+| ring | white | Focus ring |
 
-Usar siempre tokens semánticos; nunca colores fijos en componentes.
+Always use semantic tokens; never hardcoded colors in components.
 
-## 3. Tipografía
-- Títulos: **DM Sans** 700. Texto: Inter (sistema como respaldo).
-- Display: 64px / 1.06 (72px ≥1440px, 32px móvil).
-- Headline: 48px / 1.1 (36px móvil).
-- Letter-spacing 0. Botones en DM Sans 600.
+## 3. Typography
+- Headings: **DM Sans** 700. Text: Inter (system as fallback).
+- Display: 64px / 1.06 (72px ≥1440px, 32px mobile).
+- Headline: 48px / 1.1 (36px mobile).
+- Letter-spacing 0. Buttons in DM Sans 600.
 
-## 4. Espaciado y forma
-- Contenedor: máx. 1280px, padding lateral clamp(20px, 4vw, 64px).
-- Radios: 4 / 8 / 16 / 24px. Tarjetas y ventanas: 8px. Botones: píldora (9999px).
-- Sombra de producto: 0 18px 55px -20px, blanco al 14%.
+## 4. Spacing and shape
+- Container: max 1280px, side padding clamp(20px, 4vw, 64px).
+- Radii: 4 / 8 / 16 / 24px. Cards and windows: 8px. Buttons: pill (9999px).
+- Product shadow: 0 18px 55px -20px, white at 14%.
 
-## 5. Componentes
-- **Ventana de producto:** card, radio 8px, barra lateral 124px (oculta en móvil). Es ilustrativa: marcar "Demostración" y "Fuente / Sintética".
-- **Gráficos:** sin líneas ni rejillas; 24 puntos de 7px en color signal, con aria-label.
-- **Galería:** carrusel horizontal con scroll-snap (start), tarjetas 343×395px, gap 12px, sin flechas. Hover/foco → secondary. Cada tarjeta abre su página de lectura.
-- **Vista de lectura:** fondo negro, título blanco, cuerpo 90% blanco, superficie oklch(0.17 0 0). Cerrar con botón o Escape y volver a la misma tarjeta.
-- **Mosaicos F0–F3:** fondo secondary, sin borde. Reglas definidas por el proyecto.
+## 5. Components
+- **Product window:** card, 8px radius, 124px sidebar (hidden on mobile). It is illustrative: mark "Demo" and "Source / Synthetic".
+- **Charts:** no lines or grids; 24 dots of 7px in the signal color, with aria-label.
+- **Gallery:** horizontal carousel with scroll-snap (start), 343×395px cards, 12px gap, no arrows. Hover/focus → secondary. Each card opens its reading page.
+- **Reading view:** black background, white title, body at 90% white, surface oklch(0.17 0 0). Close with the button or Escape and return to the same card.
+- **F0–F3 tiles:** secondary background, no border. Rules defined by the project.
 
-## 5.1 Iconos
-- Librería única: **Material Symbols Outlined** (paquete `material-symbols`, ligaduras de fuente).
-- Nunca usar símbolos de texto (←, ↑, ↓, →, ×) ni otras librerías de iconos.
-- Usar el componente `Icon` (`shared/ui/icon.tsx`): `<Icon name="arrow_back" />`. Decorativo, `aria-hidden`; el significado va en el texto contiguo.
-- Tamaño 1.25em por defecto; hereda el color del texto.
+## 5.1 Icons
+- Single library: **Material Symbols Outlined** (`material-symbols` package, font ligatures).
+- Never use text symbols (←, ↑, ↓, →, ×) or other icon libraries.
+- Use the `Icon` component (`shared/ui/icon.tsx`): `<Icon name="arrow_back" />`. Decorative, `aria-hidden`; the meaning goes in the adjacent text.
+- Size 1.25em by default; inherits the text color.
 
-## 5.2 Lineamientos de aplicación en la plataforma
-- Estados con tokens semánticos, nunca colores fijos: `ok` (Todo bien / Nominal), `warn` (Posible riesgo / Vigilar), `danger` (Riesgoso / Revisar). Fondo al 15% del mismo color.
-- Riesgo de IA en escala azul (`accent-soft`, `accent`, `signal`) para no confundirse con los estados anteriores.
-- Tarjetas por cambio de tono (`card`, hover/foco `secondary`); sin bordes ni divisores. Tablas: filas alternas `muted`.
-- Pestañas y chips en píldora; activa = `primary`.
-- Métricas: etiqueta en `ink`, valor en DM Sans 700.
-- Texto de nota o aviso en `ink`; avisos de "Demostración", "Fuente" y "no clínico" siempre visibles donde haya datos.
-- Títulos de página: `text-display`; secciones: `text-headline`.
-- Tema oscuro fijo; no hay modo claro.
+## 5.2 Application guidelines on the platform
+- States with semantic tokens, never hardcoded colors: `ok` (All good / Nominal), `warn` (Possible risk / Watch), `danger` (Risky / Review). Background at 15% of the same color.
+- AI risk on a blue scale (`accent-soft`, `accent`, `signal`) so it is not confused with the states above.
+- Cards by change of tone (`card`, hover/focus `secondary`); no borders or dividers. Tables: alternating `muted` rows.
+- Tabs and chips as pills; active = `primary`.
+- Metrics: label in `ink`, value in DM Sans 700.
+- Note or notice text in `ink`; "Demo", "Source" and "non-clinical" notices always visible wherever there is data.
+- Page titles: `text-display`; sections: `text-headline`.
+- Fixed dark theme; there is no light mode.
 
 ## 6. Sentry
-- Usar solo el archivo oficial `soma.riv` (artboard "Artboard 1", MascotController sin inputs) con el runtime oficial de Rive.
-- Nunca recrear, redibujar ni recolorear. No inventar animaciones.
-- Ciclo automático: idle → thinking → listening → working → success → rest → warning → error → sleeping; el parpadeo continúa.
-- Tamaño de acompañante (~140px escritorio, ~65px móvil). Pausar cuando queda fuera de pantalla.
-- Respaldo PNG estático si falla la carga o con movimiento reducido.
+- Use only the official `soma.riv` file ("Artboard 1" artboard, MascotController with no inputs) with the official Rive runtime.
+- Never recreate, redraw or recolor. Do not invent animations.
+- Automatic cycle: idle → thinking → listening → working → success → rest → warning → error → sleeping; blinking continues.
+- Companion size (~140px desktop, ~65px mobile). Pause when off-screen.
+- Static PNG fallback if loading fails or with reduced motion.
 
-## 7. Pantalla de carga
-- Fondo negro con Sentry animado al centro.
-- Mínimo 1.4s, máximo 8s; se desvanece en 400ms.
-- Solo una vez por visita, no al navegar entre páginas internas.
+## 7. Loading screen
+- Black background with animated Sentry in the center.
+- Minimum 1.4s, maximum 8s; fades out in 400ms.
+- Only once per visit, not when navigating between internal pages.
 
-## 8. Movimiento
-- Easing editorial: cubic-bezier(0.22, 1, 0.36, 1). Nunca rebotes.
-- Duraciones: micro 0.18s, rápida 0.28s, normal 0.52s, revelado 0.68s.
-- Desplazamiento máximo de aparición: 24px.
-- Aparece una vez cuando ~25% es visible (margen inferior -15%); elementos al final del documento sin margen.
-- Titular palabra por palabra; parallax leve en la vista de producto; tarjetas de galería ganan opacidad/escala al quedar al frente.
-- Movimiento reducido: solo fundido de 0.16s, sin desplazamientos.
-- Sin JavaScript todo el contenido debe ser legible.
+## 8. Motion
+- Editorial easing: cubic-bezier(0.22, 1, 0.36, 1). Never bounces.
+- Durations: micro 0.18s, fast 0.28s, normal 0.52s, reveal 0.68s.
+- Maximum appearance offset: 24px.
+- Appears once when ~25% is visible (bottom margin -15%); elements at the end of the document with no margin.
+- Headline word by word; slight parallax in the product view; gallery cards gain opacity/scale when brought to the front.
+- Reduced motion: only a 0.16s fade, no movement.
+- Without JavaScript all content must be readable.
 
-## 9. Accesibilidad
-- Foco visible siempre (anillo blanco), gana sobre efectos.
-- Navegación por teclado en galería; Escape cierra lecturas.
-- Sin desbordamiento horizontal en 390px.
+## 9. Accessibility
+- Visible focus always (white ring), wins over effects.
+- Keyboard navigation in the gallery; Escape closes readings.
+- No horizontal overflow at 390px.

@@ -1,73 +1,73 @@
-# FLOW.md — Flujo de demo de SOMA (borrador para refinar)
+# FLOW.md — SOMA demo flow (draft to refine)
 
-> Prototipo de investigación y apoyo a decisiones. Los datos de la demo son sintéticos o históricos y deben rotularse como tales. Los umbrales son reglas de demostración propias del proyecto.
+> Research and decision-support prototype. Demo data is synthetic or historical and must be labeled as such. Thresholds are the project's own demonstration rules.
 
 ## Roles
 
-| Rol | Qué hace | Qué ve |
+| Role | What it does | What it sees |
 |---|---|---|
-| **Astronauta** | Usa el dashboard, sigue el plan, ejecuta procedimientos guiados en XR | Sus propios datos |
-| **Oficial médico a bordo (CMO)** | Revisa evidencia de la tripulación, confirma o descarta acciones, puede escalar a mano | Evidencia de la tripulación, con permiso ampliado |
-| **Comandante** | Recibe impacto operacional | Resumen sin detalle clínico |
-| **Supervisor / médico en Tierra** | Cura la biblioteca de protocolos antes de la misión, valida o modifica propuestas vía store-and-forward | Paquetes sincronizados |
-| **Auditor / científico** (opcional) | Revisa reglas, versiones y trazabilidad | Solo lectura, datos pseudonimizados |
-| **Sentry** (asistente) | Comunica, explica y redacta borradores. No decide | Evidencia estructurada que le entrega el motor |
+| **Astronaut** | Uses the dashboard, follows the plan, runs guided procedures in XR | Their own data |
+| **Onboard medical officer (CMO)** | Reviews crew evidence, confirms or dismisses actions, can escalate manually | Crew evidence, with extended permission |
+| **Commander** | Receives operational impact | Summary without clinical detail |
+| **Supervisor / Earth physician** | Curates the protocol library before the mission, validates or modifies proposals via store-and-forward | Synced packages |
+| **Auditor / scientist** (optional) | Reviews rules, versions and traceability | Read-only, pseudonymized data |
+| **Sentry** (assistant) | Communicates, explains and drafts. It does not decide | Structured evidence handed to it by the engine |
 
-Privacidad: F0–F2 solo lo ven el astronauta y el CMO. F3 es la excepción: se notifica a la tripulación y a Tierra con lo mínimo (estado y acción).
+Privacy: F0–F2 are seen only by the astronaut and the CMO. F3 is the exception: the crew and Earth are notified with the bare minimum (status and action).
 
-## Flujo principal
+## Main flow
 
-1. **Datos.** Wearables, IoT, DONKI y autorreporte entran al dashboard con procedencia (real / histórico / sintético) y calidad.
-2. **Motor determinista.** Analiza de forma pasiva con baseline individual, persistencia y reglas versionadas. Devuelve F0–F3 o `NOT_EVALUABLE`. Sin datos suficientes no hay plan.
-3. **Plan de seguimiento.**
-   - Los **pasos pre-aprobados** (biblioteca curada por médicos en Tierra) arrancan de inmediato.
-   - Lo que Sentry proponga fuera de esa biblioteca es un **borrador pendiente de validación** y viaja a Tierra.
-   - En **F3** se muestra el protocolo aprobado al instante, sin generación libre.
-4. **Procedimiento guiado en XR.** Un Meta Quest guía el procedimiento (caso recomendado: ultrasonido, no radiografía). El módulo detecta el dispositivo con WebXR. Los assets son locales por el requisito offline-first.
-5. **Resultado como nueva observación.** Lo capturado vuelve al sistema con procedencia ("autotomado, guiado por XR") y calidad de imagen evaluada.
-6. **Hallazgos preliminares.** MedGemma redacta hallazgos preliminares, nunca un diagnóstico. El CMO los revisa.
-7. **Validación en Tierra.** El médico aprueba, modifica o rechaza. Se audita la propuesta de la IA (con versión del modelo) frente a la decisión humana.
-8. **Seguimiento.** Ver la sección siguiente. El motor reevalúa con los datos nuevos.
+1. **Data.** Wearables, IoT, DONKI and self-report enter the dashboard with provenance (real / historical / synthetic) and quality.
+2. **Deterministic engine.** Analyzes passively with an individual baseline, persistence and versioned rules. Returns F0–F3 or `NOT_EVALUABLE`. Without enough data there is no plan.
+3. **Follow-up plan.**
+   - **Pre-approved steps** (library curated by physicians on Earth) start immediately.
+   - Whatever Sentry proposes outside that library is a **draft pending validation** and travels to Earth.
+   - At **F3** the approved protocol is shown instantly, with no free generation.
+4. **Guided procedure in XR.** A Meta Quest guides the procedure (recommended case: ultrasound, not X-ray). The module detects the device with WebXR. Assets are local because of the offline-first requirement.
+5. **Result as a new observation.** What is captured returns to the system with provenance ("self-taken, XR-guided") and assessed image quality.
+6. **Preliminary findings.** MedGemma drafts preliminary findings, never a diagnosis. The CMO reviews them.
+7. **Validation on Earth.** The physician approves, modifies or rejects. The AI proposal (with model version) is audited against the human decision.
+8. **Follow-up.** See the next section. The engine reevaluates with the new data.
 
-## Seguimiento de la evolución
+## Tracking progress
 
-Al crear el plan se define un **contrato de seguimiento** con reglas deterministas:
+When the plan is created, a **follow-up contract** is defined with deterministic rules:
 
-- **Señales objetivo** y la dirección esperada respecto al baseline individual.
-- **Ventanas de revisión** (cuándo se evalúa de nuevo).
-- **Adherencia:** pasos completados, sesiones XR realizadas.
-- **Autorreporte periódico:** síntomas y fatiga, estructurados por Jev.
+- **Target signals** and the expected direction relative to the individual baseline.
+- **Review windows** (when to evaluate again).
+- **Adherence:** steps completed, XR sessions done.
+- **Periodic self-report:** symptoms and fatigue, structured by Jev.
 
-Resultado de cada revisión: `mejorando`, `estable`, `empeorando` o `NO_EVALUABLE`.
+Result of each review: `improving`, `stable`, `worsening` or `NOT_EVALUABLE`.
 
-- `empeorando` sube el estado y notifica a Tierra.
-- `mejorando` no baja el estado de forma automática. Baja con histéresis (varias ventanas consecutivas) y confirmación del CMO o de Tierra.
-- **El baseline se congela durante el tratamiento** para no absorber la desviación ni el efecto del tratamiento.
-- Se registra el inicio del plan en la línea de tiempo para distinguir efecto de tratamiento de variación espontánea.
-- Si cambia la adherencia o la calidad del dato, el resultado es `NO_EVALUABLE`, no "mejoró".
+- `worsening` raises the status and notifies Earth.
+- `improving` does not lower the status automatically. It lowers with hysteresis (several consecutive windows) and confirmation from the CMO or Earth.
+- **The baseline is frozen during treatment** so it does not absorb the deviation or the treatment effect.
+- The plan start is recorded on the timeline to tell treatment effect from spontaneous variation.
+- If adherence or data quality changes, the result is `NOT_EVALUABLE`, not "improved".
 
-## Dónde entra Jev
+## Where Jev comes in
 
-Jev (TypeSafe AI, System One) es un modelo de decisión: no genera texto, devuelve respuestas tipadas con probabilidad (`choice`, `score`, `noul`). Es rápido y barato, y ya está en el repo como clasificador de riesgo (con respaldo Laya y mock).
+Jev (TypeSafe AI, System One) is a decision model: it does not generate text, it returns typed answers with probability (`choice`, `score`, `noul`). It is fast and cheap, and is already in the repo as the risk classifier (with LAYA fallback and mock).
 
-Es **probabilístico**, así que no decide F0–F3. Se usa en la capa que estructura, no en la que decide:
+It is **probabilistic**, so it does not decide F0–F3. It is used in the layer that structures, not the one that decides:
 
-| Uso | Tipo | Ejemplo |
+| Use | Type | Example |
 |---|---|---|
-| Estructurar el autorreporte o la voz | `choice` / `score` | Texto libre → categoría de síntoma y severidad, confirmada por el usuario |
-| Enrutar al protocolo | `choice` | Elegir entre protocolos **ya aprobados** de la biblioteca |
-| Puntuar evolución subjetiva | `score` | Fatiga o dolor en cada revisión de seguimiento |
-| Guardarraíl sobre la salida de MedGemma | `noul` | "¿El texto contiene un diagnóstico o una prescripción?" Si sí, se bloquea |
+| Structure self-report or voice | `choice` / `score` | Free text → symptom category and severity, confirmed by the user |
+| Route to the protocol | `choice` | Choose among **already approved** protocols from the library |
+| Score subjective progress | `score` | Fatigue or pain at each follow-up review |
+| Guardrail on MedGemma's output | `noul` | "Does the text contain a diagnosis or a prescription?" If so, it is blocked |
 
-Cuidados:
-- Registrar versión del modelo y confianza en cada uso. Baja confianza se trata como "pedir confirmación", nunca como dato.
-- Jev no tiene self-hosting según la documentación, lo que choca con offline-first. Por eso la cadena **Jev → Laya (local) → mock** es parte del diseño, no un detalle.
-- La latencia baja es una afirmación de terceros; no está verificada.
+Cautions:
+- Record the model version and confidence on every use. Low confidence is treated as "ask for confirmation", never as data.
+- Jev has no self-hosting according to the documentation, which clashes with offline-first. That is why the **Jev → LAYA (local) → mock** chain is part of the design, not a detail.
+- Low latency is a third-party claim; it is not verified.
 
-## Pendientes para refinar
+## Pending items to refine
 
-- Caso concreto que será el hilo de la demo (anomalía y procedimiento XR).
-- Reglas de demostración y umbrales (declarados como propios).
-- Criterios exactos de `mejorando` / `empeorando` y de histéresis.
-- Contenido de la biblioteca de protocolos pre-aprobados.
-- Qué viaja a Tierra y qué ven la tripulación y el comandante.
+- The concrete case that will be the thread of the demo (anomaly and XR procedure).
+- Demonstration rules and thresholds (declared as the project's own).
+- Exact criteria for `improving` / `worsening` and for hysteresis.
+- Content of the pre-approved protocol library.
+- What travels to Earth and what the crew and the commander see.

@@ -1,154 +1,154 @@
-# Inventario de servicios externos — Soma
+# External services inventory — Soma
 
-> Estado: **definitivo (Fase 0b)**. Verificado entre el 2026-10-30 y el 2026-10-31.
-> Regla: **todo servicio externo tiene un mock o fixture**. Con `SOMA_OFFLINE=true` el prototipo corre completo sin internet ni claves.
-> Implementado en Fase 0b: **solo los puertos, los mocks y los fixtures** (`classifier.mock.ts`, `planner.mock.ts`, `space-weather.fixture.ts`). Los adaptadores reales (Jev, Laya, Ollama, DONKI, SWPC, RadLab) se escriben en sus features; mientras tanto, `services.ts` lanza un error claro si se configura un proveedor sin adaptador.
-> **Simulaciones actuales:** sin clave de Jev ni MedGemma local, `CLASSIFIER_PROVIDER=mock` y `PLANNER_PROVIDER=mock` producen respuestas con **datos aleatorios** que imitan la forma de las reales (`source.provider` = `simulated-jev` y `simulated-medgemma`). Son aleatorias, no clínicas ni calibradas, y la UI debe rotularlas como simuladas. Los tests inyectan la fuente aleatoria para ser reproducibles.
-> Los fixtures de `data/fixtures/` son **sintéticos** (marcados como tal en sus resúmenes): no son datos reales de NASA ni de la ISS. La ventana real de 24 h de RadLab sigue pendiente de generarse con un script.
+> Status: **final (Phase 0b)**. Verified between 2026-10-30 and 2026-10-31.
+> Rule: **every external service has a mock or fixture**. With `SOMA_OFFLINE=true` the prototype runs completely without internet or keys.
+> Implemented in Phase 0b: **only the ports, mocks and fixtures** (`classifier.mock.ts`, `planner.mock.ts`, `space-weather.fixture.ts`). The real adapters (Jev, LAYA, Ollama, DONKI, SWPC, RadLab) are written in their features; in the meantime, `services.ts` throws a clear error if a provider without an adapter is configured.
+> **Current simulations:** without a Jev key or a local MedGemma, `CLASSIFIER_PROVIDER=mock` and `PLANNER_PROVIDER=mock` produce responses with **random data** that mimic the shape of the real ones (`source.provider` = `simulated-jev` and `simulated-medgemma`). They are random, not clinical or calibrated, and the UI must label them as simulated. Tests inject the random source to be reproducible.
+> The fixtures in `data/fixtures/` are **synthetic** (marked as such in their summaries): they are not real NASA or ISS data. The real 24 h RadLab window is still pending generation with a script.
 
-## Resumen
+## Summary
 
-| Servicio | Propósito | En la demo | Variables | Clave / instalación | Si falla | Fuente |
+| Service | Purpose | In the demo | Variables | Key / installation | If it fails | Source |
 |---|---|---|---|---|---|---|
-| **Jev** (TypeSafe AI) | Clasificar riesgo (System One) | Real si hay clave | `CLASSIFIER_PROVIDER=jev`, `TYPESAFE_API_KEY`, `JEV_BASE_URL`, `JEV_MODEL` | Clave en https://console.typesafe.ai/keys | → Laya → mock | docs.typesafe.ai/api/system-one.md |
-| **Laya** | Respaldo local del clasificador, mismo protocolo | Respaldo | `CLASSIFIER_PROVIDER=laya`, `LAYA_BASE_URL`, `LAYA_MODEL`, `LAYA_API_KEY` (opcional) | `pip install "laya[serve]"` y luego `laya-serve` (puerto 8000) | → mock | github.com/NandhaKishorM/laya |
-| **MedGemma 1.5 4B** vía Ollama | Borrador de rutina o tratamiento | Real local | `PLANNER_PROVIDER=ollama\|mock`, `OLLAMA_BASE_URL`, `OLLAMA_MODEL` | Instalar Ollama y luego `ollama pull medgemma1.5:4b` (unos 3.3 GB) | → plan fixture | huggingface.co/google/medgemma-1.5-4b-it |
-| **NASA DONKI** (CCMC) | Eventos de clima espacial (FLR, SEP, CME, GST) | Real + caché | `SPACE_WEATHER_PROVIDER=live\|fixture`, `DONKI_BASE_URL` | **Sin clave** en el host nuevo | → caché en disco → fixture | ccmc.gsfc.nasa.gov/tools/DONKI |
-| **NOAA SWPC** | Flujo de protones y rayos X GOES en tiempo real, Kp, alertas | Real + caché | (comparte `SPACE_WEATHER_PROVIDER`), `SWPC_BASE_URL` | Sin clave | → caché en disco → fixture | spaceweather.gov/content/data-access |
-| **RadLab** (OSDR) | Dosimetría ISS de referencia | **Fixture** | `RADIATION_PROVIDER=fixture\|live`, `RADLAB_BASE_URL` | Sin clave; los datos llegan hasta ~2024 | → fixture | visualization.osdr.nasa.gov/radlab/gui/data-api/ |
-| **Web Speech API** | Voz de Sentry (TTS) | Real (navegador) | — | Nada; en el cliente | Solo texto en pantalla | MDN SpeechSynthesisVoice |
+| **Jev** (TypeSafe AI) | Classify risk (System One) | Real if there is a key | `CLASSIFIER_PROVIDER=jev`, `TYPESAFE_API_KEY`, `JEV_BASE_URL`, `JEV_MODEL` | Key at https://console.typesafe.ai/keys | → LAYA → mock | docs.typesafe.ai/api/system-one.md |
+| **LAYA** | Local fallback for the classifier, same protocol | Fallback | `CLASSIFIER_PROVIDER=laya`, `LAYA_BASE_URL`, `LAYA_MODEL`, `LAYA_API_KEY` (optional) | `pip install "laya[serve]"` and then `laya-serve` (port 8000) | → mock | github.com/NandhaKishorM/laya |
+| **MedGemma 1.5 4B** via Ollama | Routine or treatment draft | Real local | `PLANNER_PROVIDER=ollama\|mock`, `OLLAMA_BASE_URL`, `OLLAMA_MODEL` | Install Ollama and then `ollama pull medgemma1.5:4b` (about 3.3 GB) | → plan fixture | huggingface.co/google/medgemma-1.5-4b-it |
+| **NASA DONKI** (CCMC) | Space weather events (FLR, SEP, CME, GST) | Real + cache | `SPACE_WEATHER_PROVIDER=live\|fixture`, `DONKI_BASE_URL` | **No key** on the new host | → disk cache → fixture | ccmc.gsfc.nasa.gov/tools/DONKI |
+| **NOAA SWPC** | Real-time GOES proton flux and X-rays, Kp, alerts | Real + cache | (shares `SPACE_WEATHER_PROVIDER`), `SWPC_BASE_URL` | No key | → disk cache → fixture | spaceweather.gov/content/data-access |
+| **RadLab** (OSDR) | Reference ISS dosimetry | **Fixture** | `RADIATION_PROVIDER=fixture\|live`, `RADLAB_BASE_URL` | No key; data runs up to ~2024 | → fixture | visualization.osdr.nasa.gov/radlab/gui/data-api/ |
+| **Web Speech API** | Sentry's voice (TTS) | Real (browser) | — | Nothing; on the client | On-screen text only | MDN SpeechSynthesisVoice |
 
-Modo global: `SOMA_OFFLINE=true` fuerza todos los proveedores a `mock` o `fixture`.
+Global mode: `SOMA_OFFLINE=true` forces every provider to `mock` or `fixture`.
 
-## Descartados
+## Discarded
 
-| Servicio | Por qué |
+| Service | Why |
 |---|---|
-| NASA OSDR biodata API | Son metadatos de estudios ómicos, sobre todo en roedores. No hay signos vitales; no sirve para el bucle de riesgo |
-| api.nasa.gov/DONKI (proxy) | Respondió 503 en las pruebas del 2026-10-31. El host CCMC no necesita clave |
-| Piper (TTS local) | Útil, pero ahora es GPL-3.0, requiere un sidecar y cada voz tiene su licencia. Opcional a futuro |
-| TTS en la nube | Rompe la premisa de que todo corra en local |
-| Otras APIs NASA (APOD, EONET…) | No aportan nada a salud ni a radiación |
+| NASA OSDR biodata API | It is omics study metadata, mostly on rodents. There are no vital signs; it is useless for the risk loop |
+| api.nasa.gov/DONKI (proxy) | Responded 503 in the 2026-10-31 tests. The CCMC host does not need a key |
+| Piper (local TTS) | Useful, but now GPL-3.0, requires a sidecar and each voice has its own license. Optional for the future |
+| Cloud TTS | Breaks the premise that everything runs locally |
+| Other NASA APIs (APOD, EONET…) | They add nothing to health or radiation |
 
 ---
 
-## Detalle por servicio
+## Detail per service
 
-### Jev (TypeSafe AI) — verificado
+### Jev (TypeSafe AI) — verified
 
-- **Endpoint:** `POST https://api.typesafe.ai/v1/systemone`, con el header `Authorization: Bearer $TYPESAFE_API_KEY`.
-- **Modelos:**
-  - `jev-1.14.0` (desde 2026-10-14) y `jev-1.13.0`.
-  - El alias `jev-latest` apunta a 1.14.0.
-  - `GET /v1/models` lista los disponibles.
-- **Tipos de pregunta:**
+- **Endpoint:** `POST https://api.typesafe.ai/v1/systemone`, with the header `Authorization: Bearer $TYPESAFE_API_KEY`.
+- **Models:**
+  - `jev-1.14.0` (since 2026-10-14) and `jev-1.13.0`.
+  - The alias `jev-latest` points to 1.14.0.
+  - `GET /v1/models` lists the available ones.
+- **Question types:**
 
-  | Tipo | Qué devuelve |
+  | Type | What it returns |
   |---|---|
-  | `noul` | Probabilidad de "true" (**no es un booleano**) |
-  | `choice` | Opción elegida + probabilidades + `confidence` |
-  | `score` | Valor esperado ponderado, **no un entero** + probabilidades + `confidence` |
-  | `box` | Requiere imágenes; no se usa en Soma |
+  | `noul` | Probability of "true" (**not a boolean**) |
+  | `choice` | Chosen option + probabilities + `confidence` |
+  | `score` | Weighted expected value, **not an integer** + probabilities + `confidence` |
+  | `box` | Requires images; not used in Soma |
 
-- **Errores:**
+- **Errors:**
 
-  | Código | Significado | Qué hacer |
+  | Code | Meaning | What to do |
   |---|---|---|
-  | 400 / 422 | `detail` con el error | Corregir la petición |
-  | 401 | Clave inválida | Revisar la clave |
-  | 413 | Cuerpo > 32 MiB | Reducir la petición |
-  | 429 / 529 | Rate limit / sobrecarga | Reintentar con backoff exponencial |
+  | 400 / 422 | `detail` with the error | Fix the request |
+  | 401 | Invalid key | Check the key |
+  | 413 | Body > 32 MiB | Reduce the request |
+  | 429 / 529 | Rate limit / overload | Retry with exponential backoff |
 
-- **Costo:** $0.042 por millón de tokens de entrada; la salida es gratis.
-- **Self-hosted:** no existe según la doc oficial.
-- **Fuentes:** https://docs.typesafe.ai/api/system-one.md · https://docs.typesafe.ai/api/errors.md · https://docs.typesafe.ai/models.md
+- **Cost:** $0.042 per million input tokens; output is free.
+- **Self-hosted:** does not exist according to the official docs.
+- **Sources:** https://docs.typesafe.ai/api/system-one.md · https://docs.typesafe.ai/api/errors.md · https://docs.typesafe.ai/models.md
 
-### Laya — verificado (con matices)
+### LAYA — verified (with caveats)
 
-- **Paquete y licencia:** `laya` 0.4.18 en PyPI, Apache-2.0, de Convai Innovations.
+- **Package and license:** `laya` 0.4.18 on PyPI, Apache-2.0, from Convai Innovations.
 - **Checkpoints:**
-  - `english` y `typed-decisions` (ModernBERT-large, 421M).
+  - `english` and `typed-decisions` (ModernBERT-large, 421M).
   - `multilingual` (mmBERT-base, 322M).
-- **Servidor:** `laya-serve` expone `POST /v1/systemone` en `0.0.0.0:8000`, con el mismo protocolo que Jev; **no** es compatible con OpenAI.
-- **Diferencias con Jev que el adaptador debe manejar:**
-  1. Nombres de modelo distintos, así que hace falta un mapa por proveedor.
-  2. No tiene el tipo `box`.
-  3. Cada nivel de `score` necesita descripción; un nivel `null` da 422.
-  4. `confidence` se calcula como 1 − entropía normalizada, así que **los umbrales de Jev no sirven**.
-  5. `choice` admite como máximo 100 opciones.
-- **Calibración (cifras del propio fabricante, sin replicación independiente):**
-  - Los checkpoints publicados son **sobreconfiados**: ECE 0.466, que baja a 0.081 recién tras recalibrar con datos propios.
-  - `typed-decisions` no está entrenado en datos de salud.
-  - En decisiones tipadas *zero-shot* queda cerca del azar.
-  - **Consecuencia en la UI:** cada clasificación de Laya lleva la etiqueta "respaldo local · sin calibrar".
-- **Requisitos:** Python 3.10+; unos 2.3 GB de pesos; GPU opcional (CUDA, MPS o CPU).
-- **Fuentes:** https://pypi.org/project/laya/ · https://github.com/NandhaKishorM/laya · https://huggingface.co/convaiinnovations/laya-typed-decisions
+- **Server:** `laya-serve` exposes `POST /v1/systemone` on `0.0.0.0:8000`, with the same protocol as Jev; it is **not** OpenAI-compatible.
+- **Differences from Jev that the adapter must handle:**
+  1. Different model names, so a per-provider map is needed.
+  2. It has no `box` type.
+  3. Each `score` level needs a description; a `null` level gives 422.
+  4. `confidence` is computed as 1 − normalized entropy, so **Jev's thresholds do not apply**.
+  5. `choice` supports at most 100 options.
+- **Calibration (the vendor's own figures, without independent replication):**
+  - The published checkpoints are **overconfident**: ECE 0.466, which only drops to 0.081 after recalibrating with your own data.
+  - `typed-decisions` is not trained on health data.
+  - On *zero-shot* typed decisions it is close to chance.
+  - **Consequence in the UI:** every LAYA classification carries the label "local fallback · uncalibrated".
+- **Requirements:** Python 3.10+; about 2.3 GB of weights; GPU optional (CUDA, MPS or CPU).
+- **Sources:** https://pypi.org/project/laya/ · https://github.com/NandhaKishorM/laya · https://huggingface.co/convaiinnovations/laya-typed-decisions
 
-### MedGemma 1.5 4B (Ollama) — verificado
+### MedGemma 1.5 4B (Ollama) — verified
 
-- **Modelo:** `google/medgemma-1.5-4b-it`, publicado el 2026-01-13. Recibe texto e imagen; contexto de 128K de entrada y 8K de salida.
-- **En Ollama:** la etiqueta es `medgemma1.5:4b`. `medgemma:4b` es la **v1**, la versión anterior.
-- **Llamada:** `POST http://localhost:11434/api/chat` con `stream: false` y `format: <JSON schema>` para obtener salida estructurada. El esquema también va en el prompt.
-- **Términos (HAI-DEF):**
-  - No usarlo de forma que convierta a Google en "fabricante" de un dispositivo médico.
-  - El uso clínico requiere autorización regulatoria.
-  - Según la model card, las salidas "should be considered preliminary and require independent verification".
-- **En la UI:** toda salida lleva **"Borrador · requiere validación humana"**.
-- **Cliente implementado (feature 3):** `features/plan/ollama.client.ts`. Envía `stream: false`, `format` (JSON schema generado desde el esquema Zod, sin la clave `$schema`), `options.temperature: 0` y el esquema también en el prompt; valida `message.content` con Zod. Timeout de 60 s (`AbortSignal.timeout`, valor supuesto). Cadena: Ollama → `data/fixtures/plan.json`. Sin variables nuevas. Con `SOMA_OFFLINE=true` o `PLANNER_PROVIDER=mock` no se abre ninguna conexión y se usa la simulación aleatoria.
-- **Verificado solo contra un servidor HTTP falso** (tests de contrato); no contra Ollama real.
-- **Fuentes:** https://huggingface.co/google/medgemma-1.5-4b-it · https://developers.google.com/health-ai-developer-foundations/terms · https://ollama.com/library/medgemma1.5 · https://docs.ollama.com/capabilities/structured-outputs
+- **Model:** `google/medgemma-1.5-4b-it`, released 2026-01-13. Accepts text and image; 128K input context and 8K output.
+- **In Ollama:** the tag is `medgemma1.5:4b`. `medgemma:4b` is **v1**, the previous version.
+- **Call:** `POST http://localhost:11434/api/chat` with `stream: false` and `format: <JSON schema>` to get structured output. The schema also goes in the prompt.
+- **Terms (HAI-DEF):**
+  - Do not use it in a way that makes Google the "manufacturer" of a medical device.
+  - Clinical use requires regulatory authorization.
+  - According to the model card, the outputs "should be considered preliminary and require independent verification".
+- **In the UI:** every output carries **"Draft · requires human validation"**.
+- **Implemented client (feature 3):** `features/plan/ollama.client.ts`. It sends `stream: false`, `format` (JSON schema generated from the Zod schema, without the `$schema` key), `options.temperature: 0` and the schema also in the prompt; it validates `message.content` with Zod. 60 s timeout (`AbortSignal.timeout`, assumed value). Chain: Ollama → `data/fixtures/plan.json`. No new variables. With `SOMA_OFFLINE=true` or `PLANNER_PROVIDER=mock` no connection is opened and the random simulation is used.
+- **Verified only against a fake HTTP server** (contract tests); not against a real Ollama.
+- **Sources:** https://huggingface.co/google/medgemma-1.5-4b-it · https://developers.google.com/health-ai-developer-foundations/terms · https://ollama.com/library/medgemma1.5 · https://docs.ollama.com/capabilities/structured-outputs
 
-### NASA DONKI — verificado (cambio de URL confirmado)
+### NASA DONKI — verified (URL change confirmed)
 
-- **Cambio de URL:** CCMC anunció el **2026-09-30** que la app y la API migraron a URLs oficiales nuevas. `kauai.ccmc.gsfc.nasa.gov` pasó a `ccmc.gsfc.nasa.gov` y las rutas siguen iguales.
-- **Base actual:** `https://ccmc.gsfc.nasa.gov/DONKI/WS/get/{FLR|SEP|CME|GST|notifications}?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
-  - Comprobado el 2026-10-31: HTTP 200 JSON, sin clave.
-- **Límite:** el rango de fechas no puede pasar de **60 días** (si no, HTTP 400).
-- **Estrategia:**
-  - Pedir los últimos 30 días.
-  - Cachear con `'use cache'` + `cacheLife`.
-  - Guardar la última respuesta buena en `data/runtime/cache/` para el modo offline.
-- **Fuente:** https://ccmc.gsfc.nasa.gov/tools/DONKI
+- **URL change:** CCMC announced on **2026-09-30** that the app and the API migrated to new official URLs. `kauai.ccmc.gsfc.nasa.gov` became `ccmc.gsfc.nasa.gov` and the paths stay the same.
+- **Current base:** `https://ccmc.gsfc.nasa.gov/DONKI/WS/get/{FLR|SEP|CME|GST|notifications}?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD`
+  - Checked on 2026-10-31: HTTP 200 JSON, no key.
+- **Limit:** the date range cannot exceed **60 days** (otherwise HTTP 400).
+- **Strategy:**
+  - Request the last 30 days.
+  - Cache with `'use cache'` + `cacheLife`.
+  - Save the last good response in `data/runtime/cache/` for offline mode.
+- **Source:** https://ccmc.gsfc.nasa.gov/tools/DONKI
 
-### NOAA SWPC — verificado (nuevo, recomendado)
+### NOAA SWPC — verified (new, recommended)
 
-- **Por qué:** complementa a DONKI con datos en tiempo real y sin clave. Para el riesgo por radiación es más directo que DONKI, que es un catálogo de eventos.
+- **Why:** it complements DONKI with real-time data and no key. For radiation risk it is more direct than DONKI, which is an event catalog.
 - **Feeds:**
 
-  | Feed | Ruta |
+  | Feed | Path |
   |---|---|
-  | Protones GOES (≥10 y ≥100 MeV) | `/json/goes/primary/integral-protons-1-day.json` |
-  | Rayos X | `/json/goes/primary/xrays-1-day.json` |
-  | Índice Kp | `/products/noaa-planetary-k-index.json` |
-  | Alertas | `/products/alerts.json` |
-  | Escalas R/S/G | `/products/noaa-scales.json` |
+  | GOES protons (≥10 and ≥100 MeV) | `/json/goes/primary/integral-protons-1-day.json` |
+  | X-rays | `/json/goes/primary/xrays-1-day.json` |
+  | Kp index | `/products/noaa-planetary-k-index.json` |
+  | Alerts | `/products/alerts.json` |
+  | R/S/G scales | `/products/noaa-scales.json` |
 
 - **Base:** `https://services.swpc.noaa.gov`
-- **Fuente:** https://www.spaceweather.gov/content/data-access
+- **Source:** https://www.spaceweather.gov/content/data-access
 
-### RadLab — verificado: **no es en vivo**
+### RadLab — verified: **not live**
 
 - **API:** `GET https://visualization.osdr.nasa.gov/radlab/api/?spacecraft=ISS&instrument=DosTel&timestamp>=…&format=json`
-- **Cobertura:** devuelve datos de 2022 a 2024 y **vacío para 2025 y 2026**. Es un archivo histórico.
-- **Decisión:** usar un **fixture** con una ventana real de 24 h de la ISS, y un script opcional para regenerarlo.
-- **Fuente:** https://visualization.osdr.nasa.gov/radlab/gui/data-api/
+- **Coverage:** returns data from 2022 to 2024 and **empty for 2025 and 2026**. It is a historical archive.
+- **Decision:** use a **fixture** with a real 24 h ISS window, and an optional script to regenerate it.
+- **Source:** https://visualization.osdr.nasa.gov/radlab/gui/data-api/
 
-### Web Speech API (voz de Sentry)
+### Web Speech API (Sentry's voice)
 
-- **Por qué:** cero instalación y corre en el navegador.
-- **Ojo:** las voces "naturales" de Chrome y Edge necesitan red. Sin internet solo funcionan las voces del sistema, que se filtran con `voice.localService === true`.
-- **Fuente:** https://developer.mozilla.org/docs/Web/API/SpeechSynthesisVoice/localService
+- **Why:** zero installation and it runs in the browser.
+- **Watch out:** Chrome and Edge "natural" voices need a network. Without internet only the system voices work, which are filtered with `voice.localService === true`.
+- **Source:** https://developer.mozilla.org/docs/Web/API/SpeechSynthesisVoice/localService
 
-### Ray-Ban Meta / Quest 3 (no son servicios del prototipo)
+### Ray-Ban Meta / Quest 3 (not prototype services)
 
-- **Ray-Ban Meta (Gen 1/2):** cámara, micrófono (8 kHz mono) y altavoces vía el Wearables Device Access Toolkit, con SDK nativo para iOS y Android. **Sin pantalla.**
-- **Meta Ray-Ban Display:** acceso a pantalla en *developer preview* desde el **2026-05-19**. Es una UI de 600×600 empujada desde la app del teléfono. **Esto cambió respecto al supuesto original.**
-- **Quest 3:** Unity + Meta XR Core SDK + Interaction SDK. En el prototipo, `/xr` lo simula en la web.
-- **Fuentes:** https://wearables.developer.meta.com/docs/develop/ · https://wearables.developer.meta.com/docs/develop/dat/display-overview/ · https://developers.meta.com/horizon/documentation/unity/unity-before-you-begin/
+- **Ray-Ban Meta (Gen 1/2):** camera, microphone (8 kHz mono) and speakers via the Wearables Device Access Toolkit, with a native SDK for iOS and Android. **No display.**
+- **Meta Ray-Ban Display:** display access in *developer preview* since **2026-05-19**. It is a 600×600 UI pushed from the phone app. **This changed from the original assumption.**
+- **Quest 3:** Unity + Meta XR Core SDK + Interaction SDK. In the prototype, `/xr` simulates it on the web.
+- **Sources:** https://wearables.developer.meta.com/docs/develop/ · https://wearables.developer.meta.com/docs/develop/dat/display-overview/ · https://developers.meta.com/horizon/documentation/unity/unity-before-you-begin/
 
 ---
 
-## Borrador de `.env.example` (el archivo real se crea en la Fase 0b)
+## `.env.example` draft (the real file is created in Phase 0b)
 
 ```dotenv
 # Force every external service to mock/fixture (demo without internet)
@@ -162,7 +162,7 @@ JEV_MODEL=jev-latest
 LAYA_BASE_URL=http://localhost:8000
 LAYA_MODEL=typed-decisions
 LAYA_API_KEY=
-# Confidence below this marks the result "confianza baja" (arbitrary defaults, tune with real data)
+# Confidence below this marks the result "low confidence" (arbitrary defaults, tune with real data)
 JEV_LOW_CONFIDENCE=0.6
 LAYA_LOW_CONFIDENCE=0.4
 
@@ -181,13 +181,13 @@ RADIATION_PROVIDER=fixture
 RADLAB_BASE_URL=https://visualization.osdr.nasa.gov/radlab/api
 ```
 
-## No verificado
+## Not verified
 
-- **Jev:** si la clave todavía requiere lista de espera, y los números de rate limit.
-- **Laya:** el JSON exacto de la respuesta de `laya-serve`, y si devuelve `legend` y `usage` igual que Jev.
-- **MedGemma:** que Ollama acepte el esquema generado por Zod tal cual (sin `$schema`), el cuerpo de error cuando falta el modelo (la doc de `/api/chat` no lo describe) y la latencia real frente al timeout de 60 s; quién publica la etiqueta de Ollama y con qué cuantización; RAM real necesaria (se estima 6–8 GB).
-- **DONKI y SWPC:**
-  - Si `api.nasa.gov/DONKI` está retirado o solo caído.
-  - Los términos de uso y rate limits de SWPC.
-- **RadLab:** la unidad de `absorbed_dose_rate` (se asume µGy/h) y la fecha exacta en que termina la cobertura.
-- **Wearables:** la resolución máxima de la cámara de Ray-Ban Meta, y si la publicación general del toolkit ya salió.
+- **Jev:** whether the key still requires a waitlist, and the rate limit numbers.
+- **LAYA:** the exact JSON of the `laya-serve` response, and whether it returns `legend` and `usage` like Jev.
+- **MedGemma:** that Ollama accepts the Zod-generated schema as is (without `$schema`), the error body when the model is missing (the `/api/chat` docs do not describe it) and the real latency against the 60 s timeout; who publishes the Ollama tag and with what quantization; actual RAM needed (estimated 6–8 GB).
+- **DONKI and SWPC:**
+  - Whether `api.nasa.gov/DONKI` is retired or only down.
+  - SWPC's terms of use and rate limits.
+- **RadLab:** the unit of `absorbed_dose_rate` (assumed µGy/h) and the exact date coverage ends.
+- **Wearables:** the maximum camera resolution of the Ray-Ban Meta, and whether the toolkit's general release is out yet.

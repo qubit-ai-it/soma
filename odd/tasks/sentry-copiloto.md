@@ -1,45 +1,45 @@
-# Sentry copiloto autónomo
+# Sentry autonomous copilot
 
-Objetivo: Sentry como actor de servidor que evalúa, genera Evaluación/Plan/Seguimiento y notifica por umbral.
-Rama: main · Entrega: ask-on-risk · Tests: `pnpm test` (node --test) · DB: Neon Postgres (pooled `DATABASE_URL`, directa `DATABASE_URL_UNPOOLED` para migraciones)
+Objective: Sentry as a server actor that evaluates, generates Evaluation/Plan/Follow-up and notifies by threshold.
+Branch: main · Delivery: ask-on-risk · Tests: `pnpm test` (node --test) · DB: Neon Postgres (pooled `DATABASE_URL`, direct `DATABASE_URL_UNPOOLED` for migrations)
 
 ## Specs
 
-- S1. "Sentry es un actor del servidor (actor: sentry en la auditoría). Decide con reglas determinísticas; la IA solo redacta borradores. Nunca aplica nada sola: la persona decide."
-- S2. "Persistencia: una base de datos única detrás de los repositorios existentes. Tablas: observaciones (con procedencia), evaluaciones (versionadas, con evidencia), notificaciones (leída por destinatario), planes con estado (borrador, en revisión, aprobado, cambios pedidos), revisiones de Tierra, seguimientos, bandeja de salida/entrada de paquetes. Tiempo real por Server-Sent Events en vez del sondeo."
-- S3. "Vigilancia por eventos: cada observación nueva dispara evaluar, guardar y notificar. Un reloj aparte (cron o temporizador) para cierres de ventana de seguimiento y \"sin datos hace X minutos\"."
-- S4. "Generación pasiva en cascada: la evaluación se guarda al cambiar de nivel (la pestaña solo lee la última); si el nivel llega a F2 o más, se genera en segundo plano el borrador de plan (estado borrador, pendiente de revisión humana); al aprobarse el plan se crea el contrato de seguimiento. Las pestañas muestran \"Generado por Sentry · hace X min\", sin botones."
-- S5. "Notificaciones de Sentry (con la card de Sentry): alertas por umbral (F2 a la persona y al médico, \"no evaluable\" al médico, F3 a toda la tripulación y a Tierra); check-ins (\"¿cómo dormiste?\"), recordatorios de pasos del plan, resumen de inicio y fin de turno; estado del enlace con Tierra; avisos de clima espacial cuando Kp o protones suben. Con prioridad, antirrebote por tripulante y nivel, histéresis y modo resumen, para que mande mucho sin ser spam."
-- S6. "Tierra: Sentry genera el borrador, el médico de a bordo lo revisa (funciona sin enlace), se encola un paquete hacia Tierra, el médico de Tierra aprueba, comenta o pide cambios desde /earth, la respuesta vuelve como paquete y se aplica al haber enlace (idempotente), y Sentry notifica \"Tierra respondió\". El seguimiento igual (reporte de ventanas y feedback). Tipos de paquete nuevos: plan_review_request, plan_review_response, followup_report, followup_feedback. Sin enlace decide el médico de a bordo."
-- S7. "Entrada de datos: el navegador envía las lecturas del reloj en bloques de 5 s a un endpoint del servidor, y además el servidor emite datos simulados de la tripulación para que Sentry esté siempre activo."
-- S8. "Una F3 de otro tripulante no le llegaría: hay que modelar la F3 como difusión de tripulación (excepción explícita), mostrando datos mínimos, sin detalle clínico (projectAlert)."
-- S9. "Nada de datos inventados: si una fuente falla, se oculta o se marca, nunca se rellena con falsos. Procedencia visible."
-- S10. "UI en español, minimalista, sin textos largos ni avisos legales dentro de la interfaz. Cards como MetricCard (título, cifra, ícono de trazo) y SomaCard cuando Sentry habla. Íconos Material Symbols."
-- S11. "Diseñá los puertos para poder cambiar de adaptador."
-- S12 (supuesto de diseño, paso 4). Estados del plan: "borrador, en revisión, aprobado, cambios pedidos". F2: borrador con IA. F3: pasos de protocolos aprobados, sin IA (safety gate de CONTEXT.md). El médico de a bordo (cmo) envía a Tierra; sin enlace puede aprobar él. Tierra aprueba, comenta o pide cambios por paquete; la respuesta se aplica al entregarse el paquete (idempotente por responseId).
+- S1. "Sentry is a server actor (actor: sentry in the audit). It decides with deterministic rules; the AI only drafts. It never applies anything on its own: the person decides."
+- S2. "Persistence: a single database behind the existing repositories. Tables: observations (with provenance), evaluations (versioned, with evidence), notifications (read per recipient), plans with status (draft, in review, approved, changes requested), Earth reviews, follow-ups, package outbox/inbox. Real time through Server-Sent Events instead of polling."
+- S3. "Event-driven monitoring: each new observation triggers evaluate, save and notify. A separate clock (cron or timer) for follow-up window closings and \"no data for X minutes\"."
+- S4. "Passive cascade generation: the evaluation is saved when the level changes (the tab only reads the latest); if the level reaches F2 or higher, the plan draft is generated in the background (draft status, pending human review); when the plan is approved the follow-up contract is created. The tabs show \"Generated by Sentry · X min ago\", with no buttons."
+- S5. "Sentry notifications (with the Sentry card): threshold alerts (F2 to the person and the physician, \"not evaluable\" to the physician, F3 to the entire crew and to Earth); check-ins (\"how did you sleep?\"), plan step reminders, shift start and end summary; Earth link status; space weather notices when Kp or protons rise. With priority, per-crew-member and level debounce, hysteresis and digest mode, so it sends a lot without being spam."
+- S6. "Earth: Sentry generates the draft, the onboard physician reviews it (works without a link), a package is queued toward Earth, the Earth physician approves, comments or requests changes from /earth, the response comes back as a package and is applied when there is a link (idempotent), and Sentry notifies \"Earth responded\". Follow-up likewise (window report and feedback). New package types: plan_review_request, plan_review_response, followup_report, followup_feedback. Without a link the onboard physician decides."
+- S7. "Data input: the browser sends the watch readings in 5 s blocks to a server endpoint, and in addition the server emits simulated crew data so that Sentry is always active."
+- S8. "An F3 from another crew member would not reach them: F3 must be modeled as a crew broadcast (explicit exception), showing minimal data, without clinical detail (projectAlert)."
+- S9. "No invented data: if a source fails, it is hidden or marked, never filled with fake values. Provenance visible."
+- S10. "UI in English, minimalist, no long texts or legal notices inside the interface. Cards like MetricCard (title, figure, stroke icon) and SomaCard when Sentry speaks. Material Symbols icons."
+- S11. "Design the ports so the adapter can be swapped."
+- S12 (design assumption, step 4). Plan states: "draft, in review, approved, changes requested". F2: draft with AI. F3: steps from approved protocols, no AI (CONTEXT.md safety gate). The onboard physician (cmo) sends to Earth; without a link they can approve. Earth approves, comments or requests changes by package; the response is applied when the package is delivered (idempotent by responseId).
 
-Supuestos (marcados): roles reales son astronaut/cmo/commander/earth (no "doctor"); médico de a bordo = cmo, médico de Tierra = earth. Decisión del usuario: Neon Postgres.
+Assumptions (marked): real roles are astronaut/cmo/commander/earth (not "doctor"); onboard physician = cmo, Earth physician = earth. User decision: Neon Postgres.
 
 ## Tasks
 
-| ID | Specs | Ruta | Estado | Commit |
-|----|-------|------|--------|--------|
-| T0 | S2 | inline | hecho | 49a1605 (Neon cableado) |
-| T1 | S2,S9 | inline | hecho | migraciones + runner (`pnpm db:migrate`) + repo observaciones PG |
-| T2 | S2,S5,S8 | inline | hecho | notificaciones por destinatario (lógica + repo PG, F3 = crew:all + role:earth) |
-| T3 | S2,S1 | inline | hecho (paso 2) | repos Postgres de alertas y auditoría con cadena de hash bajo advisory lock; seed al primer uso; actor `sentry` |
-| T4 | S2 | inline | hecho | SSE `/api/notifications/stream` (cursor seq + Last-Event-ID, ventana 55 s), lista y lectura en `/api/notifications`. Falta bandeja por EventSource (con SomaCard, paso 3) |
-| T5 | S7,S3 | inline | hecho | `/api/ingest` + envío de 5 s desde live.store con reintento; emisor simulado de tripulación (`instrumentation.ts` cada 5 s, `/api/sentry/tick`, apagable con `SENTRY_SIMULATOR=off`) |
-| T6 | S3,S4,S5,S8 | inline | hecho | (paso 2) motor por umbral con antirrebote 10 min e histéresis 30 min, difusión F3 (`crew:all` + `role:earth`), evaluaciones guardadas al cambiar de nivel, la pestaña Evaluación muestra la última guardada |
-| T7 | S5,S4 | inline | hecho | (paso 3) check-in diario (desde 06:00 UTC), cambio de turno (06:00/18:00 UTC, crew + personal), enlace con Tierra solo en cambios, clima espacial NOAA G/S solo de fuentes reales, reloj con throttle de 60 s; bandeja por SSE con SomaCard y avisos menores agrupados (modo resumen). Recordatorios de pasos del plan: paso 4 |
-| T8a | S2,S6 | inline | hecho | migración 0004 (earth_state, plans), repo Postgres de Tierra (estado completo en jsonb, seed al primer uso), paquetes plan_review_request/response, gancho onFlushed |
-| T8b | S4,S6,S12 | inline | hecho | planes con estado en Postgres, flujo (borrador F2 con IA, F3 con protocolos aprobados, enviar, aprobar a bordo sin enlace, respuesta de Tierra idempotente, aviso "Tierra respondió"), disparo desde Sentry al guardar la evaluación |
-| T8c | S4,S6,S10 | inline | hecho | pestaña Plan con "Generado por Sentry · hace X min" y acciones del cmo, sección "Planes por revisar" en /earth (aprobar, pedir cambios, comentar); se quitó el botón de generar |
-| T9 | S3,S4,S6 | inline | hecho (con límite) | (paso 5) tabla `followups`, contrato al aprobarse el plan, cierre de ventanas por reloj, reporte a Tierra (`followup_report`), feedback de Tierra (`followup_feedback`: visto o comentario, aplicado al entregarse, idempotente), pestaña Seguimiento leyendo lo guardado, aviso "sin datos hace X min" (evaluación no evaluable + alerta al cmo). Límite: sin datos de adherencia las ventanas salen "no evaluable"; el feedback de Tierra sobre seguimiento no queda en la auditoría |
+| ID | Specs | Route | Status | Commit |
+|----|-------|-------|--------|--------|
+| T0 | S2 | inline | done | 49a1605 (Neon wired) |
+| T1 | S2,S9 | inline | done | migrations + runner (`pnpm db:migrate`) + PG observations repo |
+| T2 | S2,S5,S8 | inline | done | per-recipient notifications (logic + PG repo, F3 = crew:all + role:earth) |
+| T3 | S2,S1 | inline | done (step 2) | Postgres alerts and audit repos with hash chain under advisory lock; seed on first use; `sentry` actor |
+| T4 | S2 | inline | done | SSE `/api/notifications/stream` (seq cursor + Last-Event-ID, 55 s window), list and read at `/api/notifications`. Tray via EventSource missing (with SomaCard, step 3) |
+| T5 | S7,S3 | inline | done | `/api/ingest` + 5 s sending from live.store with retry; simulated crew emitter (`instrumentation.ts` every 5 s, `/api/sentry/tick`, can be disabled with `SENTRY_SIMULATOR=off`) |
+| T6 | S3,S4,S5,S8 | inline | done | (step 2) threshold engine with 10 min debounce and 30 min hysteresis, F3 broadcast (`crew:all` + `role:earth`), evaluations saved on level change, the Evaluation tab shows the latest saved one |
+| T7 | S5,S4 | inline | done | (step 3) daily check-in (from 06:00 UTC), shift change (06:00/18:00 UTC, crew + staff), Earth link only on changes, NOAA G/S space weather only from real sources, clock with 60 s throttle; SSE tray with SomaCard and minor notices grouped (digest mode). Plan step reminders: step 4 |
+| T8a | S2,S6 | inline | done | migration 0004 (earth_state, plans), Postgres Earth repo (full state in jsonb, seed on first use), plan_review_request/response packages, onFlushed hook |
+| T8b | S4,S6,S12 | inline | done | plans with status in Postgres, flow (F2 draft with AI, F3 with approved protocols, send, approve onboard without link, idempotent Earth response, "Earth responded" notice), triggered from Sentry when saving the evaluation |
+| T8c | S4,S6,S10 | inline | done | Plan tab with "Generated by Sentry · X min ago" and cmo actions, "Plans to review" section in /earth (approve, request changes, comment); the generate button was removed |
+| T9 | S3,S4,S6 | inline | done (with limit) | (step 5) `followups` table, contract when the plan is approved, window closing by clock, report to Earth (`followup_report`), Earth feedback (`followup_feedback`: seen or comment, applied when delivered, idempotent), Follow-up tab reading what is stored, "no data for X min" notice (not evaluable evaluation + alert to the cmo). Limit: without adherence data the windows come out "not evaluable"; Earth feedback on follow-up is not left in the audit |
 
-Ruta declarada: todo inline; sin Writer trigger (unidades secuenciales, mismas superficies).
+Declared route: all inline; no Writer trigger (sequential units, same surfaces).
 
 ## Log
 
-- L1 (2026-11-15) Pedido original: ver mensaje inicial del usuario (OBJETIVO, ESTADO ACTUAL, DISEÑO ACORDADO, ORDEN DE ENTREGA, REGLAS DE TRABAJO). Resumen del orden: "1. Base de datos, modelo de notificaciones por destinatario, canal SSE y endpoint de entrada de datos. 2. Motor de alertas por umbral, difusión F3 y evaluación persistida (la pestaña Evaluación lee lo guardado). 3. La charla de Sentry. 4. Plan automático en segundo plano, con estados y ciclo de revisión de Tierra. 5. Seguimiento automático, reloj de ventanas y feedback de Tierra."
-- L2 (2026-11-15) Usuario: "Si necesitas usar base de datos, dime y configuro todo un entorno en NeonPostgre SQL." → Neon; bucket `assets` creado; ver T0.
+- L1 (2026-11-15) Original request: see the user's initial message (OBJECTIVE, CURRENT STATE, AGREED DESIGN, DELIVERY ORDER, WORKING RULES). Summary of the order: "1. Database, per-recipient notification model, SSE channel and data input endpoint. 2. Threshold alert engine, F3 broadcast and persisted evaluation (the Evaluation tab reads what is stored). 3. Sentry's chat. 4. Automatic background plan, with states and Earth review cycle. 5. Automatic follow-up, window clock and Earth feedback."
+- L2 (2026-11-15) User: "If you need to use a database, tell me and I will set up a whole environment in NeonPostgreSQL." → Neon; `assets` bucket created; see T0.

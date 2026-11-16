@@ -1,44 +1,42 @@
-# Rutas — Soma
+# Routes — Soma
 
-> Nombres de ruta en español, código en inglés, texto de interfaz en español. Las rutas viven en `apps/web/src/app/`.
+> Route names, code and interface text are all in English. Routes live in `apps/web/src/app/`.
 
-## Tabla de rutas
+## Route table
 
-| Ruta | Qué muestra | Estado |
+| Route | What it shows | Status |
 |---|---|---|
-| `/` | Resumen de misión: una fila por tripulante (nombre, rol, atención, riesgo con su etiqueta "Simulado" cuando aplica, señal principal) que enlaza a su reporte. Sin mapa corporal ni tendencias | Hecha |
-| `/reporte/[id]` | Resumen del tripulante: signos vitales actuales y banderas | Hecha |
-| `/reporte/[id]/tendencias` | Historial y tendencias de cada señal | Hecha |
-| `/reporte/[id]/cuerpo` | Mapa corporal con las zonas y su detalle | Hecha |
-| `/reporte/[id]/riesgo` | Clasificador: probabilidades, confianza, origen (provider · mode), etiquetas "Simulado" / "respaldo local · sin calibrar" y aviso de validación humana | Hecha |
-| `/reporte/[id]/plan` | Plan o tratamiento: botón "Generar borrador" (Server Action que recibe solo el id), borrador con "Borrador · requiere validación humana", incertidumbre y origen (provider · mode); no se guarda | Hecha |
-| `/clima` | Clima espacial y radiación | Pendiente |
-| `/sentry` | Check-in adaptativo | Pendiente |
-| `/xr` | Procedimientos AR/VR | Pendiente |
-| `/alertas` | Alertas y escalamiento | Pendiente |
-| `/alertas/auditoria` | Registro de auditoría | Pendiente |
-| `/demo` | Modo demo | Pendiente |
+| `/` | Role home: the entry point for the active role | Done |
+| `/mission` | Mission dashboard and the simulation console | Done |
+| `/report/[id]` | Crew member summary: current vital signs and flags | Done |
+| `/report/[id]/status` | Current status of the crew member | Done |
+| `/report/[id]/evaluation` | Evaluation board: signals, checkpoints and limitations | Done |
+| `/report/[id]/plan` | Care plan: draft, board review and Earth review | Done |
+| `/report/[id]/follow-up` | Follow-up contract and window reports | Done |
+| `/devices` | Devices and XR experiences | Done |
+| `/earth` | Earth console: packet queue, plan reviews and follow-up reports | Done |
+| `/pet` | Sentry assistant: chat, tasks and history | Done |
 
-Un `id` inexistente en cualquier ruta de `/reporte/[id]` renderiza `not-found.tsx` (ver "Límites").
+A nonexistent `id` on any `/report/[id]` route renders `not-found.tsx` (see "Limits").
 
-## Estructura de `/reporte/[id]`
+## Structure of `/report/[id]`
 
-- `layout.tsx` pinta el encabezado (nombre, rol, atención), el enlace de vuelta a `/` y las pestañas (`report-tabs.tsx`, con `aria-current="page"` en la activa).
-- Cada pestaña muestra una sola cosa y sale de un componente de su feature.
-- `getMissionMember(id)` está envuelto en `cache()` de React: el layout y la página de una misma petición comparten una sola lectura.
-- La clasificación de riesgo se pide solo donde se muestra: `/` clasifica a toda la tripulación una vez; `/reporte/[id]/riesgo` solo a ese tripulante. Las demás pestañas no la llaman (la clasificación del mock es aleatoria).
+- `layout.tsx` draws the header (name, role, attention), the link back to `/` and the tabs (`report-tabs.tsx`, with `aria-current="page"` on the active one).
+- Each tab shows one thing and comes from a component of its feature.
+- `getMissionMember(id)` is wrapped in React's `cache()`: the layout and the page of the same request share a single read.
+- Risk classification is requested only where it is shown: `/` classifies the whole crew once; the risk panel only that crew member. The other tabs do not call it (the mock's classification is random).
 
-## Cómo añadir una ruta
+## How to add a route
 
-1. Crea `src/app/<ruta>/page.tsx` (o `reporte/[id]/<pestaña>/page.tsx` para una pestaña del tripulante).
-2. La página solo compone: pide los datos por el `*.queries.ts` de la feature y renderiza sus componentes. Una feature no importa a otra; si la ruta necesita dos, la composición vive en `app/`.
-3. Con `params` dinámicos y sin `generateStaticParams`, `params` es una `Promise` y su lectura va dentro de `<Suspense>` (también en los layouts). Patrón: la página síncrona devuelve `<Suspense><Content params={params} /></Suspense>` y `Content` hace `await params`. Referencia: `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/dynamic-routes.md`, sección "With Cache Components".
-4. Si el recurso puede no existir, llama a `notFound()` tras la lectura.
-5. Si es una pestaña de `/reporte/[id]`, añádela a `TABS` en `report-tabs.tsx` (el `segment` es el nombre de la carpeta).
-6. Muestra la fuente (`provider · mode`) y las etiquetas de simulación, y exige validación humana en toda salida clínica.
-7. Actualiza esta tabla y verifica con `pnpm test`, `pnpm lint` y `pnpm build` (el build lista las rutas).
+1. Create `src/app/<route>/page.tsx` (or `report/[id]/<tab>/page.tsx` for a crew member tab).
+2. The page only composes: it requests the data through the feature's `*.queries.ts` and renders its components. A feature does not import another; if the route needs two, the composition lives in `app/`.
+3. With dynamic `params` and no `generateStaticParams`, `params` is a `Promise` and reading it goes inside `<Suspense>` (also in layouts). Pattern: the synchronous page returns `<Suspense><Content params={params} /></Suspense>` and `Content` does `await params`. Reference: `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/dynamic-routes.md`, section "With Cache Components".
+4. If the resource may not exist, call `notFound()` after the read.
+5. If it is a tab of `/report/[id]`, add it to `TABS` in `report-tabs.tsx` (the `segment` is the folder name).
+6. Show the source (`provider · mode`) and the simulation labels, and require human validation on every clinical output.
+7. Update this table and verify with `pnpm test`, `pnpm lint` and `pnpm build` (the build lists the routes).
 
-## Límites
+## Limits
 
-- Con `cacheComponents`, el estado HTTP de un `id` inexistente es 200: la respuesta ya empezó a enviarse cuando se ejecuta `notFound()`. El HTML lleva la UI de not-found y `noindex`. Verificado con `curl` sobre `next start`.
-- Nada de esto se ha visto en un navegador.
+- With `cacheComponents`, the HTTP status for a nonexistent `id` is 200: the response has already started being sent when `notFound()` runs. The HTML carries the not-found UI and `noindex`. Verified with `curl` against `next start`.
+- None of this has been seen in a browser.

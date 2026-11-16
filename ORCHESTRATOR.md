@@ -1,92 +1,92 @@
 # ORCHESTRATOR — Soma
 
-> Guía de trabajo para el agente orquestador y para los subagentes que implementan una feature. Léela completa antes de tocar código.
+> Working guide for the orchestrator agent and for the subagents that implement a feature. Read it in full before touching code.
 
-## Contexto en 5 líneas
+## Context in 5 lines
 
-- Soma es un prototipo **local** de monitoreo de salud de tripulación espacial (sin despliegue, sin auth).
-- Stack: Next.js 16.4.3, React 19.3, TypeScript strict, Tailwind 4, Zod 4, **pnpm**. La app está en `apps/web`.
-- Arquitectura: `docs/ARCHITECTURE.md` (módulos por feature, puertos en los bordes). Servicios externos: `docs/SERVICES.md`. Lista de trabajo: `FEATURES.md`.
-- Hoy **no hay clave de Jev ni se usa MedGemma real**: el clasificador y el planificador son **simulaciones con datos aleatorios** (`simulated-jev`, `simulated-medgemma`). La UI siempre debe mostrar que son simuladas.
-- `AGENTS.md` de `apps/web` exige leer `node_modules/next/dist/docs/` antes de escribir código de Next: este Next **no es el que conoces** (por ejemplo, `error.tsx` recibe `retry`, no `reset`).
+- Soma is a **local** space crew health monitoring prototype (no deployment, no auth).
+- Stack: Next.js 16.4.3, React 19.3, TypeScript strict, Tailwind 4, Zod 4, **pnpm**. The app is in `apps/web`.
+- Architecture: `docs/ARCHITECTURE.md` (feature modules, ports at the edges). External services: `docs/SERVICES.md`. Work list: `FEATURES.md`.
+- Today there is **no Jev key and real MedGemma is not used**: the classifier and the planner are **simulations with random data** (`simulated-jev`, `simulated-medgemma`). The UI must always show that they are simulated.
+- `AGENTS.md` in `apps/web` requires reading `node_modules/next/dist/docs/` before writing Next code: this Next is **not the one you know** (for example, `error.tsx` receives `retry`, not `reset`).
 
-## Flujo
+## Flow
 
-| Fase | Quién | Qué |
+| Phase | Who | What |
 |---|---|---|
-| Elegir | Usuario | Dice "empezar N" (feature de `FEATURES.md`). Una feature a la vez, salvo que pida paralelizar |
-| Preparar | Orquestador | Verifica árbol limpio (si no, avisa y para); crea rama y worktree `feat/NN-slug` |
-| Implementar | Subagente | Trabaja solo dentro del worktree y escribe `REPORT.md` |
-| Revisar | Usuario | Revisa el diff; pide cambios o dice "aprobado" |
-| Cerrar | Orquestador | Con "aprobado": build en verde, `git add` selectivo, commit, pregunta por el merge |
+| Choose | User | Says "start N" (a feature from `FEATURES.md`). One feature at a time, unless they ask to parallelize |
+| Prepare | Orchestrator | Checks for a clean tree (if not, warns and stops); creates branch and worktree `feat/NN-slug` |
+| Implement | Subagent | Works only inside the worktree and writes `REPORT.md` |
+| Review | User | Reviews the diff; asks for changes or says "approved" |
+| Close | Orchestrator | On "approved": green build, selective `git add`, commit, asks about the merge |
 
-Si el usuario pide cambios, el orquestador los reenvía al **mismo** subagente y se vuelve a revisar.
+If the user asks for changes, the orchestrator forwards them to the **same** subagent and review happens again.
 
-## Reglas para el orquestador
+## Rules for the orchestrator
 
-1. **Nunca** hace commit, push, merge ni borra ramas sin aprobación explícita del usuario.
-2. Verifica el árbol de trabajo antes de crear el worktree. Si hay cambios sin commitear, avisa y para.
-3. Crea el worktree **dentro del home del usuario** (por ejemplo `<repo>-worktrees/feat-NN-slug`), nunca en `/tmp`.
-4. Usa herdr para los panes siguiendo su guía oficial (https://raw.githubusercontent.com/ogulcancelik/herdr/master/SKILL.md). **No inventa comandos**: si la guía no lo cubre, lo dice.
-5. Rechaza, antes de mostrársela al usuario, una feature que viole la arquitectura aprobada.
-6. Si algo es ambiguo, hace **una** pregunta corta antes de delegar.
-7. Al terminar el subagente entrega: resumen de 5 líneas, `git status`, `git diff --stat` y cómo probarlo en 3 pasos. Después espera.
-8. Con "aprobado": confirma `pnpm build`; `git add` **solo** de los archivos de la feature (nunca `-A` a ciegas, excluye `REPORT.md`); commit con Conventional Commits `feat(<área>): <resumen>` y cuerpo de 2 a 4 líneas; muestra el hash; pregunta si fusiona a `main`; cierra el pane; marca ✅ en `FEATURES.md`.
-9. Toda salida clínica muestra incertidumbre y exige validación humana. Distingue siempre lo **verificado** (con fuente) de lo **supuesto**.
+1. **Never** commits, pushes, merges or deletes branches without the user's explicit approval.
+2. Checks the working tree before creating the worktree. If there are uncommitted changes, warns and stops.
+3. Creates the worktree **inside the user's home** (for example `<repo>-worktrees/feat-NN-slug`), never in `/tmp`.
+4. Uses herdr for the panes following its official guide (https://raw.githubusercontent.com/ogulcancelik/herdr/master/SKILL.md). **Does not invent commands**: if the guide does not cover it, it says so.
+5. Rejects, before showing it to the user, a feature that violates the approved architecture.
+6. If something is ambiguous, asks **one** short question before delegating.
+7. When the subagent finishes it delivers: a 5-line summary, `git status`, `git diff --stat` and how to test it in 3 steps. Then it waits.
+8. On "approved": confirms `pnpm build`; `git add` **only** the feature's files (never a blind `-A`, excludes `REPORT.md`); commit with Conventional Commits `feat(<area>): <summary>` and a 2 to 4 line body; shows the hash; asks whether to merge into `main`; closes the pane; marks ✅ in `FEATURES.md`.
+9. Every clinical output shows uncertainty and requires human validation. Always distinguishes what is **verified** (with a source) from what is **assumed**.
 
-## Briefing para el subagente
+## Briefing for the subagent
 
-Completa los campos con el texto de `FEATURES.md`:
+Fill in the fields with the text from `FEATURES.md`:
 
 ```text
-Eres un subagente de Soma. Implementa SOLO la feature N: <título>.
-Objetivo: <objetivo>
-Criterios de aceptación: <lista>
-Fuera de alcance: <lista>
-Contexto: lee ORCHESTRATOR.md, docs/ARCHITECTURE.md y FEATURES.md.
-Reglas:
-- Sigue la arquitectura aprobada y su guía "cómo añadir una feature". Si crees que
-  está mal o falta algo, avisa en vez de improvisar otra estructura.
-- Toca solo los archivos necesarios. Sin dependencias nuevas sin avisar.
-- Integraciones externas siempre con versión real y mock.
-- Ejecuta `pnpm test`, `pnpm lint` y `pnpm build` y arregla los errores antes de terminar.
-- NO hagas commit, NO hagas push, NO cambies de rama.
-- Al terminar escribe REPORT.md (fuera del control de versiones): qué hiciste,
-  archivos modificados, cómo probarlo en 3 pasos, límites conocidos, decisiones tomadas.
-  Luego detente y espera.
+You are a Soma subagent. Implement ONLY feature N: <title>.
+Goal: <goal>
+Acceptance criteria: <list>
+Out of scope: <list>
+Context: read ORCHESTRATOR.md, docs/ARCHITECTURE.md and FEATURES.md.
+Rules:
+- Follow the approved architecture and its "how to add a feature" guide. If you think
+  it is wrong or something is missing, say so instead of improvising another structure.
+- Touch only the necessary files. No new dependencies without notice.
+- External integrations always with a real version and a mock.
+- Run `pnpm test`, `pnpm lint` and `pnpm build` and fix the errors before finishing.
+- DO NOT commit, DO NOT push, DO NOT switch branches.
+- When done, write REPORT.md (outside version control): what you did,
+  modified files, how to test it in 3 steps, known limits, decisions made.
+  Then stop and wait.
 ```
 
-## Reglas para el subagente
+## Rules for the subagent
 
-- **Test primero** cuando haya lógica pura: escribe el test, míralo fallar, implementa, míralo pasar. Tests con `node:test` (`pnpm test`); no se añade `vitest`.
-- **Convenciones del repo:** imports relativos con extensión `.ts` en los archivos que alcanzan los tests; solo sintaxis que Node puede borrar (sin `enum` ni parameter properties); `import 'server-only'` en queries, `services.ts` y adaptadores.
-- **Datos JSON:** se leen con `fs/promises` desde `data/`, **nunca** con `import x from './x.json'`, y siempre dentro de `<Suspense>` (por `cacheComponents`). Se validan con Zod.
-- **Entradas externas** (formularios, variables de entorno, respuestas de servicios) se validan en el servidor con Zod.
-- **Un proveedor sin adaptador falla en voz alta** en `services.ts`; nunca sirve datos mock bajo una etiqueta "live".
-- **Simulaciones:** las respuestas simuladas llevan `source.provider` y `source.mode` visibles. No las presentes como datos reales ni como salida clínica.
-- **Idioma:** el texto de la interfaz va en español (como los textos ya especificados); el código, los comentarios, los commits y los nombres, en inglés.
-- **Comentarios:** casi nunca; el código bien escrito ya se lee solo. Solo etiquetas cortas de una línea (por ejemplo `// GET -> LISTAR USUARIOS`) o el porqué de algo no obvio. Nada de bloques JSDoc que repiten lo que hace el código.
-- **Sin sorpresas con git:** no cambies de rama, no hagas stash, no toques archivos fuera de la feature.
-- **Si te bloqueas**, detente y deja la pregunta concreta en `REPORT.md`; no improvises.
+- **Test first** when there is pure logic: write the test, watch it fail, implement, watch it pass. Tests with `node:test` (`pnpm test`); `vitest` is not added.
+- **Repo conventions:** relative imports with the `.ts` extension in the files that tests reach; only syntax that Node can erase (no `enum` or parameter properties); `import 'server-only'` in queries, `services.ts` and adapters.
+- **JSON data:** read with `fs/promises` from `data/`, **never** with `import x from './x.json'`, and always inside `<Suspense>` (because of `cacheComponents`). Validated with Zod.
+- **External inputs** (forms, environment variables, service responses) are validated on the server with Zod.
+- **A provider without an adapter fails loudly** in `services.ts`; it never serves mock data under a "live" label.
+- **Simulations:** simulated responses carry a visible `source.provider` and `source.mode`. Do not present them as real data or as clinical output.
+- **Language:** everything is in English: interface text, code, comments, commits and names.
+- **Comments:** almost never; well-written code reads on its own. Only short one-line labels (for example `// GET -> LIST USERS`) or the why of something non-obvious. No JSDoc blocks that repeat what the code does.
+- **No surprises with git:** do not switch branches, do not stash, do not touch files outside the feature.
+- **If you get blocked**, stop and leave the concrete question in `REPORT.md`; do not improvise.
 
-## Qué entra en `REPORT.md`
+## What goes in `REPORT.md`
 
-1. Qué hiciste (3 a 5 líneas).
-2. Archivos modificados y creados.
-3. Cómo probarlo en 3 pasos.
-4. Criterios de aceptación: cuáles se cumplen y con qué evidencia (comando y resultado observado), cuáles no.
-5. Límites conocidos y lo que no pudiste verificar.
-6. Decisiones que tomaste y por qué.
+1. What you did (3 to 5 lines).
+2. Modified and created files.
+3. How to test it in 3 steps.
+4. Acceptance criteria: which are met and with what evidence (command and observed result), which are not.
+5. Known limits and what you could not verify.
+6. Decisions you made and why.
 
-## Comandos útiles (desde `apps/web`)
+## Useful commands (from `apps/web`)
 
-| Comando | Qué hace |
+| Command | What it does |
 |---|---|
 | `pnpm dev` / `pnpm build` / `pnpm start` | Next.js |
 | `pnpm test` | `node --test "src/**/*.test.ts"` |
 | `pnpm lint` | ESLint |
-| `pnpm db:reset` | Restaura `data/runtime/` desde `data/seed/` |
+| `pnpm db:reset` | Restores `data/runtime/` from `data/seed/` |
 
-## Pendiente de verificar
+## Pending verification
 
-- Que la guía de herdr cubra crear panes, lanzar un subagente y leer su estado (`done`/`blocked`). Se lee antes de la primera feature con `empezar N`.
+- That the herdr guide covers creating panes, launching a subagent and reading its status (`done`/`blocked`). It is read before the first feature with `start N`.

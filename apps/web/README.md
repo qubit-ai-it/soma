@@ -20,28 +20,28 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Chat de Sentry con Ollama
+## Sentry chat with Ollama
 
-Configura estas variables en `apps/web/.env.local` o en el entorno del servidor y reinicia la aplicación.
+Set these variables in `apps/web/.env.local` or in the server environment and restart the application.
 
 ```dotenv
-CHAT_OLLAMA_URL=https://tu-dominio.ngrok-free.dev/api/chat
+CHAT_OLLAMA_URL=https://your-domain.ngrok-free.dev/api/chat
 CHAT_OLLAMA_MODEL=medgemma:27b
 ```
 
-El servidor llama a la API nativa de Ollama. Si Next.js y Ollama corren en la misma máquina, puedes usar `http://localhost:11434/api/chat`. Para adjuntar imágenes, usa un modelo con capacidad de visión. Puedes consultar los modelos instalados con `ollama list` o `GET /api/tags`. [API de chat](https://docs.ollama.com/api/chat) · [Visión](https://docs.ollama.com/capabilities/vision) · [Listado de modelos](https://docs.ollama.com/api/tags)
+The server calls Ollama's native API. If Next.js and Ollama run on the same machine, you can use `http://localhost:11434/api/chat`. To attach images, use a model with vision capability. You can list the installed models with `ollama list` or `GET /api/tags`. [Chat API](https://docs.ollama.com/api/chat) · [Vision](https://docs.ollama.com/capabilities/vision) · [Model list](https://docs.ollama.com/api/tags)
 
-Para exponer Ollama por ngrok, configura la política de tráfico para que reescriba `Host` a `localhost`. Si activas Basic Auth en ngrok, guarda el encabezado `Basic <credenciales codificadas>` en `CHAT_OLLAMA_AUTHORIZATION`, solo en el entorno del servidor. [Guía de Ollama en ngrok](https://ngrok.com/docs/universal-gateway/examples/ollama)
+To expose Ollama through ngrok, configure the traffic policy to rewrite `Host` to `localhost`. If you enable Basic Auth in ngrok, store the `Basic <encoded credentials>` header in `CHAT_OLLAMA_AUTHORIZATION`, only in the server environment. [Ollama on ngrok guide](https://ngrok.com/docs/universal-gateway/examples/ollama)
 
-`SOMA_OFFLINE=true` deshabilita el chat. El planificador tiene su propia configuración en `PLANNER_PROVIDER` y `OLLAMA_*`.
+`SOMA_OFFLINE=true` disables the chat. The planner has its own configuration in `PLANNER_PROVIDER` and `OLLAMA_*`.
 
-En las consultas de salud espacial, Sentry usa el modelo configurado primero para
-proponer hasta diez términos del mismo catálogo que usa Swift. El servidor envía
-solo esos términos a [la biblioteca de investigación](https://rag-nasa-search.onrender.com/api/research/search/)
-y añade hasta dos extractos a la siguiente llamada al modelo. El chat conserva la
-respuesta en Markdown, el estado de la búsqueda y las fuentes con su ubicación.
-`research.vocabulary.ts` refleja el vocabulario, los alias y las reglas de
-respaldo de la aplicación Swift. Actualiza ambas proyecciones al cambiar el catálogo.
+For space health queries, Sentry first uses the configured model to
+propose up to ten terms from the same catalog that Swift uses. The server sends
+only those terms to [the research library](https://rag-nasa-search.onrender.com/api/research/search/)
+and adds up to two excerpts to the next model call. The chat keeps the
+response in Markdown, the search status and the sources with their location.
+`research.vocabulary.ts` mirrors the vocabulary, aliases and fallback
+rules of the Swift application. Update both projections when the catalog changes.
 
 ## Learn More
 
