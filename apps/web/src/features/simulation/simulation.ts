@@ -95,6 +95,7 @@ export const decisionSchema = z.object({
   signals: z.array(telemetrySchema.keyof()).max(6),
   equipmentId: equipmentIdSchema.nullable().optional(),
   instructions: z.array(instructionSchema).max(5),
+  provider: z.enum(["medgemma", "gemini"]).optional(),
 });
 
 export type Instruction = z.infer<typeof instructionSchema>;

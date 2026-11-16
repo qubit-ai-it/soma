@@ -15,6 +15,7 @@ import {
   telemetryLabels, telemetrySchema,
   type Point, type SimCrew, type SimulationState, type SimulationUpdate, type Telemetry,
 } from "./simulation";
+import { providerLabel } from "./simulation.provider";
 import styles from "./simulation.module.css";
 
 const endpoint = "/api/simulation";
@@ -138,8 +139,9 @@ function Dot({ color }: { color: string }) {
   return <span className={styles.dot} style={{ color }} aria-hidden="true" />;
 }
 
-function CrewChat({ person, color, messages, selected, onSelect }: {
+function CrewChat({ person, color, messages, analyst, selected, onSelect }: {
   person: SimCrew;
+  analyst: string;
   color: string;
   messages: SimulationState["messages"];
   selected: boolean;
@@ -157,7 +159,7 @@ function CrewChat({ person, color, messages, selected, onSelect }: {
         {thread.length === 0 && <p className={styles.empty}>No instructions</p>}
         {thread.slice().reverse().map(({ id, message, at }) => (
           <div key={id} className={styles.message}>
-            <span>MedGemma <time dateTime={at}>{timeLabel.format(new Date(at))}</time></span>
+            <span>{analyst} <time dateTime={at}>{timeLabel.format(new Date(at))}</time></span>
             <p>{message}</p>
           </div>
         ))}
@@ -368,7 +370,7 @@ export function SimulationConsole() {
               <div className={styles.analysis} aria-live="polite">
                 <header className={styles.analysisHeader}>
                   <h2 className="text-headline">Evaluation</h2>
-                  <span className={styles.model}><Dot color="var(--signal)" /> MedGemma</span>
+                  <span className={styles.model}><Dot color="var(--signal)" /> {providerLabel(state.decision?.provider)}</span>
                 </header>
                 {otherAlerts.length > 0 && (
                   <div className={styles.decision} data-status="critical">
@@ -436,7 +438,7 @@ export function SimulationConsole() {
             {state.crew.length === 0 && <p className={styles.empty}>{emptyCrewMessage}</p>}
             <div className={styles.chatGrid}>
               {state.crew.map((person) => (
-                <CrewChat key={person.id} person={person} color={crewColor(state.crew, person.id)} messages={state.messages}
+                <CrewChat key={person.id} person={person} color={crewColor(state.crew, person.id)} messages={state.messages} analyst={providerLabel(state.decision?.provider)}
                   selected={person.id === selected} onSelect={() => setSelected(person.id)} />
               ))}
             </div>

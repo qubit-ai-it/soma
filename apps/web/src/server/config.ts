@@ -28,6 +28,9 @@ const envSchema = z.object({
   CHAT_OLLAMA_MODEL: z.string().trim().min(1).default("medgemma:27b"),
   CHAT_OLLAMA_AUTHORIZATION: optionalString,
 
+  GEMINI_API_KEY: optionalString,
+  GEMINI_MODEL: z.string().trim().min(1).default("gemini-2.5-flash"),
+
   SPACE_WEATHER_PROVIDER: z.enum(["live", "fixture"]).default("live"),
   DONKI_BASE_URL: z.url().default("https://ccmc.gsfc.nasa.gov/DONKI-API/get"),
   SWPC_BASE_URL: z.url().default("https://services.swpc.noaa.gov"),
@@ -72,6 +75,10 @@ function buildConfig(env: NodeJS.ProcessEnv) {
       url: offline ? undefined : e.CHAT_OLLAMA_URL,
       model: e.CHAT_OLLAMA_MODEL,
       authorization: e.CHAT_OLLAMA_AUTHORIZATION,
+    },
+    gemini: {
+      apiKey: offline ? undefined : e.GEMINI_API_KEY,
+      model: e.GEMINI_MODEL,
     },
     spaceWeather: {
       provider: offline ? ("fixture" as const) : e.SPACE_WEATHER_PROVIDER,
