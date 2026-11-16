@@ -2,21 +2,16 @@ import "server-only";
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { createJsonStore } from "../../server/json-store.ts";
 import { crewFileSchema } from "../crew/crew.schema.ts";
 import { evaluateSimulation } from "./orchestrator.ts";
 import { activeIncident, canEditTelemetry, isCrewInDanger, needsIncidentReview } from "./incident.ts";
 import { constrainToDeck, locationAt } from "./deck.ts";
 import { restartSituation } from "./simulation.reset.ts";
+import { createSessionStore } from "./simulation.sessions.ts";
 import { crewIds, telemetrySchema, type SimulationState, type SimulationUpdate } from "./simulation.ts";
 
 const dataDir = path.join(process.cwd(), "data");
 const seedDir = path.join(dataDir, "seed");
-const store = createJsonStore({
-  seedDir,
-  runtimeDir: path.join(dataDir, "runtime"),
-});
-const key = "simulation";
 const startPositions = [
   { x: 17, y: 29 }, { x: 17, y: 75 }, { x: 52, y: 31 }, { x: 84, y: 28 },
 ];
@@ -44,38 +39,14 @@ async function initialState(): Promise<SimulationState> {
   };
 }
 
-function fitSavedDeck(state: SimulationState): SimulationState {
-  const crew = state.crew.filter(({ id }) => crewIds.includes(id)).map((member) => {
-    const position = constrainToDeck(member.position);
-    return position === member.position ? member : { ...member, position };
-  });
-  const removed = crew.length !== state.crew.length;
-  const affected = crew.find(({ id }) => id === state.decision?.affectedCrewId);
-  const destination = affected && locationAt(affected.position);
-  const reroute = !removed && state.phase === "done" && state.decision?.status === "critical" && destination
-    && state.decision.instructions.some((instruction) => instruction.destination && instruction.destination !== destination);
-  if (!removed && !reroute && crew.every((member, index) => member === state.crew[index])) return state;
-  return {
-    ...state, crew,
-    decision: removed ? null : state.decision,
-    messages: removed ? state.messages.filter(({ crewId }) => crewIds.includes(crewId)) : state.messages,
-    changes: removed ? state.changes.filter(({ crewId }) => crewIds.includes(crewId)) : state.changes,
-    incidentOpenedWith: removed ? undefined : state.incidentOpenedWith,
-    phase: removed || reroute ? "pending" : state.phase,
-    version: state.version + 1, revision: state.revision + 1,
-  };
+const store = createSessionStore(initialState);
+
+export async function getSimulation(sessionId: string): Promise<SimulationState> {
+  return store.read(sessionId);
 }
 
-export async function getSimulation(): Promise<SimulationState> {
-  const saved = await store.read(key) as SimulationState | null;
-  if (saved && fitSavedDeck(saved) === saved) return saved;
-  return await store.update(key, async (current) => fitSavedDeck((current as SimulationState | null) ?? await initialState())) as SimulationState;
-}
-
-export async function updateSimulation(update: SimulationUpdate): Promise<SimulationState> {
-  await getSimulation();
-  return await store.update(key, async (stored) => {
-    const state = stored as SimulationState;
+export async function updateSimulation(sessionId: string, update: SimulationUpdate): Promise<SimulationState> {
+  return await store.update(sessionId, async (state) => {
     const version = state.version + 1;
     if (update.kind === "reset") {
       return restartSituation(state, await initialState());
@@ -111,16 +82,15 @@ export async function updateSimulation(update: SimulationUpdate): Promise<Simula
       crew: state.crew.map((current) => current.id === member.id ? nextMember : current),
       changes: [...state.changes, { crewId: member.id, at, kind: update.kind, before, after }].slice(-16),
     } satisfies SimulationState;
-  }) as SimulationState;
+  });
 }
 
-async function evaluatePending() {
+async function evaluatePending(sessionId: string) {
   while (true) {
-    const state = await getSimulation();
+    const state = await getSimulation(sessionId);
     if (state.phase !== "pending") return;
     const result = await evaluateSimulation(state);
-    await store.update(key, (stored) => {
-      const current = stored as SimulationState;
+    await store.update(sessionId, (current) => {
       if (current.revision !== state.revision || current.phase !== "pending") return current;
       const version = current.version + 1;
       if (!result.ok) return { ...current, version, phase: "error", error: result.error };
@@ -153,10 +123,6 @@ async function evaluatePending() {
   }
 }
 
-const worker = globalThis as typeof globalThis & { __somaSimulationWorker?: Promise<void> };
-
-export function runPendingSimulation(): Promise<void> {
-  return (worker.__somaSimulationWorker ??= evaluatePending().finally(() => {
-    delete worker.__somaSimulationWorker;
-  }));
+export function runPendingSimulation(sessionId: string): Promise<void> {
+  return store.runWorker(sessionId, () => evaluatePending(sessionId));
 }

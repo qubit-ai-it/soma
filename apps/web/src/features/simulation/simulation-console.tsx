@@ -176,15 +176,21 @@ export function SimulationConsole() {
   const [resetting, setResetting] = useState(false);
   const map = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
+  const sessionId = useRef<string | null>(null);
   const writes = useRef(Promise.resolve());
   const accept = (next: SimulationState) => setState((current) => !current || next.version > current.version ? next : current);
 
   useEffect(() => {
     const controller = new AbortController();
+    const id = crypto.randomUUID();
+    sessionId.current = id;
     let timer: ReturnType<typeof setTimeout>;
     async function refresh() {
       try {
-        const response = await fetch(endpoint, { cache: "no-store", signal: controller.signal });
+        const response = await fetch(endpoint, {
+          cache: "no-store", signal: controller.signal,
+          headers: { "x-simulation-session": id },
+        });
         if (!response.ok) throw new Error();
         accept(await response.json());
         setConnectionError(false);
@@ -195,15 +201,17 @@ export function SimulationConsole() {
       }
     }
     void refresh();
-    return () => { controller.abort(); clearTimeout(timer); };
+    return () => { controller.abort(); clearTimeout(timer); if (sessionId.current === id) sessionId.current = null; };
   }, []);
 
   function save(update: SimulationUpdate) {
+    const id = sessionId.current;
+    if (!id) return Promise.resolve();
     writes.current = writes.current.then(async () => {
       setError(null);
       try {
         const response = await fetch(endpoint, {
-          method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(update),
+          method: "PATCH", headers: { "Content-Type": "application/json", "x-simulation-session": id }, body: JSON.stringify(update),
         });
         if (!response.ok) throw new Error();
         accept(await response.json());
