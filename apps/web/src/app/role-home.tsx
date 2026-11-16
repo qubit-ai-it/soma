@@ -51,7 +51,6 @@ export function RoleHome({ crew, riskSlots, levels, f3Open }: Props) {
           line={`${availability.limited} limitados · ${availability.unavailable} no disponibles`}
           chip="Tripulación"
           tone={tone}
-          actions={[{ label: "Ver alertas", icon: "notifications", href: "/alertas" }]}
           detail={<p>Sin detalle clínico: solo disponibilidad operativa.</p>}
         />
       </section>
@@ -72,7 +71,6 @@ export function RoleHome({ crew, riskSlots, levels, f3Open }: Props) {
         line={f3Open === 0 ? "Nada urgente por ahora." : "Requieren acción inmediata."}
         chip="Alertas"
         tone={f3Open === 0 ? "ok" : "danger"}
-        actions={[{ label: "Ver alertas", icon: "notifications", href: "/alertas", variant: "secondary" }]}
       />
     </section>
   );

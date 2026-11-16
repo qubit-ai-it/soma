@@ -2,9 +2,8 @@ import type { SentryMode } from "../../shared/sentry.types.ts";
 
 export const ONBOARDING_KEY = "soma.onboarding.v1";
 export const ONBOARDING_DONE = "done";
-export const ONBOARDING_OPEN_EVENT = "soma:onboarding";
 
-export const SETUP_KINDS = ["role", "source", "xr"] as const;
+export const SETUP_KINDS = ["color", "role", "source", "xr"] as const;
 export type SetupKind = (typeof SETUP_KINDS)[number];
 
 export type OnboardingStep = {
@@ -52,6 +51,13 @@ export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
     line: "Todo sigue funcionando aunque Tierra no responda.",
   },
   {
+    id: "color",
+    kind: "color",
+    mode: "idle",
+    title: "Elige mi color",
+    line: "El que más te guste.",
+  },
+  {
     id: "role",
     kind: "role",
     mode: "listening",
@@ -80,6 +86,10 @@ export function shouldShowOnboarding(stored: string | null): boolean {
 
 export function nextStepIndex(index: number): number {
   return Math.min(index + 1, ONBOARDING_STEPS.length - 1);
+}
+
+export function prevStepIndex(index: number): number {
+  return Math.max(index - 1, 0);
 }
 
 export function isLastStep(index: number): boolean {

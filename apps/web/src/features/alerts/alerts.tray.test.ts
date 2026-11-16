@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { trayItems, unreadCount } from "./alerts.tray.ts";
+import { filterTray, trayItems, unreadCount } from "./alerts.tray.ts";
 import type { Alert } from "./alerts.types.ts";
 
 function alert(overrides: Partial<Alert> & Pick<Alert, "id" | "level">): Alert {
@@ -38,6 +38,12 @@ describe("trayItems", () => {
     assert.deepEqual(ids({ role: "astronaut", memberId: "cm-01" }), ["f3", "new-f2", "old-f2"]);
   });
 
+  it("never shows the astronaut another member's alert, F3 included", () => {
+    const foreign = [alert({ id: "foreign-f3", level: "F3", memberId: "cm-09" })];
+    assert.deepEqual(trayItems(foreign, { role: "astronaut", memberId: "cm-01" }), []);
+    assert.deepEqual(trayItems(foreign, { role: "astronaut" }), []);
+  });
+
   it("shows the commander and Earth only what was addressed to them", () => {
     assert.deepEqual(ids({ role: "commander" }), ["f3"]);
     assert.deepEqual(ids({ role: "earth" }), ["f3"]);
@@ -62,6 +68,23 @@ describe("trayItems", () => {
     const snapshot = JSON.stringify(alerts);
     trayItems(alerts, { role: "cmo" });
     assert.equal(JSON.stringify(alerts), snapshot);
+  });
+});
+
+describe("filterTray", () => {
+  const items = trayItems(
+    [...alerts, alert({ id: "ack", level: "F2", status: "acknowledged" })],
+    { role: "cmo" },
+  );
+
+  it("keeps everything with the default filter", () => {
+    assert.equal(filterTray(items, { status: "all", level: "all" }).length, items.length);
+  });
+
+  it("filters by status and level together", () => {
+    const open = filterTray(items, { status: "open", level: "F2" }).map((i) => i.id);
+    assert.deepEqual(open, ["new-f2", "other-f2", "old-f2"]);
+    assert.deepEqual(filterTray(items, { status: "acknowledged", level: "all" }).map((i) => i.id), ["ack"]);
   });
 });
 

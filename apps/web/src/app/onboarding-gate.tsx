@@ -6,12 +6,13 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   ONBOARDING_DONE,
   ONBOARDING_KEY,
-  ONBOARDING_OPEN_EVENT,
   ONBOARDING_STEPS,
   isLastStep,
   nextStepIndex,
+  prevStepIndex,
   shouldShowOnboarding,
 } from "@/features/onboarding/onboarding.logic";
+import { SENTRY_PALETTE } from "@/features/pet/pet.types";
 import { ROLE_LABELS } from "@/features/roles/roles.logic";
 import { setDemoRole, useDemoRole } from "@/features/roles/roles.store";
 import { ROLES, type Role } from "@/features/roles/roles.types";
@@ -101,31 +102,20 @@ export function OnboardingGate() {
   const [stored, setStored] = useLocalStore<string>(ONBOARDING_KEY, "", parseStored);
   const [settings, setSettings] = useSettings();
   const role = useDemoRole();
-  const [forced, setForced] = useState(false);
   const [closed, setClosed] = useState(false);
   const [index, setIndex] = useState(0);
   const [profile, setProfile] = useState<DeviceProfile | null>(null);
   const [bluetoothMessage, setBluetoothMessage] = useState<string | null>(null);
   const live = useLiveState();
 
-  const open = mounted && (forced || (shouldShowOnboarding(stored || null) && !closed));
+  const open = mounted && shouldShowOnboarding(stored || null) && !closed;
   const step = ONBOARDING_STEPS[index];
 
   function finish() {
     setStored(ONBOARDING_DONE);
-    setForced(false);
     setClosed(true);
     setIndex(0);
   }
-
-  useEffect(() => {
-    function reopen() {
-      setIndex(0);
-      setForced(true);
-    }
-    window.addEventListener(ONBOARDING_OPEN_EVENT, reopen);
-    return () => window.removeEventListener(ONBOARDING_OPEN_EVENT, reopen);
-  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -166,6 +156,10 @@ export function OnboardingGate() {
     setIndex(nextStepIndex(index));
   }
 
+  function goBack() {
+    setIndex(prevStepIndex(index));
+  }
+
   if (!open) return null;
 
   const last = isLastStep(index);
@@ -180,6 +174,7 @@ export function OnboardingGate() {
       <div className="flex w-full max-w-sm flex-col items-center gap-6 text-center">
         <Sentry
           mode={step.mode}
+          color={settings.color}
           successSignal={last ? 1 : 0}
           className="w-[min(50vw,13rem)]"
         />
@@ -204,6 +199,29 @@ export function OnboardingGate() {
           <h2 className="font-heading text-3xl font-bold leading-tight">{step.title}</h2>
           <p className="text-lg text-muted-foreground">{step.line}</p>
         </div>
+
+        {step.kind === "color" && (
+          <div role="radiogroup" aria-label="Color de Sentry" className="grid w-full grid-cols-5 justify-items-center gap-3">
+            {SENTRY_PALETTE.map((entry) => {
+              const selected = entry.value === settings.color;
+              return (
+                <button
+                  key={entry.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  aria-label={entry.name}
+                  title={entry.name}
+                  onClick={() => setSettings((prev) => ({ ...prev, color: entry.value }))}
+                  style={{ backgroundColor: entry.value }}
+                  className={`size-12 outline-none transition-[border-radius,box-shadow] duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                    selected ? "rounded-2xl shadow-[0_0_0_2px_rgb(255_255_255/0.85)]" : "rounded-full"
+                  }`}
+                />
+              );
+            })}
+          </div>
+        )}
 
         {step.kind === "role" && (
           <div className="grid w-full grid-cols-2 gap-2">
@@ -275,13 +293,13 @@ export function OnboardingGate() {
               >
                 Empezar
               </Link>
-              <Link
-                href="/demo"
-                onClick={finish}
+              <button
+                type="button"
+                onClick={goBack}
                 className={`${ACTION} bg-secondary text-foreground hover:bg-secondary/70`}
               >
-                Ver la demo
-              </Link>
+                Atrás
+              </button>
             </>
           ) : (
             <>
@@ -292,6 +310,15 @@ export function OnboardingGate() {
               >
                 Siguiente
               </button>
+              {index > 0 && (
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className={`${ACTION} bg-secondary text-foreground hover:bg-secondary/70`}
+                >
+                  Atrás
+                </button>
+              )}
               <button
                 type="button"
                 onClick={finish}

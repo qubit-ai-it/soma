@@ -13,8 +13,14 @@ describe("parseSettings", () => {
   });
 
   it("keeps valid values, including the paired device name", () => {
-    const raw = { source: "bluetooth", xr: "quest", device: "Banda de pecho" };
+    const raw = { source: "bluetooth", xr: "quest", color: "#7C3AED", device: "Banda de pecho" };
     assert.deepEqual(parseSettings(raw), raw);
+  });
+
+  it("only accepts a color from the Sentry palette", () => {
+    assert.equal(parseSettings({ color: "#123456" }).color, DEFAULT_SETTINGS.color);
+    assert.equal(parseSettings({ color: 5 }).color, DEFAULT_SETTINGS.color);
+    assert.equal(parseSettings({ color: "#E5322D" }).color, "#E5322D");
   });
 
   it("replaces each invalid field with its own default", () => {

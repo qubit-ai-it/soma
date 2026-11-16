@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 import { AlertTray } from "@/features/alerts/components/alert-tray";
 import { NAV_ITEMS, activeItemId, navItemsFor } from "@/features/navigation/nav.logic";
-import { ONBOARDING_OPEN_EVENT } from "@/features/onboarding/onboarding.logic";
 import { DEMO_ACTORS, ROLE_LABELS, isRole } from "@/features/roles/roles.logic";
 import { setDemoRole, useDemoRole } from "@/features/roles/roles.store";
 import { ROLES } from "@/features/roles/roles.types";
@@ -29,6 +28,7 @@ export function SiteNav() {
           const isActive = item.id === active;
           const style = `${PILL} ${isActive ? "bg-primary text-primary-foreground" : "hover:bg-secondary"}`;
           if (item.id === "alerts") return <AlertTray key={item.id} className={style} />;
+          if (!item.href) return null;
           return (
             <Link
               key={item.id}
@@ -61,17 +61,6 @@ export function SiteNav() {
             ))}
           </select>
         </label>
-
-        <button
-          type="button"
-          aria-label="Guía"
-          title="Guía"
-          onClick={() => window.dispatchEvent(new Event(ONBOARDING_OPEN_EVENT))}
-          className={`${PILL} hover:bg-secondary`}
-        >
-          <Icon name="help" />
-          <span className="hidden sm:inline">Guía</span>
-        </button>
       </nav>
     </div>
   );

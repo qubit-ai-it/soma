@@ -101,13 +101,11 @@ export function closeAlert(alert: Alert, actor: Actor & { note: string }): Resul
 
 type Viewer = { role: Role; memberId?: string };
 
-// F0-F2 alerts reach the astronaut concerned and the CMO; F3 reaches the whole crew
+// The astronaut only sees alerts about themself; every other role sees what was addressed to it
 export function alertsVisibleTo(alerts: readonly Alert[], viewer: Viewer): Alert[] {
   return alerts.filter((alert) => {
     if (!alert.recipients.includes(viewer.role)) return false;
-    if (viewer.role === "astronaut" && alert.level !== "F3") {
-      return viewer.memberId === alert.memberId;
-    }
+    if (viewer.role === "astronaut") return viewer.memberId === alert.memberId;
     return true;
   });
 }

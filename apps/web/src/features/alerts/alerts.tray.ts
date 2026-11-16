@@ -37,6 +37,16 @@ export function trayItems(
     }));
 }
 
+export type TrayFilter = { status: "all" | "open" | "acknowledged"; level: "all" | AlertLevel };
+
+export function filterTray(items: readonly TrayItem[], filter: TrayFilter): TrayItem[] {
+  return items.filter(
+    (item) =>
+      (filter.status === "all" || item.status === filter.status) &&
+      (filter.level === "all" || item.level === filter.level),
+  );
+}
+
 export function unreadCount(items: readonly TrayItem[]): number {
   return items.filter((item) => item.status === "open").length;
 }

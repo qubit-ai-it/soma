@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 
-import { SomaCard, type CardAction } from "@/shared/ui/soma-card";
+import { MetricCard } from "@/shared/ui/metric-card";
+import type { CardAction } from "@/shared/ui/soma-card";
 
-import { BLUETOOTH_MESSAGES, describeLive } from "../live.display";
+import { describeLive } from "../live.display";
 import { evaluateLive, type Bin } from "../live.logic";
-import { connectLive, disconnectLive, useLiveState } from "../live.store";
+import { useLiveState } from "../live.store";
 
 type Escalate = (input: unknown) => Promise<{ ok: boolean; message: string }>;
 
@@ -38,7 +39,7 @@ function Spark({ bins }: { bins: readonly Bin[] }) {
   );
 }
 
-export function LiveBoard({ escalate }: { escalate: Escalate }) {
+export function LiveReading({ escalate }: { escalate: Escalate }) {
   const live = useLiveState();
   const [now, setNow] = useState(0);
   const [pending, start] = useTransition();
@@ -53,23 +54,10 @@ export function LiveBoard({ escalate }: { escalate: Escalate }) {
     () => evaluateLive(live.readings, live.deviceName ?? "Dispositivo", now),
     [live.readings, live.deviceName, now],
   );
-  const connected = live.status === "connected";
-  const view = describeLive(evaluated, connected);
+  const view = describeLive(evaluated, live.status === "connected");
   const status = evaluated.evaluation?.status;
 
-  const deviceLine = connected
-    ? "Conectado"
-    : live.status === "connecting"
-      ? "Conectando…"
-      : live.error
-        ? BLUETOOTH_MESSAGES[live.error]
-        : "Reloj o banda por Bluetooth.";
-
-  const deviceActions: CardAction[] = connected
-    ? [{ label: "Desconectar", variant: "secondary", onClick: disconnectLive }]
-    : [{ label: "Conectar", icon: "bluetooth", disabled: live.status === "connecting", onClick: () => void connectLive() }];
-
-  const readingActions: CardAction[] =
+  const actions: CardAction[] =
     status === "F3" && evaluated.latestBpm !== null
       ? [
           {
@@ -86,40 +74,20 @@ export function LiveBoard({ escalate }: { escalate: Escalate }) {
       : [];
 
   return (
-    <section aria-label="Datos en vivo" className="grid gap-4 sm:grid-cols-2">
-      <SomaCard
-        title={live.deviceName ?? "Sin dispositivo"}
-        line={deviceLine}
-        chip={connected ? "Conectado" : "Sin conexión"}
-        tone={connected ? "ok" : "neutral"}
-        actions={deviceActions}
-      />
-
-      <SomaCard
-        title={evaluated.latestBpm === null ? "— lpm" : `${Math.round(evaluated.latestBpm)} lpm`}
-        line={view.line}
-        chip={view.chip}
-        tone={view.tone}
-        actions={readingActions}
-        detail={
-          <>
-            <p>
-              La referencia se calcula con tus primeras {evaluated.calibrationBins} mediciones de 5 segundos.
-            </p>
-            {evaluated.evaluation?.triggeredRules.length ? (
-              <p>Reglas activas: {evaluated.evaluation.triggeredRules.join(", ")}.</p>
-            ) : null}
-            <p>Estas lecturas son de tu dispositivo y no son un diagnóstico.</p>
-          </>
-        }
-      >
-        <Spark bins={evaluated.bins} />
-        {notice && (
-          <p role="status" className="text-sm">
-            {notice}
-          </p>
-        )}
-      </SomaCard>
-    </section>
+    <MetricCard
+      title="Frecuencia cardíaca en vivo"
+      value={evaluated.latestBpm === null ? "— lpm" : `${Math.round(evaluated.latestBpm)} lpm`}
+      line={view.line}
+      icon="cardiology"
+      tone={view.tone}
+      actions={actions}
+    >
+      <Spark bins={evaluated.bins} />
+      {notice && (
+        <p role="status" className="text-sm">
+          {notice}
+        </p>
+      )}
+    </MetricCard>
   );
 }

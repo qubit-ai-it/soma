@@ -9,14 +9,14 @@ describe("navItemsFor", () => {
   const idsFor = (role: (typeof ROLES)[number]) => navItemsFor(role, "cm-02").map((i) => i.id);
 
   it("shows only the sections each role can use", () => {
-    assert.deepEqual(idsFor("astronaut"), ["home", "report", "live", "xr", "sentry", "alerts", "demo"]);
-    assert.deepEqual(idsFor("cmo"), ["home", "report", "alerts", "live", "xr", "sentry", "demo"]);
-    assert.deepEqual(idsFor("commander"), ["home", "alerts", "sentry", "demo"]);
-    assert.deepEqual(idsFor("earth"), ["home", "earth", "alerts", "demo"]);
+    assert.deepEqual(idsFor("astronaut"), ["home", "report", "devices", "sentry", "alerts"]);
+    assert.deepEqual(idsFor("cmo"), ["home", "report", "alerts", "devices", "sentry"]);
+    assert.deepEqual(idsFor("commander"), ["home", "alerts", "sentry"]);
+    assert.deepEqual(idsFor("earth"), ["home", "earth", "alerts"]);
   });
 
   it("hides the clinical and device sections from the commander and Earth", () => {
-    for (const hidden of ["report", "live", "xr"]) {
+    for (const hidden of ["report", "devices"]) {
       assert.equal(idsFor("commander").includes(hidden), false, `commander: ${hidden}`);
       assert.equal(idsFor("earth").includes(hidden), false, `earth: ${hidden}`);
     }
@@ -57,7 +57,7 @@ describe("navItemsFor", () => {
   it("points every item of every role to a page that exists", () => {
     for (const role of ROLES) {
       for (const item of navItemsFor(role, "cm-02")) {
-        assert.ok(routeExists(item.href), `${role}: no page for ${item.href}`);
+        assert.ok(item.href === undefined || routeExists(item.href), `${role}: no page for ${item.href}`);
       }
     }
   });
@@ -71,7 +71,7 @@ describe("navigation items", () => {
 
   it("points every item to a page that exists", () => {
     for (const item of NAV_ITEMS) {
-      assert.ok(routeExists(item.href), `no page for ${item.href}`);
+      assert.ok(item.href === undefined || routeExists(item.href), `no page for ${item.href}`);
     }
   });
 });
@@ -79,7 +79,7 @@ describe("navigation items", () => {
 describe("activeItemId", () => {
   it("marks the home only on the exact root path", () => {
     assert.equal(activeItemId("/"), "home");
-    assert.notEqual(activeItemId("/xr"), "home");
+    assert.notEqual(activeItemId("/dispositivos/experiencias"), "home");
   });
 
   it("marks the report for any member and tab", () => {
@@ -94,13 +94,14 @@ describe("activeItemId", () => {
   });
 
   it("marks the matching section", () => {
-    assert.equal(activeItemId("/vivo"), "live");
-    assert.equal(activeItemId("/xr"), "xr");
+    assert.equal(activeItemId("/dispositivos"), "devices");
+    assert.equal(activeItemId("/dispositivos/experiencias"), "devices");
     assert.equal(activeItemId("/tierra"), "earth");
-    assert.equal(activeItemId("/alertas"), "alerts");
-    assert.equal(activeItemId("/alertas/export"), "alerts");
     assert.equal(activeItemId("/pet"), "sentry");
-    assert.equal(activeItemId("/demo"), "demo");
+  });
+
+  it("no longer has an alerts page", () => {
+    assert.equal(activeItemId("/alertas"), null);
   });
 
   it("returns null for an unknown path", () => {

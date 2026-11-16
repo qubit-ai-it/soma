@@ -8,6 +8,7 @@ import {
   SETUP_KINDS,
   isLastStep,
   nextStepIndex,
+  prevStepIndex,
   shouldShowOnboarding,
 } from "./onboarding.logic.ts";
 
@@ -28,7 +29,7 @@ describe("onboarding steps", () => {
     }
   });
 
-  it("asks for the role, the data source and the XR headset once each, after the intro", () => {
+  it("asks for the color, the role, the data source and the XR headset once each, after the intro", () => {
     const kinds = ONBOARDING_STEPS.map((s) => s.kind);
     assert.deepEqual(
       kinds.filter((k) => k !== "info"),
@@ -45,6 +46,11 @@ describe("onboarding steps", () => {
     assert.equal(nextStepIndex(last), last);
     assert.equal(isLastStep(last), true);
     assert.equal(isLastStep(0), false);
+  });
+
+  it("walks backward without passing the first step", () => {
+    assert.equal(prevStepIndex(3), 2);
+    assert.equal(prevStepIndex(0), 0);
   });
 });
 

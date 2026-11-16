@@ -8,6 +8,8 @@ import {
   useViewModelInstanceTrigger,
 } from "@rive-app/react-canvas";
 
+import { useSettings } from "@/features/settings/settings.store";
+
 import { hexToRgb, type SentryMode } from "../sentry.types";
 import { MASCOT_SRC } from "./rive-runtime";
 import { useSharedMascotFile } from "./sentry-file";
@@ -38,6 +40,8 @@ export function Sentry({
 }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const shared = useSharedMascotFile();
+  const [settings] = useSettings();
+  const tint = color ?? settings.color;
   // the shared file is returned while still loading: wait for "success", fall back to src on failure
   const { rive, RiveComponent } = useRive(
     shared === null || shared.status === "failed"
@@ -68,9 +72,9 @@ export function Sentry({
   }, [errorSignal]);
 
   useEffect(() => {
-    const rgb = color ? hexToRgb(color) : null;
+    const rgb = hexToRgb(tint);
     if (rgb) setRgb(...rgb);
-  }, [color, setRgb, vmi]);
+  }, [tint, setRgb, vmi]);
 
   useEffect(() => {
     const node = wrapperRef.current;

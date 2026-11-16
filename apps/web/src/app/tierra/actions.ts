@@ -20,7 +20,6 @@ const reviewSchema = callerSchema.extend({ review: reviewInputSchema });
 
 function refresh() {
   revalidatePath("/tierra");
-  revalidatePath("/alertas");
 }
 
 export async function setLinkAction(raw: unknown): Promise<Result<void>> {

@@ -3,27 +3,26 @@ import type { Role } from "../roles/roles.types.ts";
 export type NavItem = {
   id: string;
   label: string;
-  href: string;
+  // Items without an href open a panel instead of a page
+  href?: string;
   icon: string;
 };
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { id: "home", label: "Inicio", href: "/", icon: "home" },
   { id: "report", label: "Reporte", href: "/reporte/cm-01", icon: "monitor_heart" },
-  { id: "live", label: "En vivo", href: "/vivo", icon: "favorite" },
-  { id: "xr", label: "XR", href: "/xr", icon: "view_in_ar" },
+  { id: "devices", label: "Dispositivos", href: "/dispositivos", icon: "devices" },
   { id: "earth", label: "Tierra", href: "/tierra", icon: "public" },
-  { id: "alerts", label: "Alertas", href: "/alertas", icon: "notifications" },
+  { id: "alerts", label: "Alertas", icon: "notifications" },
   { id: "sentry", label: "Sentry", href: "/pet", icon: "smart_toy" },
-  { id: "demo", label: "Demo", href: "/demo", icon: "play_circle" },
 ];
 
 // Sections each role can use, in display order
 const ITEMS_BY_ROLE: Record<Role, readonly string[]> = {
-  astronaut: ["home", "report", "live", "xr", "sentry", "alerts", "demo"],
-  cmo: ["home", "report", "alerts", "live", "xr", "sentry", "demo"],
-  commander: ["home", "alerts", "sentry", "demo"],
-  earth: ["home", "earth", "alerts", "demo"],
+  astronaut: ["home", "report", "devices", "sentry", "alerts"],
+  cmo: ["home", "report", "alerts", "devices", "sentry"],
+  commander: ["home", "alerts", "sentry"],
+  earth: ["home", "earth", "alerts"],
 };
 
 export function navItemsFor(role: Role, astronautMemberId: string): NavItem[] {
@@ -38,12 +37,9 @@ export function navItemsFor(role: Role, astronautMemberId: string): NavItem[] {
 
 const PREFIXES: readonly (readonly [string, string])[] = [
   ["/reporte", "report"],
-  ["/vivo", "live"],
-  ["/xr", "xr"],
+  ["/dispositivos", "devices"],
   ["/tierra", "earth"],
-  ["/alertas", "alerts"],
   ["/pet", "sentry"],
-  ["/demo", "demo"],
 ];
 
 export function activeItemId(pathname: string): string | null {

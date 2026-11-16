@@ -173,11 +173,12 @@ describe("visibility and projection", () => {
   const nev = alert({ id: "al-4", level: "NOT_EVALUABLE", recipients: ["cmo"] });
   const all = [f2, f3, nev];
 
-  it("shows the astronaut own F2 alerts and any F3 alert", () => {
+  it("shows the astronaut only their own alerts, F3 included", () => {
     const ids = alertsVisibleTo(all, { role: "astronaut", memberId: "cm-02" }).map((a) => a.id);
-    assert.deepEqual(ids, ["al-1", "al-3"]);
-    const other = alertsVisibleTo(all, { role: "astronaut", memberId: "cm-05" }).map((a) => a.id);
-    assert.deepEqual(other, ["al-3"]);
+    assert.deepEqual(ids, ["al-1"]);
+    const owner = alertsVisibleTo(all, { role: "astronaut", memberId: "cm-03" }).map((a) => a.id);
+    assert.deepEqual(owner, ["al-3"]);
+    assert.deepEqual(alertsVisibleTo(all, { role: "astronaut", memberId: "cm-05" }), []);
   });
 
   it("shows the CMO everything, the commander and Earth only F3", () => {
