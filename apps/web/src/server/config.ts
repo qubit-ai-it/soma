@@ -28,11 +28,11 @@ const envSchema = z.object({
   CHAT_OLLAMA_MODEL: z.string().trim().min(1).default("medgemma:27b"),
   CHAT_OLLAMA_AUTHORIZATION: optionalString,
 
-  SPACE_WEATHER_PROVIDER: z.enum(["live", "fixture"]).default("fixture"),
-  DONKI_BASE_URL: z.url().default("https://ccmc.gsfc.nasa.gov/DONKI/WS/get"),
+  SPACE_WEATHER_PROVIDER: z.enum(["live", "fixture"]).default("live"),
+  DONKI_BASE_URL: z.url().default("https://ccmc.gsfc.nasa.gov/DONKI-API/get"),
   SWPC_BASE_URL: z.url().default("https://services.swpc.noaa.gov"),
 
-  RADIATION_PROVIDER: z.enum(["fixture", "live"]).default("fixture"),
+  RADIATION_PROVIDER: z.enum(["fixture", "live"]).default("live"),
   RADLAB_BASE_URL: z
     .url()
     .default("https://visualization.osdr.nasa.gov/radlab/api"),

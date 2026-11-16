@@ -79,13 +79,10 @@ export function BodyPanel({
                 </li>
               ))}
             </ul>
-            <p className="mt-2 text-xs text-ink">
-              Ilustrativo, no clínico.
-            </p>
           </div>
         ) : (
           <p className="text-ink">
-            Selecciona una zona para ver qué señales la pintaron.
+            Toca una zona para ver el detalle.
           </p>
         )}
       </div>

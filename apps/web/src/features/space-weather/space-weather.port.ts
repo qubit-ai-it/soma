@@ -8,10 +8,12 @@ export type SpaceWeatherEvent = {
   summary: string;
 };
 
+// null means the source could not be read, which is not the same as zero
 export type SpaceWeatherSnapshot = {
-  events: SpaceWeatherEvent[];
-  protonFluxPfu10Mev: number;
-  kpIndex: number;
+  events: SpaceWeatherEvent[] | null;
+  protonFluxPfu10Mev: number | null;
+  kpIndex: number | null;
+  xrayClass: string | null;
   source: SourceInfo;
 };
 

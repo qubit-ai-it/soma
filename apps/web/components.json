@@ -17,5 +17,8 @@
     "utils": "@/shared/lib/utils",
     "lib": "@/shared/lib",
     "hooks": "@/shared/hooks"
+  },
+  "registries": {
+    "@organui": "https://organui.com/r/{name}.json"
   }
 }

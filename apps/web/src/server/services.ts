@@ -13,11 +13,13 @@ import { createFallbackClassifier } from "../features/risk/classifier.chain.ts";
 import { createMockClassifier } from "../features/risk/classifier.mock.ts";
 import type { RiskClassifier } from "../features/risk/classifier.port.ts";
 import { createSystemOneClassifier } from "../features/risk/system-one.classifier.ts";
+import { createLiveRadiation } from "../features/space-weather/radiation.live.ts";
 import type { RadiationSource } from "../features/space-weather/radiation.port.ts";
 import {
   createFixtureRadiation,
   createFixtureSpaceWeather,
 } from "../features/space-weather/space-weather.fixture.ts";
+import { createLiveSpaceWeather } from "../features/space-weather/space-weather.live.ts";
 import type { SpaceWeatherSource } from "../features/space-weather/space-weather.port.ts";
 import { getConfig, type Config } from "./config.ts";
 import { createJsonStore } from "./json-store.ts";
@@ -29,12 +31,6 @@ export type Services = {
   spaceWeather: SpaceWeatherSource;
   radiation: RadiationSource;
 };
-
-function notImplemented(port: string, provider: string): never {
-  throw new Error(
-    `${port} provider "${provider}" has no adapter yet. Use "mock"/"fixture" or SOMA_OFFLINE=true.`,
-  );
-}
 
 function buildClassifier(config: Config): RiskClassifier {
   const { provider, jev, laya } = config.classifier;
@@ -92,11 +88,14 @@ function build(): Services {
     spaceWeather:
       config.spaceWeather.provider === "fixture"
         ? createFixtureSpaceWeather()
-        : notImplemented("spaceWeather", config.spaceWeather.provider),
+        : createLiveSpaceWeather({
+            donkiBaseUrl: config.spaceWeather.donkiBaseUrl,
+            swpcBaseUrl: config.spaceWeather.swpcBaseUrl,
+          }),
     radiation:
       config.radiation.provider === "fixture"
         ? createFixtureRadiation()
-        : notImplemented("radiation", config.radiation.provider),
+        : createLiveRadiation({ radlabBaseUrl: config.radiation.radlabBaseUrl }),
   };
 }
 

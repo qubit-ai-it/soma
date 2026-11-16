@@ -79,6 +79,7 @@ export function LiveReading({ escalate }: { escalate: Escalate }) {
       value={evaluated.latestBpm === null ? "— lpm" : `${Math.round(evaluated.latestBpm)} lpm`}
       line={view.line}
       icon="cardiology"
+      source={live.deviceName ?? "Reloj o banda"}
       tone={view.tone}
       actions={actions}
     >

@@ -5,9 +5,7 @@ import { useSelectedLayoutSegment } from "next/navigation";
 
 const TABS = [
   { segment: null, label: "Resumen", path: "" },
-  { segment: "tendencias", label: "Tendencias", path: "/tendencias" },
-  { segment: "cuerpo", label: "Cuerpo", path: "/cuerpo" },
-  { segment: "riesgo", label: "Riesgo", path: "/riesgo" },
+  { segment: "estado", label: "Estado", path: "/estado" },
   { segment: "evaluacion", label: "Evaluación", path: "/evaluacion" },
   { segment: "plan", label: "Plan", path: "/plan" },
   { segment: "seguimiento", label: "Seguimiento", path: "/seguimiento" },
