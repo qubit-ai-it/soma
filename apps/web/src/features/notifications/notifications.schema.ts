@@ -12,6 +12,7 @@ export const NOTIFICATION_KINDS = [
   "earth_response",
   "plan",
   "followup",
+  "task",
 ] as const;
 
 export const PRIORITIES = ["low", "normal", "high", "critical"] as const;

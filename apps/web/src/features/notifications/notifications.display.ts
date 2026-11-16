@@ -7,6 +7,7 @@ export const KIND_LABEL: Record<NotificationKind, string> = {
   alert: "Alert",
   checkin: "Check-in",
   reminder: "Reminder",
+  task: "Task",
   summary: "Shift",
   link: "Link",
   space_weather: "Space weather",

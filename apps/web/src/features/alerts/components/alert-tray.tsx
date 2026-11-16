@@ -183,7 +183,9 @@ export function AlertTray({ className }: { className?: string }) {
                       actions={
                         n.kind === "checkin"
                           ? [{ label: "Reply", icon: "chat", href: "/pet" }]
-                          : undefined
+                          : n.kind === "task"
+                            ? [{ label: "Open simulation", icon: "rocket_launch", href: "/" }]
+                            : undefined
                       }
                     />
                   </li>

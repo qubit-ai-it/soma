@@ -1,13 +1,17 @@
 import "server-only";
 
+import { getNotificationsRepository } from "../../server/repositories.ts";
+import { getPool } from "../../server/db.ts";
 import { getServices } from "../../server/services.ts";
 import { evaluateSimulation } from "./orchestrator.ts";
 import { activeIncident, canEditTelemetry, isCrewInDanger, needsIncidentReview } from "./incident.ts";
 import { constrainToDeck, locationAt } from "./deck.ts";
+import { instructionNotifications } from "./simulation.notifications.ts";
+import { PROVIDER_LABELS } from "./simulation.provider.ts";
 import { buildCrew, emptyState, reconcileCrew } from "./simulation.crew.ts";
 import { restartSituation } from "./simulation.reset.ts";
-import { createSessionStore } from "./simulation.sessions.ts";
-import { telemetrySchema, type SimulationState, type SimulationUpdate } from "./simulation.ts";
+import { createMemoryStorage, createPostgresStorage, type SimulationStorage } from "./simulation.storage.ts";
+import { telemetrySchema, type ChatEntry, type SimulationState, type SimulationUpdate } from "./simulation.ts";
 
 const listCrew = () => getServices().crew.list();
 
@@ -15,16 +19,28 @@ async function initialState(): Promise<SimulationState> {
   return emptyState(buildCrew(await listCrew()));
 }
 
-const store = createSessionStore(initialState);
-
-export async function getSimulation(sessionId: string): Promise<SimulationState> {
-  const members = await listCrew();
-  return store.update(sessionId, (state) => reconcileCrew(state, members));
+function isState(value: unknown): value is SimulationState {
+  const state = value as Partial<SimulationState> | null;
+  return typeof state === "object" && state !== null && Array.isArray(state.crew) && Array.isArray(state.messages);
 }
 
-export async function updateSimulation(sessionId: string, update: SimulationUpdate): Promise<SimulationState> {
+const globalForStore = globalThis as unknown as { somaSimulation?: SimulationStorage<SimulationState> };
+
+function storage(): SimulationStorage<SimulationState> {
+  globalForStore.somaSimulation ??= process.env.DATABASE_URL
+    ? createPostgresStorage(getPool(), initialState, isState)
+    : createMemoryStorage(initialState);
+  return globalForStore.somaSimulation;
+}
+
+export async function getSimulation(): Promise<SimulationState> {
   const members = await listCrew();
-  return await store.update(sessionId, async (current) => {
+  return storage().update((state) => reconcileCrew(state, members));
+}
+
+export async function updateSimulation(update: SimulationUpdate): Promise<SimulationState> {
+  const members = await listCrew();
+  return await storage().update(async (current) => {
     const state = reconcileCrew(current, members);
     const version = state.version + 1;
     if (update.kind === "reset") {
@@ -65,12 +81,27 @@ export async function updateSimulation(sessionId: string, update: SimulationUpda
   });
 }
 
-async function evaluatePending(sessionId: string) {
+async function notifyMembers(messages: ChatEntry[], provider: "medgemma" | "gemini" | undefined) {
+  if (!process.env.DATABASE_URL || messages.length === 0) return;
+  const analyst = PROVIDER_LABELS[provider ?? "medgemma"];
+  const repository = getNotificationsRepository();
+  for (const notification of instructionNotifications(messages, analyst)) {
+    try {
+      await repository.add(notification);
+    } catch (error) {
+      console.error("[simulation] could not notify", error);
+    }
+  }
+}
+
+async function evaluatePending() {
   while (true) {
-    const state = await getSimulation(sessionId);
+    const state = await getSimulation();
     if (state.phase !== "pending") return;
     const result = await evaluateSimulation(state);
-    await store.update(sessionId, (current) => {
+    let created: ChatEntry[] = [];
+    await storage().update((current) => {
+      created = [];
       if (current.revision !== state.revision || current.phase !== "pending") return current;
       const version = current.version + 1;
       if (!result.ok) return { ...current, version, phase: "error", error: result.error };
@@ -91,6 +122,7 @@ async function evaluatePending(sessionId: string) {
           && previous.via === entry.via && previous.destination === entry.destination
         )))
         .map((entry) => ({ ...entry, at, id: `${version}-${entry.crewId}` }));
+      created = messages;
       return {
         ...current,
         version,
@@ -100,9 +132,12 @@ async function evaluatePending(sessionId: string) {
         messages: [...current.messages, ...messages].slice(-150),
       } satisfies SimulationState;
     });
+    if (result.ok) await notifyMembers(created, result.value.provider);
   }
 }
 
-export function runPendingSimulation(sessionId: string): Promise<void> {
-  return store.runWorker(sessionId, () => evaluatePending(sessionId));
+let worker: Promise<void> | undefined;
+
+export function runPendingSimulation(): Promise<void> {
+  return (worker ??= evaluatePending().finally(() => { worker = undefined; }));
 }
