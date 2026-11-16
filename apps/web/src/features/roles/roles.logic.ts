@@ -20,7 +20,7 @@ export const ROLE_LABELS: Record<Role, string> = {
 
 // Fictional identities used when nobody is signed in
 export const DEMO_ACTORS: Record<Role, DemoActor> = {
-  astronaut: { id: "demo-astronaut-01", label: "Astronaut", memberId: "cm-02" },
+  astronaut: { id: "demo-astronaut-01", label: "Astronaut" },
   cmo: { id: "demo-cmo-01", label: "Onboard physician" },
   commander: { id: "demo-commander-01", label: "Commander" },
   earth: { id: "demo-earth-md-01", label: "Earth physician" },
@@ -46,6 +46,12 @@ export function roleFromMetadata(metadata: unknown): Role | null {
   if (typeof metadata !== "object" || metadata === null) return null;
   const role = (metadata as { role?: unknown }).role;
   return isRole(role) ? role : null;
+}
+
+export function memberIdFromMetadata(metadata: unknown): string | null {
+  if (typeof metadata !== "object" || metadata === null) return null;
+  const id = (metadata as { memberId?: unknown }).memberId;
+  return typeof id === "string" && id.length > 0 ? id : null;
 }
 
 export function actorIdForUser(userId: string): string {

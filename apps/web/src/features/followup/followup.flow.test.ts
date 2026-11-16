@@ -8,7 +8,7 @@ import type { ObservationsRepository } from "../observation/observation.reposito
 import type { Observation } from "../observation/observation.types.ts";
 import type { PlanRecord } from "../plan/plan.record.ts";
 import type { PlansRepository } from "../plan/plan.repository.ts";
-import { syntheticHeartRate } from "../sentry/sentry.simulation.ts";
+import { MODERATE, fixtureHeartRate } from "../sentry/sentry.fixtures.ts";
 import { createFollowUpFlow } from "./followup.flow.ts";
 import type { FollowUpRecord } from "./followup.record.ts";
 import type { FollowUpsRepository } from "./followup.repository.ts";
@@ -19,7 +19,7 @@ const approvedAt = new Date(sec(100)).toISOString();
 
 const plan = (over: Partial<PlanRecord> = {}): PlanRecord => ({
   id: "pl-1",
-  subjectId: "cm-02",
+  subjectId: MODERATE,
   evaluationId: "ev-1",
   level: "F2",
   status: "approved",
@@ -37,7 +37,7 @@ const plan = (over: Partial<PlanRecord> = {}): PlanRecord => ({
 
 function setup(options: { plans?: PlanRecord[]; blocks?: number } = {}) {
   const blocks = options.blocks ?? 60;
-  const all: Observation[] = Array.from({ length: blocks }, (_, k) => syntheticHeartRate("cm-02", sec(k * 5), T0));
+  const all: Observation[] = Array.from({ length: blocks }, (_, k) => fixtureHeartRate(MODERATE, sec(k * 5), T0));
   const observations: ObservationsRepository = {
     add: async (o) => ({ observation: o, duplicate: false }),
     addMany: async (list) => ({ stored: list.length, duplicates: 0 }),
@@ -158,8 +158,8 @@ describe("follow-up flow", () => {
     assert.ok(rows[0].reports[0].reasons.includes("adherence-missing"));
     assert.equal(rows[0].reports[0].escalate, false);
     const window = notes.find((n) => n.title === "Window 1 closed");
-    assert.ok(window?.body?.startsWith("Crew member cm-02: Not evaluable. "));
-    assert.ok((window?.body?.length ?? 0) > "Crew member cm-02: Not evaluable. ".length);
+    assert.ok(window?.body?.startsWith(`Crew member ${MODERATE}: Not evaluable. `));
+    assert.ok((window?.body?.length ?? 0) > `Crew member ${MODERATE}: Not evaluable. `.length);
     assert.deepEqual(window?.audience, ["role:cmo"]);
   });
 
@@ -228,7 +228,7 @@ describe("follow-up feedback from Earth", () => {
     assert.equal(rows[0].reports[0].feedback[0].note, "Measure at night");
 
     const notice = notes.find((n) => n.title === "Earth responded");
-    assert.equal(notice?.body, "Crew member cm-02: Window 1 · commented");
+    assert.equal(notice?.body, `Crew member ${MODERATE}: Window 1 · commented`);
     assert.deepEqual(notice?.audience, ["role:cmo", "role:commander"]);
     assert.deepEqual(await flow.awaitingFeedback(delivered), []);
   });

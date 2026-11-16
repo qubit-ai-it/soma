@@ -6,7 +6,7 @@ import { ingestBodySchema } from "./ingest.schema.ts";
 
 const T0 = 1_700_000_000_000 - (1_700_000_000_000 % 5000);
 const body = (readings: { at: number; bpm: number }[]) =>
-  ingestBodySchema.parse({ subjectId: "live-astronaut", device: "Watch", readings });
+  ingestBodySchema.parse({ subjectId: "cm-1a2b3c01", device: "Watch", readings });
 
 describe("ingest block observations", () => {
   it("collapses a 5 s block into its median with real provenance", () => {
@@ -28,7 +28,7 @@ describe("ingest block observations", () => {
     const a = toBlockObservations(body([{ at: T0 + 10, bpm: 70 }]), T0 + 20_000);
     const b = toBlockObservations(body([{ at: T0 + 4000, bpm: 71 }]), T0 + 20_000);
     assert.equal(a[0].id, b[0].id);
-    assert.equal(a[0].id, `hr-live-astronaut-${blockStart(T0 + 10)}`);
+    assert.equal(a[0].id, `hr-cm-1a2b3c01-${blockStart(T0 + 10)}`);
   });
 
   it("skips a block that has not closed yet", () => {
@@ -57,7 +57,7 @@ describe("ingest block observations", () => {
   it("rejects malformed bodies", () => {
     assert.equal(ingestBodySchema.safeParse({ subjectId: "X", device: "w", readings: [] }).success, false);
     assert.equal(
-      ingestBodySchema.safeParse({ subjectId: "live-astronaut", device: "w", readings: [{ at: 1, bpm: Infinity }] }).success,
+      ingestBodySchema.safeParse({ subjectId: "cm-1a2b3c01", device: "w", readings: [{ at: 1, bpm: Infinity }] }).success,
       false,
     );
   });

@@ -15,6 +15,7 @@ import {
 import { loadStoredSession, saveSession, type SessionStorageLike } from "../session.storage";
 import { SomaCard } from "@/shared/ui/soma-card";
 
+import { useMemberId, useUserScope } from "@/features/roles/roles.store";
 import { CapturePanel } from "./capture-panel";
 import { LiveLog } from "./live-log";
 import { ProcedureStepper } from "./procedure-stepper";
@@ -35,23 +36,26 @@ function browserStorage(): SessionStorageLike | null {
   }
 }
 
-export function XrExperience({ procedure, subjectId = "cm-01" }: Props) {
+export function XrExperience({ procedure, subjectId: subjectOverride }: Props) {
+  const ownMemberId = useMemberId();
+  const scope = useUserScope();
+  const subjectId = subjectOverride ?? ownMemberId ?? "";
   const [session, setSession] = useState<SessionState | null>(null);
   const [profile, setProfile] = useState<DeviceProfile>(PENDING_PROFILE);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const restored = loadStoredSession(browserStorage(), procedure);
+    const restored = loadStoredSession(browserStorage(), procedure, scope);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate from localStorage after mount
     setSession(restored ?? startSession(procedure, "practice", new Date().toISOString()));
     void detectCapabilities({ navigator, isSecureContext: window.isSecureContext }).then((caps) =>
       setProfile(resolveDeviceProfile(caps)),
     );
-  }, [procedure]);
+  }, [procedure, scope]);
 
   function commit(next: SessionState) {
     setSession(next);
-    saveSession(browserStorage(), next);
+    saveSession(browserStorage(), next, scope);
   }
 
   function onAction(action: SessionAction) {

@@ -3,7 +3,8 @@
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useRef } from "react";
 
-import { roleFromMetadata } from "@/features/roles/roles.logic";
+import { isCrewAppRole } from "@/features/crew/crew.generate";
+import { memberIdFromMetadata, roleFromMetadata } from "@/features/roles/roles.logic";
 import { getStoredRole } from "@/features/roles/roles.store";
 
 import { claimRoleAction } from "./onboarding-actions";
@@ -14,7 +15,8 @@ export function RoleSync() {
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user || claiming.current) return;
-    if (roleFromMetadata(user.publicMetadata)) return;
+    const current = roleFromMetadata(user.publicMetadata);
+    if (current && (!isCrewAppRole(current) || memberIdFromMetadata(user.publicMetadata))) return;
     claiming.current = true;
     const chosen = roleFromMetadata(user.unsafeMetadata) ?? getStoredRole();
     void claimRoleAction({ role: chosen })

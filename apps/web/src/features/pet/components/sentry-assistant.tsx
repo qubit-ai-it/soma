@@ -17,6 +17,8 @@ import {
 import { fileToDataUrl, MAX_ATTACHMENTS } from "../image";
 import { newId } from "../id";
 import { useLocalStore } from "@/shared/local-store";
+import { useUserScope } from "@/features/roles/roles.store";
+import { scopedKey } from "@/features/settings/scope.logic";
 import type { SentryMode } from "../pet.types";
 import {
   createTask,
@@ -81,13 +83,14 @@ const DRAFT_ID = "draft";
 const DRAFT = createConversation(DRAFT_ID, 0, GREETING);
 
 export function SentryAssistant() {
+  const scope = useUserScope();
   const [conversations, setConversations] = useLocalStore(
-    "soma.pet.conversations",
+    scopedKey("soma.pet.conversations", scope),
     NO_CONVERSATIONS,
     parseConversations,
   );
-  const [tasks, setTasks] = useLocalStore("soma.pet.tasks", NO_TASKS, parseTasks);
-  const [runs, setRuns] = useLocalStore("soma.pet.runs", NO_RUNS, parseRuns);
+  const [tasks, setTasks] = useLocalStore(scopedKey("soma.pet.tasks", scope), NO_TASKS, parseTasks);
+  const [runs, setRuns] = useLocalStore(scopedKey("soma.pet.runs", scope), NO_RUNS, parseRuns);
 
   const [current, setCurrent] = useState<Conversation>(DRAFT);
   const [view, setView] = useState<View>("chat");

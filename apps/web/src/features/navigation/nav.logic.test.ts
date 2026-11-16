@@ -45,11 +45,12 @@ describe("navItemsFor", () => {
     for (const role of ROLES) assert.equal(navItemsFor(role, "cm-02")[0].id, "home");
   });
 
-  it("opens the astronaut's own report and the first report for the medical officer", () => {
-    const report = (role: (typeof ROLES)[number]) =>
-      navItemsFor(role, "cm-02").find((i) => i.id === "report")?.href;
+  it("opens the astronaut's own report and the crew overview for the medical officer", () => {
+    const report = (role: (typeof ROLES)[number], memberId: string | null = "cm-02") =>
+      navItemsFor(role, memberId).find((i) => i.id === "report")?.href;
     assert.equal(report("astronaut"), "/report/cm-02");
-    assert.equal(report("cmo"), "/report/cm-01");
+    assert.equal(report("astronaut", null), "/mission");
+    assert.equal(report("cmo"), "/mission");
     assert.equal(report("commander"), undefined);
     assert.equal(report("earth"), undefined);
   });

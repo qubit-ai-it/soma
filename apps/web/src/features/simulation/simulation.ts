@@ -38,10 +38,11 @@ export function roomCenter(id: RoomId): Point {
   return { x: ((index % 3) + 0.5) * 100 / 3, y: index < 3 ? 25 : 75 };
 }
 
-export const crewIdSchema = z.enum(["cm-01", "cm-02", "cm-03", "cm-04"]);
+export const crewIdSchema = z.string().regex(/^cm-[a-z0-9]+$/);
 export type CrewId = z.infer<typeof crewIdSchema>;
-export const crewIds = crewIdSchema.options;
 export const crewColorTokens = ["--crew-cyan", "--crew-lavender", "--crew-mint", "--crew-amber"];
+export const crewColorToken = (crew: { id: CrewId }[], id: CrewId) =>
+  crewColorTokens[Math.max(0, crew.findIndex((member) => member.id === id)) % crewColorTokens.length];
 
 export const telemetrySchema = z.object({
   heartRateBpm: z.number().int().min(0).max(300),

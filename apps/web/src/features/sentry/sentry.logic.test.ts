@@ -5,42 +5,43 @@ import { BIN_MS } from "../live/live.logic.ts";
 import type { Observation } from "../observation/observation.types.ts";
 import { translateLimitation } from "../evaluation/evaluation.labels.ts";
 import { deriveEvaluation, shouldRaise, staleEvaluation, staleMinutes } from "./sentry.logic.ts";
-import { blockStartsToEmit, SIM_SUBJECTS, syntheticHeartRate } from "./sentry.simulation.ts";
+import { CALM, MODERATE, QUIET, SPIKE, fixtureHeartRate } from "./sentry.fixtures.ts";
+import { blockStartsToEmit, profileFor } from "./sentry.simulation.ts";
 
 const T0 = 1_800_000_000_000 - (1_800_000_000_000 % BIN_MS);
 
 function series(subject: string, blocks: number): Observation[] {
-  return Array.from({ length: blocks }, (_, k) => syntheticHeartRate(subject, T0 + k * BIN_MS, T0));
+  return Array.from({ length: blocks }, (_, k) => fixtureHeartRate(subject, T0 + k * BIN_MS, T0));
 }
 
 describe("deriveEvaluation", () => {
   it("waits for calibration before evaluating", () => {
-    assert.equal(deriveEvaluation(series("cm-01", 5)), null);
-    assert.equal(deriveEvaluation(series("cm-01", 6)), null);
+    assert.equal(deriveEvaluation(series(CALM, 5)), null);
+    assert.equal(deriveEvaluation(series(CALM, 6)), null);
     assert.equal(deriveEvaluation([]), null);
   });
 
   it("keeps a calm member at F0 for the whole cycle", () => {
     for (const blocks of [7, 30, 120, 240]) {
-      assert.equal(deriveEvaluation(series("cm-01", blocks))?.status, "F0");
+      assert.equal(deriveEvaluation(series(CALM, blocks))?.status, "F0");
     }
   });
 
   it("is deterministic for the same data", () => {
-    assert.deepEqual(deriveEvaluation(series("cm-02", 50)), deriveEvaluation(series("cm-02", 50)));
+    assert.deepEqual(deriveEvaluation(series(MODERATE, 50)), deriveEvaluation(series(MODERATE, 50)));
   });
 
   it("reaches F2 on a sustained moderate deviation", () => {
-    assert.equal(deriveEvaluation(series("cm-02", 36 + 6))?.status, "F2");
+    assert.equal(deriveEvaluation(series(MODERATE, 36 + 6))?.status, "F2");
   });
 
   it("reaches F3 on a critical spike and recovers afterwards", () => {
-    assert.equal(deriveEvaluation(series("cm-03", 92))?.status, "F3");
-    assert.equal(deriveEvaluation(series("cm-03", 110))?.status, "F0");
+    assert.equal(deriveEvaluation(series(SPIKE, 92))?.status, "F3");
+    assert.equal(deriveEvaluation(series(SPIKE, 110))?.status, "F0");
   });
 
   it("marks simulated data as synthetic", () => {
-    assert.equal(series("cm-04", 1)[0].provenance.type, "synthetic");
+    assert.equal(series(QUIET, 1)[0].provenance.type, "synthetic");
   });
 });
 
@@ -89,14 +90,26 @@ describe("simulator blocks", () => {
     assert.equal(blockStartsToEmit(last, T0 + 24 * 3_600_000).length, 60);
   });
 
-  it("covers every crew member with a profile", () => {
-    assert.deepEqual(SIM_SUBJECTS, ["cm-01", "cm-02", "cm-03", "cm-04"]);
+  it("derives a bounded, deterministic profile for any member", () => {
+    const ids = Array.from({ length: 60 }, (_, i) => `cm-${((i + 1) * 2654435761 >>> 0).toString(16).padStart(8, "0")}`);
+    for (const id of ids) {
+      const profile = profileFor({ id, vitals: { heartRateBpm: 300 } });
+      assert.deepEqual(profile, profileFor({ id, vitals: { heartRateBpm: 300 } }));
+      assert.ok(profile.base >= 50 && profile.base <= 90);
+      if (profile.episode) assert.ok(profile.base + profile.episode.delta <= 100 && profile.episode.to > profile.episode.from);
+    }
+    assert.ok(ids.some((id) => profileFor(id).episode) && ids.some((id) => !profileFor(id).episode));
+  });
+
+  it("takes the baseline from the member's own history", () => {
+    const history = [60, 62, 64].map((heartRateBpm) => ({ heartRateBpm }));
+    assert.equal(profileFor({ id: "cm-0000000a", vitals: { heartRateBpm: 80 }, history }).base, 62);
   });
 });
 
 describe("stale evaluation", () => {
   it("is not evaluable with a readable limitation, never F0", () => {
-    const evaluation = staleEvaluation("cm-02", T0);
+    const evaluation = staleEvaluation(MODERATE, T0);
     assert.equal(evaluation.status, "NOT_EVALUABLE");
     assert.deepEqual(evaluation.limitations, ["stale-data:heartRate"]);
     assert.equal(

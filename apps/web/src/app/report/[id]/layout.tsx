@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { Icon } from "@/shared/ui/icon";
 
 import { AttentionBadge } from "@/features/crew/components/attention-badge";
 import { getMissionMember } from "@/features/crew/crew.queries";
+import { getSessionCaller } from "@/features/roles/roles.session";
+import { canOpenReport } from "./report-access";
 import { ReportTabs } from "./report-tabs";
 
 export default function ReportLayout({ children, params }: LayoutProps<"/report/[id]">) {
@@ -25,6 +27,9 @@ export default function ReportLayout({ children, params }: LayoutProps<"/report/
 
 async function ReportHeader({ params }: Pick<LayoutProps<"/report/[id]">, "params">) {
   const { id } = await params;
+  const caller = await getSessionCaller();
+  if (!caller) redirect("/sign-in");
+  if (!canOpenReport(caller, id)) notFound();
   const member = await getMissionMember(id);
   if (!member) notFound();
   return (

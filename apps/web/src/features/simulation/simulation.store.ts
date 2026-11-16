@@ -1,62 +1,42 @@
 import "server-only";
 
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import { crewFileSchema } from "../crew/crew.schema.ts";
+import { getServices } from "../../server/services.ts";
 import { evaluateSimulation } from "./orchestrator.ts";
 import { activeIncident, canEditTelemetry, isCrewInDanger, needsIncidentReview } from "./incident.ts";
 import { constrainToDeck, locationAt } from "./deck.ts";
+import { buildCrew, emptyState, reconcileCrew } from "./simulation.crew.ts";
 import { restartSituation } from "./simulation.reset.ts";
 import { createSessionStore } from "./simulation.sessions.ts";
-import { crewIds, telemetrySchema, type SimulationState, type SimulationUpdate } from "./simulation.ts";
+import { telemetrySchema, type SimulationState, type SimulationUpdate } from "./simulation.ts";
 
-const dataDir = path.join(process.cwd(), "data");
-const seedDir = path.join(dataDir, "seed");
-const startPositions = [
-  { x: 17, y: 29 }, { x: 17, y: 75 }, { x: 52, y: 31 }, { x: 84, y: 28 },
-];
+const listCrew = () => getServices().crew.list();
 
 async function initialState(): Promise<SimulationState> {
-  const crew = crewFileSchema.parse(JSON.parse(await readFile(path.join(seedDir, "crew.json"), "utf8"))).crew;
-  return {
-    revision: 0, version: 0, phase: "idle", changes: [], decision: null, messages: [],
-    crew: crewIds.map((id, index) => {
-      const member = crew.find((candidate) => candidate.id === id);
-      return {
-        id,
-        name: member?.name ?? `Crew member ${index + 1}`,
-        role: member?.role ?? "Systems officer",
-        position: startPositions[index],
-        updatedAt: null,
-        telemetry: {
-          ...(member?.vitals ?? { heartRateBpm: 70, spo2Pct: 98, sleepHours: 7 }),
-          cumulativeDoseMsv: member?.cumulativeDoseMsv ?? 33,
-          systolic: 120,
-          diastolic: 78,
-        },
-      };
-    }),
-  };
+  return emptyState(buildCrew(await listCrew()));
 }
 
 const store = createSessionStore(initialState);
 
 export async function getSimulation(sessionId: string): Promise<SimulationState> {
-  return store.read(sessionId);
+  const members = await listCrew();
+  return store.update(sessionId, (state) => reconcileCrew(state, members));
 }
 
 export async function updateSimulation(sessionId: string, update: SimulationUpdate): Promise<SimulationState> {
-  return await store.update(sessionId, async (state) => {
+  const members = await listCrew();
+  return await store.update(sessionId, async (current) => {
+    const state = reconcileCrew(current, members);
     const version = state.version + 1;
     if (update.kind === "reset") {
-      return restartSituation(state, await initialState());
+      return restartSituation(state, emptyState(buildCrew(members)));
     }
     if (update.kind === "retry") {
       return state.phase === "idle" || state.phase === "error" || needsIncidentReview(state)
         ? { ...state, version, phase: "pending", error: undefined }
         : state;
     }
-    const member = state.crew.find(({ id }) => id === update.crewId)!;
+    const member = state.crew.find(({ id }) => id === update.crewId);
+    if (!member) return state;
     if (update.kind === "move" && isCrewInDanger(state, member)) return state;
     if (update.kind === "telemetry" && !canEditTelemetry(state, member)) return state;
     const at = new Date().toISOString();

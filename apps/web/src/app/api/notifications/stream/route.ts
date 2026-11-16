@@ -1,4 +1,5 @@
-import { viewerSchema } from "@/features/notifications/notifications.schema";
+import { viewerFromCaller } from "@/features/notifications/notifications.logic";
+import { getSessionCaller } from "@/features/roles/roles.session";
 import { formatEvent, KEEPALIVE, parseCursor, RETRY } from "@/features/notifications/sse.logic";
 import { getNotificationsRepository } from "@/server/repositories";
 
@@ -23,16 +24,14 @@ function sleep(ms: number, signal: AbortSignal) {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const viewer = viewerSchema.safeParse({
-    role: url.searchParams.get("role"),
-    memberId: url.searchParams.get("memberId") ?? undefined,
-  });
-  if (!viewer.success) return Response.json({ error: "invalid viewer" }, { status: 400 });
+  const caller = await getSessionCaller();
+  if (!caller) return Response.json({ error: "unauthorized" }, { status: 401, headers: { "cache-control": "no-store" } });
+  const viewer = viewerFromCaller(caller);
 
   const repo = getNotificationsRepository();
   let cursor = parseCursor(request.headers.get("last-event-id"), url.searchParams.get("after"));
   if (cursor === undefined) {
-    const [latest] = await repo.listFor(viewer.data, { limit: 1 });
+    const [latest] = await repo.listFor(viewer, { limit: 1 });
     cursor = latest?.seq ?? 0;
   }
 
@@ -44,7 +43,7 @@ export async function GET(request: Request) {
       try {
         send(RETRY);
         while (!request.signal.aborted && Date.now() - startedAt < WINDOW_MS) {
-          const fresh = await repo.listFor(viewer.data, { afterSeq: cursor, limit: 100 });
+          const fresh = await repo.listFor(viewer, { afterSeq: cursor, limit: 100 });
           for (const notification of fresh) {
             send(formatEvent({ id: notification.seq, event: "notification", data: notification }));
             cursor = notification.seq;

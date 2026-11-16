@@ -8,8 +8,9 @@ import type { ObservationsRepository } from "../observation/observation.reposito
 import type { Observation } from "../observation/observation.types.ts";
 import type { Evaluation } from "../rules/rules.types.ts";
 import type { EvaluationsRepository, StoredEvaluation } from "./evaluations.repository.ts";
+import { BACKFILL_POINTS } from "./sentry.simulation.ts";
 import { createSentryService } from "./sentry.service.ts";
-import { syntheticHeartRate } from "./sentry.simulation.ts";
+import { CALM, FIXTURE_MEMBERS, MODERATE, QUIET, SPIKE, fixtureHeartRate } from "./sentry.fixtures.ts";
 
 const T0 = 1_800_000_000_000 - (1_800_000_000_000 % 5000);
 
@@ -58,7 +59,7 @@ function memoryEvaluations(): EvaluationsRepository {
   };
 }
 
-function setup() {
+function setup(members = FIXTURE_MEMBERS) {
   const observations = memoryObservations();
   const raised: Parameters<Parameters<typeof createSentryService>[0]["raiseAlert"]>[0][] = [];
   const notified: NewNotification[] = [];
@@ -78,41 +79,42 @@ function setup() {
       raised.push(input);
       return ok({ id: input.alertId ?? "x", level: input.level } as Alert);
     },
+    members: async () => members,
     memberFor: (s) => s,
     labelFor: (m) => `Crew member ${m}`,
   });
   const feed = async (subject: string, from: number, to: number) => {
-    for (let k = from; k < to; k++) await observations.add(syntheticHeartRate(subject, T0 + k * 5000, T0));
+    for (let k = from; k < to; k++) await observations.add(fixtureHeartRate(subject, T0 + k * 5000, T0));
   };
-  return { service, feed, raised, notified };
+  return { service, feed, raised, notified, observations };
 }
 
 describe("sentry service", () => {
   it("stays calibrating until there is data after the baseline", async () => {
     const { service, feed } = setup();
-    await feed("cm-01", 0, 6);
-    assert.deepEqual(await service.process("cm-01"), { phase: "calibrating" });
+    await feed(CALM, 0, 6);
+    assert.deepEqual(await service.process(CALM), { phase: "calibrating" });
   });
 
   it("saves the first level without alerting on F0", async () => {
     const { service, feed, raised, notified } = setup();
-    await feed("cm-01", 0, 20);
-    const outcome = await service.process("cm-01");
+    await feed(CALM, 0, 20);
+    const outcome = await service.process(CALM);
     assert.ok(outcome.phase === "evaluated" && outcome.saved && !outcome.raised);
     assert.equal(raised.length + notified.length, 0);
   });
 
   it("raises an F2 alert as sentry and notifies the person and the CMO", async () => {
     const { service, feed, raised, notified } = setup();
-    await feed("cm-02", 0, 20);
-    await service.process("cm-02");
-    await feed("cm-02", 20, 42);
-    const outcome = await service.process("cm-02");
+    await feed(MODERATE, 0, 20);
+    await service.process(MODERATE);
+    await feed(MODERATE, 20, 42);
+    const outcome = await service.process(MODERATE);
     assert.ok(outcome.phase === "evaluated" && outcome.raised);
     assert.equal(raised.length, 1);
     assert.equal(raised[0].actorId, "sentry");
     assert.equal(raised[0].level, "F2");
-    assert.deepEqual(notified[0].audience, ["member:cm-02", "role:cmo"]);
+    assert.deepEqual(notified[0].audience, [`member:${MODERATE}`, "role:cmo"]);
     assert.equal(notified[0].priority, "high");
     assert.equal(notified[0].payload?.alertId, raised[0].alertId);
     assert.ok(!JSON.stringify(notified[0]).includes("bpm"));
@@ -120,20 +122,20 @@ describe("sentry service", () => {
 
   it("does not save or alert again when the level has not changed", async () => {
     const { service, feed, raised } = setup();
-    await feed("cm-02", 0, 42);
-    await service.process("cm-02");
-    await feed("cm-02", 42, 45);
-    const outcome = await service.process("cm-02");
+    await feed(MODERATE, 0, 42);
+    await service.process(MODERATE);
+    await feed(MODERATE, 42, 45);
+    const outcome = await service.process(MODERATE);
     assert.ok(outcome.phase === "evaluated" && !outcome.saved);
     assert.equal(raised.length, 1);
   });
 
   it("broadcasts F3 to the whole crew and Earth", async () => {
     const { service, feed, notified } = setup();
-    await feed("cm-03", 0, 80);
-    await service.process("cm-03");
-    await feed("cm-03", 80, 92);
-    await service.process("cm-03");
+    await feed(SPIKE, 0, 80);
+    await service.process(SPIKE);
+    await feed(SPIKE, 80, 92);
+    await service.process(SPIKE);
     const f3 = notified.find((n) => n.priority === "critical");
     assert.deepEqual(f3?.audience, ["crew:all", "role:earth"]);
   });
@@ -147,6 +149,37 @@ describe("sentry service", () => {
     const second = await service.tick(now);
     assert.ok(second.every((s) => s.emitted === 0));
   });
+
+  it("backfills a bounded synthetic history once and picks up members added later", async () => {
+    const members = [...FIXTURE_MEMBERS.slice(0, 1)];
+    const { service, observations } = setup(members);
+    const now = T0 + 120_000;
+    await service.tick(now);
+    const backfilled = observations.all.filter((o) => o.subjectId === CALM && o.provenance.type === "synthetic");
+    assert.ok(backfilled.length >= BACKFILL_POINTS && backfilled.length <= BACKFILL_POINTS + 60);
+    assert.ok(backfilled.every((o) => Number(o.value) >= 40 && Number(o.value) <= 110));
+    const before = observations.all.length;
+    await service.tick(now);
+    assert.equal(observations.all.length, before);
+
+    members.push(FIXTURE_MEMBERS[1]);
+    const next = await service.tick(now + 5_000);
+    assert.deepEqual(next.map((s) => s.subject), [CALM, MODERATE]);
+    assert.ok(observations.all.some((o) => o.subjectId === MODERATE));
+  });
+
+  it("leaves a member with a live device untouched", async () => {
+    const { service, observations } = setup([FIXTURE_MEMBERS[0]]);
+    const now = T0 + 120_000;
+    await observations.add({
+      ...fixtureHeartRate(CALM, now - 15_000, T0),
+      id: "real-1",
+      provenance: { type: "real", source: "Web Bluetooth", device: "Band" },
+    });
+    await service.tick(now - 10 * 60_000);
+    const [summary] = await service.tick(now);
+    assert.equal(summary.emitted, 0);
+  });
 });
 
 describe("sentry stale data", () => {
@@ -155,37 +188,37 @@ describe("sentry stale data", () => {
 
   it("flags a data gap once as not evaluable, for the CMO only", async () => {
     const { service, feed, raised, notified } = setup();
-    await feed("cm-01", 0, 20);
-    await service.process("cm-01");
+    await feed(CALM, 0, 20);
+    await service.process(CALM);
 
-    const flagged = await service.checkStale(later, ["cm-01"], { force: true });
-    assert.deepEqual(flagged, [{ subject: "cm-01", staleMinutes: 12 }]);
+    const flagged = await service.checkStale(later, [CALM], { force: true });
+    assert.deepEqual(flagged, [{ subject: CALM, staleMinutes: 12 }]);
     assert.equal(raised.length, 1);
     assert.equal(raised[0].level, "NOT_EVALUABLE");
     assert.equal(raised[0].actorId, "sentry");
-    assert.equal(notified[0].body, "Crew member cm-01: no data for 12 min");
+    assert.equal(notified[0].body, `Crew member ${CALM}: no data for 12 min`);
     assert.deepEqual(notified[0].audience, ["role:cmo"]);
 
-    assert.deepEqual(await service.checkStale(later + 60_000, ["cm-01"], { force: true }), []);
+    assert.deepEqual(await service.checkStale(later + 60_000, [CALM], { force: true }), []);
     assert.equal(raised.length, 1);
   });
 
   it("ignores fresh data and subjects that were never evaluated", async () => {
     const { service, feed, raised } = setup();
-    await feed("cm-01", 0, 20);
-    await service.process("cm-01");
-    assert.deepEqual(await service.checkStale(gapEnd + 5 * 60_000, ["cm-01", "cm-04"], { force: true }), []);
+    await feed(CALM, 0, 20);
+    await service.process(CALM);
+    assert.deepEqual(await service.checkStale(gapEnd + 5 * 60_000, [CALM, QUIET], { force: true }), []);
     assert.equal(raised.length, 0);
   });
 
   it("throttles repeated checks unless forced", async () => {
     const { service, feed } = setup();
-    await feed("cm-01", 0, 20);
-    await feed("cm-02", 0, 20);
-    await service.process("cm-01");
-    await service.process("cm-02");
-    assert.equal((await service.checkStale(later, ["cm-01"])).length, 1);
-    assert.deepEqual(await service.checkStale(later + 1000, ["cm-02"]), []);
-    assert.equal((await service.checkStale(later + 1000, ["cm-02"], { force: true })).length, 1);
+    await feed(CALM, 0, 20);
+    await feed(MODERATE, 0, 20);
+    await service.process(CALM);
+    await service.process(MODERATE);
+    assert.equal((await service.checkStale(later, [CALM])).length, 1);
+    assert.deepEqual(await service.checkStale(later + 1000, [MODERATE]), []);
+    assert.equal((await service.checkStale(later + 1000, [MODERATE], { force: true })).length, 1);
   });
 });

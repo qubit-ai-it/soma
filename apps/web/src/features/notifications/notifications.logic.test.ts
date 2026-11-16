@@ -7,6 +7,7 @@ import {
   CREW_ALL,
   isVisibleTo,
   roleKey,
+  viewerFromCaller,
 } from "./notifications.logic.ts";
 
 describe("notification audiences", () => {
@@ -55,5 +56,18 @@ describe("notification audiences", () => {
     assert.notEqual(a, alertDedupeKey("cm-02", "F2", w + 1, w));
     assert.notEqual(a, alertDedupeKey("cm-02", "F3", 1_000, w));
     assert.notEqual(a, alertDedupeKey("cm-03", "F2", 1_000, w));
+  });
+});
+
+describe("viewerFromCaller", () => {
+  it("takes role and member id from the session caller", () => {
+    assert.deepEqual(viewerFromCaller({ role: "astronaut", memberId: "cm-1a2b3c4d" }), {
+      role: "astronaut",
+      memberId: "cm-1a2b3c4d",
+    });
+  });
+
+  it("omits the member id when the caller has none", () => {
+    assert.deepEqual(viewerFromCaller({ role: "earth", memberId: null }), { role: "earth" });
   });
 });

@@ -19,13 +19,20 @@ import {
   staleEvaluation,
   staleMinutes,
 } from "./sentry.logic.ts";
-import { blockStartsToEmit, SIM_SUBJECTS, syntheticHeartRate } from "./sentry.simulation.ts";
+import {
+  backfillObservations,
+  blockStartsToEmit,
+  profileFor,
+  syntheticHeartRate,
+  type ProfileSource,
+} from "./sentry.simulation.ts";
 
 type Deps = {
   observations: ObservationsRepository;
   evaluations: EvaluationsRepository;
   notifications: NotificationsRepository;
   raiseAlert: (input: RaiseAlertInput) => Promise<Result<Alert>>;
+  members: () => Promise<readonly ProfileSource[]>;
   memberFor: (subjectId: string) => string;
   labelFor: (memberId: string) => string;
   onEvaluationSaved?: (evaluation: StoredEvaluation) => Promise<unknown>;
@@ -110,12 +117,21 @@ export function createSentryService(deps: Deps) {
 
   async function tick(nowMs: number): Promise<{ subject: string; emitted: number; outcome: ProcessOutcome }[]> {
     const summary = [];
-    for (const subject of SIM_SUBJECTS) {
-      const [last] = await deps.observations.listBySubject(subject, { signal: "heartRate", limit: 1, newest: true });
-      const [first] = await deps.observations.listBySubject(subject, { signal: "heartRate", limit: 1 });
-      const starts = blockStartsToEmit(last?.observedAt ?? null, nowMs);
+    for (const member of await deps.members()) {
+      const subject = member.id;
+      const profile = profileFor(member);
+      const heartRate = { signal: "heartRate", limit: 1 } as const;
+      let [first] = await deps.observations.listBySubject(subject, heartRate);
+      const backfilled = !first;
+      if (backfilled) {
+        await deps.observations.addMany(backfillObservations(subject, profile, nowMs));
+        [first] = await deps.observations.listBySubject(subject, heartRate);
+      }
+      const [last] = await deps.observations.listBySubject(subject, { ...heartRate, newest: true });
+      const deviceLive = last?.provenance.type === "real" && nowMs - Date.parse(last.observedAt) < STALE_AFTER_MS;
+      const starts = deviceLive ? [] : blockStartsToEmit(backfilled ? null : (last?.observedAt ?? null), nowMs);
       const t0 = first ? Date.parse(first.observedAt) - BIN_MS : (starts[0] ?? nowMs);
-      await deps.observations.addMany(starts.map((start) => syntheticHeartRate(subject, start, t0)));
+      await deps.observations.addMany(starts.map((start) => syntheticHeartRate(subject, start, t0, profile)));
       summary.push({ subject, emitted: starts.length, outcome: await process(subject) });
     }
     return summary;

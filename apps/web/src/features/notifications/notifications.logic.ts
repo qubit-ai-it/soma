@@ -43,3 +43,7 @@ export function alertDedupeKey(
 ): string {
   return `alert:${memberId}:${level}:${debounceBucket(nowMs, windowMs)}`;
 }
+
+export function viewerFromCaller(caller: { role: Role; memberId: string | null }): Viewer {
+  return caller.memberId ? { role: caller.role, memberId: caller.memberId } : { role: caller.role };
+}

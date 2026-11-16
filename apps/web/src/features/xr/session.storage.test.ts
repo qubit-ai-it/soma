@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import { startSession } from "./procedure.machine.ts";
 import type { Procedure } from "./procedure.types.ts";
+import { scopedKey } from "../settings/scope.logic.ts";
 import { clearStoredSession, loadStoredSession, saveSession, SESSION_KEY } from "./session.storage.ts";
 
 const procedure: Procedure = {
@@ -39,11 +40,11 @@ describe("session storage", () => {
   });
 
   it("falls back to null on corrupt JSON", () => {
-    assert.equal(loadStoredSession(memoryStorage({ [SESSION_KEY]: "{not json" }), procedure), null);
+    assert.equal(loadStoredSession(memoryStorage({ [scopedKey(SESSION_KEY, "guest")]: "{not json" }), procedure), null);
   });
 
   it("falls back to null when the shape is invalid", () => {
-    const storage = memoryStorage({ [SESSION_KEY]: JSON.stringify({ hello: "world" }) });
+    const storage = memoryStorage({ [scopedKey(SESSION_KEY, "guest")]: JSON.stringify({ hello: "world" }) });
     assert.equal(loadStoredSession(storage, procedure), null);
   });
 
@@ -80,6 +81,17 @@ describe("session storage", () => {
     assert.equal(loadStoredSession(broken, procedure), null);
     assert.doesNotThrow(() => saveSession(broken, startSession(procedure, "practice", AT)));
     assert.doesNotThrow(() => clearStoredSession(broken));
+  });
+
+  it("keeps each user's session apart", () => {
+    const storage = memoryStorage();
+    const state = startSession(procedure, "live", AT);
+    saveSession(storage, state, "user_a");
+    assert.deepEqual(loadStoredSession(storage, procedure, "user_a"), state);
+    assert.equal(loadStoredSession(storage, procedure, "user_b"), null);
+    assert.equal(loadStoredSession(storage, procedure), null);
+    clearStoredSession(storage, "user_b");
+    assert.deepEqual(loadStoredSession(storage, procedure, "user_a"), state);
   });
 
   it("clears the stored session", () => {

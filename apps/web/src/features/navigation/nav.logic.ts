@@ -10,7 +10,7 @@ export type NavItem = {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { id: "home", label: "Home", href: "/", icon: "home" },
-  { id: "report", label: "Report", href: "/report/cm-01", icon: "monitor_heart" },
+  { id: "report", label: "Report", href: "/mission", icon: "monitor_heart" },
   { id: "devices", label: "Devices", href: "/devices", icon: "devices" },
   { id: "earth", label: "Earth", href: "/earth", icon: "public" },
   { id: "alerts", label: "Alerts", icon: "notifications" },
@@ -25,18 +25,19 @@ const ITEMS_BY_ROLE: Record<Role, readonly string[]> = {
   earth: ["home", "earth", "alerts"],
 };
 
-export function navItemsFor(role: Role, astronautMemberId: string): NavItem[] {
+export function navItemsFor(role: Role, memberId: string | null): NavItem[] {
   return ITEMS_BY_ROLE[role]
     .flatMap((id) => NAV_ITEMS.filter((item) => item.id === id))
     .map((item) =>
-      item.id === "report" && role === "astronaut"
-        ? { ...item, href: `/report/${astronautMemberId}` }
+      item.id === "report" && role === "astronaut" && memberId
+        ? { ...item, href: `/report/${memberId}` }
         : item,
     );
 }
 
 const PREFIXES: readonly (readonly [string, string])[] = [
   ["/report", "report"],
+  ["/mission", "report"],
   ["/devices", "devices"],
   ["/earth", "earth"],
   ["/pet", "sentry"],

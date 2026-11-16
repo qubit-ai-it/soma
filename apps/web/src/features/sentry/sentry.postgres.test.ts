@@ -14,7 +14,9 @@ import { createPostgresNotificationsRepository } from "../notifications/notifica
 import { createPostgresObservationsRepository } from "../observation/observation.repository.postgres.ts";
 import { createPostgresEvaluationsRepository } from "./evaluations.repository.postgres.ts";
 import { createSentryService } from "./sentry.service.ts";
-import { SIM_SUBJECTS } from "./sentry.simulation.ts";
+import { CALM, FIXTURE_MEMBERS, MODERATE, QUIET, SPIKE } from "./sentry.fixtures.ts";
+
+const SIM_SUBJECTS = FIXTURE_MEMBERS.map((m) => m.id);
 
 const START = 1_800_000_000_000 - (1_800_000_000_000 % 5000);
 
@@ -33,6 +35,7 @@ describe("sentry end to end on postgres", { skip: !hasDirectDatabase }, () => {
       evaluations,
       notifications,
       raiseAlert: (input) => alerts.raise(input),
+      members: async () => FIXTURE_MEMBERS,
       memberFor: (s) => s,
       labelFor: (m) => `Crew member ${m}`,
     });
@@ -54,10 +57,10 @@ describe("sentry end to end on postgres", { skip: !hasDirectDatabase }, () => {
 
     const alerts = await alertsRepo.list();
     const byMember = (id: string) => alerts.filter((a) => a.memberId === id).map((a) => a.level);
-    assert.deepEqual(byMember("cm-02"), ["F2"]);
-    assert.deepEqual(byMember("cm-03"), ["F3"]);
-    assert.deepEqual(byMember("cm-01"), []);
-    assert.deepEqual(byMember("cm-04"), []);
+    assert.deepEqual(byMember(MODERATE), ["F2"]);
+    assert.deepEqual(byMember(SPIKE), ["F3"]);
+    assert.deepEqual(byMember(CALM), []);
+    assert.deepEqual(byMember(QUIET), []);
 
     const entries = await audit.list();
     assert.equal(entries.length, 2);
@@ -66,20 +69,20 @@ describe("sentry end to end on postgres", { skip: !hasDirectDatabase }, () => {
 
     const cmo = await notifications.listFor({ role: "cmo" });
     assert.deepEqual(cmo.map((n) => n.payload.level).sort(), ["F2", "F3"]);
-    const person = await notifications.listFor({ role: "astronaut", memberId: "cm-02" });
+    const person = await notifications.listFor({ role: "astronaut", memberId: MODERATE });
     assert.deepEqual(person.map((n) => n.payload.level).sort(), ["F2", "F3"]);
-    const stranger = await notifications.listFor({ role: "astronaut", memberId: "cm-01" });
+    const stranger = await notifications.listFor({ role: "astronaut", memberId: CALM });
     assert.deepEqual(stranger.map((n) => n.payload.level), ["F3"]);
     const earth = await notifications.listFor({ role: "earth" });
     assert.deepEqual(earth.map((n) => n.payload.level), ["F3"]);
     assert.ok(cmo.every((n) => !JSON.stringify(n).includes("clinicalDetail")));
 
     const statuses = async (id: string) => (await evaluations.history(id)).map((e) => e.status).reverse();
-    const cm02 = await statuses("cm-02");
+    const cm02 = await statuses(MODERATE);
     assert.ok(cm02.includes("F2") && !cm02.includes("F3") && cm02.at(-1) === "F0");
-    const cm03 = await statuses("cm-03");
+    const cm03 = await statuses(SPIKE);
     assert.ok(cm03.includes("F3") && cm03.at(-1) === "F0");
-    for (const calm of ["cm-01", "cm-04"]) {
+    for (const calm of [CALM, QUIET]) {
       const history = await statuses(calm);
       assert.ok(history.every((status) => status === "F0" || status === "F1"));
     }
@@ -108,7 +111,7 @@ describe("sentry end to end on postgres", { skip: !hasDirectDatabase }, () => {
     }
     const cmo = await notifications.listFor({ role: "cmo" }, { limit: 200 });
     assert.equal(cmo.filter((n) => n.body?.includes("no data for")).length, 4);
-    const person = await notifications.listFor({ role: "astronaut", memberId: "cm-01" }, { limit: 200 });
+    const person = await notifications.listFor({ role: "astronaut", memberId: CALM }, { limit: 200 });
     assert.ok(!person.some((n) => n.body?.includes("no data for")));
 
     assert.deepEqual(await sentry.checkStale(gap + 120_000, SIM_SUBJECTS, { force: true }), []);

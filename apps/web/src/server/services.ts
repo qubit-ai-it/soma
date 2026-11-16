@@ -1,8 +1,7 @@
 import "server-only";
 
-import path from "node:path";
-
-import { createJsonCrewRepository } from "../features/crew/crew.repository.json.ts";
+import { createMemoryCrewRepository } from "../features/crew/crew.repository.memory.ts";
+import { createPostgresCrewRepository } from "../features/crew/crew.repository.postgres.ts";
 import type { CrewRepository } from "../features/crew/crew.repository.ts";
 import { createOllamaPlanner } from "../features/plan/ollama.client.ts";
 import { createFallbackPlanner } from "../features/plan/planner.chain.ts";
@@ -22,7 +21,7 @@ import {
 import { createLiveSpaceWeather } from "../features/space-weather/space-weather.live.ts";
 import type { SpaceWeatherSource } from "../features/space-weather/space-weather.port.ts";
 import { getConfig, type Config } from "./config.ts";
-import { createSeedStore } from "./json-store.ts";
+import { getPool } from "./db.ts";
 
 export type Services = {
   crew: CrewRepository;
@@ -75,11 +74,9 @@ function buildPlanner(config: Config): CarePlanner {
 
 function build(): Services {
   const config = getConfig();
-  const dataDir = path.join(process.cwd(), "data");
-  const store = createSeedStore(path.join(dataDir, "seed"));
 
   return {
-    crew: createJsonCrewRepository(store),
+    crew: process.env.DATABASE_URL ? createPostgresCrewRepository(getPool()) : createMemoryCrewRepository(),
     classifier: buildClassifier(config),
     planner: buildPlanner(config),
     spaceWeather:

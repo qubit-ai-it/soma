@@ -13,7 +13,7 @@ import {
   INGEST_INTERVAL_MS,
   postReadings,
 } from "../ingest/ingest.client";
-import { LIVE_SUBJECT, type Reading } from "./live.logic";
+import type { Reading } from "./live.logic";
 
 export type LiveState = {
   status: "idle" | "connecting" | "connected";
@@ -29,6 +29,7 @@ const listeners = new Set<() => void>();
 let state: LiveState = IDLE;
 let connection: HeartRateConnection | null = null;
 let sender: ReturnType<typeof createIngestSender> | null = null;
+let subjectId: string | null = null;
 let ingestTimer: ReturnType<typeof setInterval> | null = null;
 
 function stopIngest() {
@@ -38,9 +39,14 @@ function stopIngest() {
   sender = null;
 }
 
+export function setLiveMember(memberId: string | null) {
+  subjectId = memberId;
+}
+
 function startIngest(device: string) {
   stopIngest();
-  sender = createIngestSender({ subjectId: LIVE_SUBJECT, device, post: postReadings });
+  if (!subjectId) return;
+  sender = createIngestSender({ subjectId, device, post: postReadings });
   ingestTimer = setInterval(() => void sender?.flush(), INGEST_INTERVAL_MS);
 }
 
@@ -74,7 +80,8 @@ export function disconnectLive() {
   update({ status: "idle", deviceName: null, readings: [] });
 }
 
-export async function connectLive(): Promise<BluetoothError | null> {
+export async function connectLive(memberId?: string | null): Promise<BluetoothError | null> {
+  if (memberId !== undefined) subjectId = memberId;
   connection?.stop();
   connection = null;
   stopIngest();

@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { escalateLiveAlert } from "@/features/live/live.actions";
 import { LiveReading } from "@/features/live/components/live-reading";
 import { ExternalSection } from "@/features/space-weather/components/external-section";
-import { DEMO_ACTORS } from "@/features/roles/roles.logic";
 import { MetricCard } from "@/shared/ui/metric-card";
 
 import { flagCards } from "../crew.flags";
@@ -13,9 +12,9 @@ import type { MissionMemberDTO } from "../crew.types";
 const MISSION_SENSORS = "Mission sensors";
 const SECTION_TITLE = "font-heading text-xl font-bold";
 
-export function VitalsSummary({ member }: { member: MissionMemberDTO }) {
+export function VitalsSummary({ member, isOwn }: { member: MissionMemberDTO; isOwn: boolean }) {
   // The connected watch or band belongs to the astronaut using this device
-  const hasLive = member.id === DEMO_ACTORS.astronaut.memberId;
+  const hasLive = isOwn;
   const cards = flagCards(member);
 
   return (

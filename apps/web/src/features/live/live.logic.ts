@@ -6,7 +6,7 @@ import type { Evaluation } from "../rules/rules.types.ts";
 
 export const BIN_MS = 5000;
 export const LIVE_CALIBRATION_BINS = 6;
-export const LIVE_SUBJECT = "live-astronaut";
+const LOCAL_SUBJECT = "self";
 
 export const PLAUSIBLE_BPM = { min: 30, max: 220 };
 
@@ -54,12 +54,12 @@ export function binReadings(readings: readonly Reading[], nowMs: number, binMs =
     .map(([index, values]) => ({ startMs: start + index * binMs, bpm: median(values) }));
 }
 
-function toObservations(bins: readonly Bin[], device: string): Observation[] {
+function toObservations(bins: readonly Bin[], device: string, subjectId: string): Observation[] {
   return bins.map((bin) => {
     const plausible = bin.bpm >= PLAUSIBLE_BPM.min && bin.bpm <= PLAUSIBLE_BPM.max;
     return observationSchema.parse({
       id: `live-hr-${bin.startMs}`,
-      subjectId: LIVE_SUBJECT,
+      subjectId,
       signal: "heartRate",
       value: bin.bpm,
       unit: "bpm",
@@ -74,6 +74,7 @@ export function evaluateLive(
   readings: readonly Reading[],
   device: string,
   nowMs: number,
+  subjectId: string = LOCAL_SUBJECT,
 ): LiveEvaluation {
   const latestBpm =
     readings.length === 0
@@ -85,13 +86,13 @@ export function evaluateLive(
   if (readings.length === 0) return { ...base, phase: "waiting", evaluation: null };
   if (bins.length < LIVE_CALIBRATION_BINS) return { ...base, phase: "calibrating", evaluation: null };
 
-  const observations = toObservations(bins, device);
+  const observations = toObservations(bins, device, subjectId);
   const baselineUntil = new Date(
     Date.parse(observations[LIVE_CALIBRATION_BINS - 1].observedAt) + 1,
   ).toISOString();
 
   const evaluation = evaluate({
-    subjectId: LIVE_SUBJECT,
+    subjectId,
     observations,
     ruleSet: LIVE_RULESET,
     minBaselineObservations: LIVE_CALIBRATION_BINS,

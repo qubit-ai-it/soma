@@ -2,8 +2,6 @@ import "server-only";
 
 import path from "node:path";
 
-import { readFile } from "node:fs/promises";
-
 import { getPool } from "../../server/db.ts";
 import { createJsonStore } from "../../server/json-store.ts";
 import {
@@ -13,22 +11,20 @@ import {
 import {
   createPostgresAlertsRepository,
   createPostgresAuditRepository,
-  seedAlertsAndAudit,
 } from "../alerts/alerts.repository.postgres.ts";
-import { alertsFileSchema, auditFileSchema } from "../alerts/alerts.schema.ts";
 import { createAlertService } from "../alerts/alerts.service.ts";
 import { createJsonEarthRepository } from "./earth.repository.json.ts";
 import { createPostgresEarthRepository, seedEarthState } from "./earth.repository.postgres.ts";
-import { earthStateSchema } from "./earth.schema.ts";
 import { createEarthService } from "./earth.service.ts";
 
-async function seedPostgres(seedDir: string, earthSeedDir: string) {
-  const read = async (dir: string, name: string) => JSON.parse(await readFile(path.join(dir, name), "utf-8"));
-  await seedAlertsAndAudit(getPool(), {
-    alerts: alertsFileSchema.parse(await read(seedDir, "alerts.json")).alerts,
-    entries: auditFileSchema.parse(await read(seedDir, "audit.json")).entries,
+async function seedPostgres() {
+  await seedEarthState(getPool(), {
+    link: { status: "connected", latencyMs: 1200, ackLoss: false, updatedAt: new Date().toISOString() },
+    nextSeq: 1,
+    queue: [],
+    inbox: [],
+    proposals: [],
   });
-  await seedEarthState(getPool(), earthStateSchema.parse(await read(earthSeedDir, "earth.json")));
 }
 
 function build() {
@@ -42,8 +38,7 @@ function build() {
   });
 
   const usePostgres = Boolean(process.env.DATABASE_URL);
-  const earthSeedDir = path.join(process.cwd(), "src", "features", "earth", "seed");
-  const ready = usePostgres ? seedPostgres(path.join(dataDir, "seed"), earthSeedDir) : Promise.resolve();
+  const ready = usePostgres ? seedPostgres() : Promise.resolve();
   ready.catch(() => undefined);
   const audit = usePostgres
     ? createPostgresAuditRepository(getPool(), ready)

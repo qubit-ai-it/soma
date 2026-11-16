@@ -4,10 +4,12 @@ import { MetricCard } from "@/shared/ui/metric-card";
 import type { CardAction } from "@/shared/ui/soma-card";
 
 import { BLUETOOTH_MESSAGES } from "../live.display";
+import { useMemberId } from "@/features/roles/roles.store";
 import { connectLive, disconnectLive, useLiveState } from "../live.store";
 
 export function DeviceCard() {
   const live = useLiveState();
+  const memberId = useMemberId();
   const connected = live.status === "connected";
 
   const line = connected
@@ -20,7 +22,7 @@ export function DeviceCard() {
 
   const actions: CardAction[] = connected
     ? [{ label: "Disconnect", variant: "secondary", onClick: disconnectLive }]
-    : [{ label: "Connect", icon: "bluetooth", disabled: live.status === "connecting", onClick: () => void connectLive() }];
+    : [{ label: "Connect", icon: "bluetooth", disabled: live.status === "connecting", onClick: () => void connectLive(memberId) }];
 
   return (
     <MetricCard

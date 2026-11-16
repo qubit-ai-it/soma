@@ -11,7 +11,7 @@ import { SimulationGuide } from "./simulation-guide";
 import { assessTelemetry, canEditTelemetry, incidentProgress, isCrewInDanger } from "./incident";
 import { constrainToDeck, corridorFloors, isCorridor, locationAt, locationNames, roomFloor, type DeckFloor } from "./deck";
 import {
-  crewColorTokens, crewIds, equipment, roomIds, rooms,
+  crewColorToken, equipment, roomIds, rooms,
   telemetryLabels, telemetrySchema,
   type Point, type SimCrew, type SimulationState, type SimulationUpdate, type Telemetry,
 } from "./simulation";
@@ -22,8 +22,9 @@ const statusLabel = {
   nominal: "Everything is fine", watch: "A crew member needs attention",
   critical: "Danger: a crew member needs help", resolved: "The crew member is out of danger",
 };
+const emptyCrewMessage = "No crew members yet. Sign up from the onboarding to join the crew.";
 const timeLabel = new Intl.DateTimeFormat("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-const crewColor = (id: SimCrew["id"]) => `var(${crewColorTokens[crewIds.indexOf(id)]})`;
+const crewColor = (crew: SimCrew[], id: SimCrew["id"]) => `var(${crewColorToken(crew, id)})`;
 const bodySignals: Record<keyof typeof ZONE_REGION_IDS, (keyof Telemetry)[]> = {
   head: [],
   thorax: ["heartRateBpm", "spo2Pct", "systolic", "diastolic"],
@@ -83,8 +84,9 @@ function TelemetryInput({ name, value, reference, disabled, onChange }: {
   );
 }
 
-function CrewDetails({ member, locked, canEdit, onClose, onUpdate }: {
+function CrewDetails({ member, color, locked, canEdit, onClose, onUpdate }: {
   member: SimCrew;
+  color: string;
   locked: boolean;
   canEdit: boolean;
   onClose: () => void;
@@ -103,7 +105,7 @@ function CrewDetails({ member, locked, canEdit, onClose, onUpdate }: {
     <section className={styles.details} aria-label={`Telemetry for ${member.name}`}>
       <header className={styles.cardHeader}>
         <div>
-          <h3><Dot color={crewColor(member.id)} /> {member.name}</h3>
+          <h3><Dot color={color} /> {member.name}</h3>
           <p>{locationNames[locationAt(member.position)]}</p>
         </div>
         <Button type="button" variant="outline" size="icon-sm" onClick={onClose} aria-label="Close profile">
@@ -136,8 +138,9 @@ function Dot({ color }: { color: string }) {
   return <span className={styles.dot} style={{ color }} aria-hidden="true" />;
 }
 
-function CrewChat({ person, messages, selected, onSelect }: {
+function CrewChat({ person, color, messages, selected, onSelect }: {
   person: SimCrew;
+  color: string;
   messages: SimulationState["messages"];
   selected: boolean;
   onSelect: () => void;
@@ -146,7 +149,7 @@ function CrewChat({ person, messages, selected, onSelect }: {
   return (
     <article className={styles.chat} data-selected={selected}>
       <button type="button" onClick={onSelect} className={styles.chatHeader}>
-        <Dot color={crewColor(person.id)} />
+        <Dot color={color} />
         <span><strong>{person.name}</strong><small>{locationNames[locationAt(person.position)]}</small></span>
         {thread.length > 0 && <span className={styles.count} aria-label={`${thread.length} messages`}>{thread.length}</span>}
       </button>
@@ -299,6 +302,7 @@ export function SimulationConsole() {
                 </div>
                 <p>Click to see readings; drag to move.</p>
               </header>
+              {state.crew.length === 0 && <p className={styles.empty} role="status">{emptyCrewMessage}</p>}
               <div ref={map} className={styles.map} aria-label="Ship layout">
                 <div className={styles.rooms} aria-hidden="true">
                   {corridorFloors.map((floor) => (
@@ -331,7 +335,7 @@ export function SimulationConsole() {
                   return (
                     <button key={id} type="button"
                       className={styles.marker} data-critical={critical} data-locked={critical} data-corridor={isCorridor(location)} data-selected={selected === id}
-                      style={{ "--marker-color": crewColor(id), color: crewColor(id), left: `${position.x}%`, top: `${position.y}%` } as CSSProperties}
+                      style={{ "--marker-color": crewColor(state.crew, id), color: crewColor(state.crew, id), left: `${position.x}%`, top: `${position.y}%` } as CSSProperties}
                       aria-label={`${name}, ${locationNames[location]}${critical ? ", in danger: cannot be moved until they improve" : ""}`} aria-expanded={selected === id}
                       title={critical ? "In danger. Check their readings; you cannot move them until they improve." : "Drag to move or click to see their readings."}
                       onPointerDown={(event) => startDrag(event, id, critical)}
@@ -355,7 +359,7 @@ export function SimulationConsole() {
                   );
                 })}
               </div>
-              {member && <CrewDetails key={member.id} member={member} locked={isCrewInDanger(state, member)}
+              {member && <CrewDetails key={member.id} member={member} color={crewColor(state.crew, member.id)} locked={isCrewInDanger(state, member)}
                 canEdit={canEditTelemetry(state, member)}
                 onClose={() => setSelected(null)} onUpdate={save} />}
             </section>
@@ -400,7 +404,7 @@ export function SimulationConsole() {
                             <ul>
                               {progress.arrivals.map((arrival) => (
                                 <li key={arrival.crewId}>
-                                  <Dot color={crewColor(arrival.crewId)} />
+                                  <Dot color={crewColor(state.crew, arrival.crewId)} />
                                   <span>{state.crew.find(({ id }) => id === arrival.crewId)?.name}</span>
                                   <span data-arrived={arrival.arrived}>{arrival.arrived ? "Arrived"
                                     : arrival.pickup ? `Must pick up equipment in ${rooms[arrival.pickup]}` : `Must go to ${locationNames[arrival.destination]}`}</span>
@@ -429,9 +433,10 @@ export function SimulationConsole() {
           </div>
           <section aria-label="Crew chats" className={styles.comms}>
             <h2>Crew chats</h2>
+            {state.crew.length === 0 && <p className={styles.empty}>{emptyCrewMessage}</p>}
             <div className={styles.chatGrid}>
               {state.crew.map((person) => (
-                <CrewChat key={person.id} person={person} messages={state.messages}
+                <CrewChat key={person.id} person={person} color={crewColor(state.crew, person.id)} messages={state.messages}
                   selected={person.id === selected} onSelect={() => setSelected(person.id)} />
               ))}
             </div>

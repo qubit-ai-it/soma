@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { corridorFloors, locationAt, locationCenter, roomFloor, shortestWalk } from "./deck";
 import { activeIncident, incidentProgress } from "./incident";
-import { crewColorTokens, crewIds, roomCenter, roomIds, type SimulationState } from "./simulation";
+import { crewColorToken, roomCenter, roomIds, type SimulationState } from "./simulation";
 import styles from "./simulation.module.css";
 
 export function AssignmentRoutes({ state }: { state: SimulationState }) {
@@ -27,7 +27,7 @@ export function AssignmentRoutes({ state }: { state: SimulationState }) {
       const path = waypoint
         ? [...shortestWalk(origin.position, waypoint).path, ...shortestWalk(waypoint, destination).path.slice(1)]
         : shortestWalk(origin.position, destination).path;
-      return [{ path, colorToken: crewColorTokens[crewIds.indexOf(instruction.crewId)], via: instruction.via }];
+      return [{ path, colorToken: crewColorToken(state.crew, instruction.crewId), via: instruction.via }];
     });
 
     const draw = () => {

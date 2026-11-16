@@ -1,10 +1,7 @@
 import "server-only";
 
 import { getEcosystem } from "../features/earth/ecosystem.server.ts";
-import { DEMO_ACTORS } from "../features/roles/roles.logic.ts";
-import { LIVE_SUBJECT } from "../features/live/live.logic.ts";
 import { createSentryService, type SentryService } from "../features/sentry/sentry.service.ts";
-import { SIM_SUBJECTS } from "../features/sentry/sentry.simulation.ts";
 import { createSentryTalk, type SentryTalk } from "../features/sentry/sentry.talk.service.ts";
 import {
   getEvaluationsRepository,
@@ -25,8 +22,8 @@ export function getSentry(): SentryService {
     evaluations: getEvaluationsRepository(),
     notifications: getNotificationsRepository(),
     raiseAlert: (input) => getEcosystem().alerts.raise(input),
-    memberFor: (subjectId) =>
-      subjectId === LIVE_SUBJECT ? (DEMO_ACTORS.astronaut.memberId ?? subjectId) : subjectId,
+    members: () => getServices().crew.list(),
+    memberFor: (subjectId) => subjectId,
     labelFor,
     onEvaluationSaved: (evaluation) => getPlanFlow().onEvaluationSaved(evaluation),
   });
@@ -36,7 +33,7 @@ export function getSentry(): SentryService {
 export function getSentryTalk(): SentryTalk {
   cache.somaSentryTalk ??= createSentryTalk({
     notifications: getNotificationsRepository(),
-    members: SIM_SUBJECTS.map((id) => ({ id, label: labelFor(id) })),
+    members: async () => (await getServices().crew.list()).map((m) => ({ id: m.id, label: labelFor(m.id) })),
     alerts: () => getEcosystem().alertsRepo.list(),
     latestStatus: async (memberId) => (await getEvaluationsRepository().latest(memberId))?.status ?? null,
     earthLink: async () => {
@@ -50,7 +47,10 @@ export function getSentryTalk(): SentryTalk {
 
 export async function runSentryClock(nowMs: number) {
   const crew = await getSentry().tick(nowMs);
-  const stale = await getSentry().checkStale(nowMs, [...SIM_SUBJECTS, LIVE_SUBJECT]);
+  const stale = await getSentry().checkStale(
+    nowMs,
+    (await getServices().crew.list()).map((m) => m.id),
+  );
   const talk = await getSentryTalk().run(nowMs);
   const followup = await getFollowUpFlow().sync(nowMs);
   if (followup.reported > 0) await getEcosystem().earth.flush();

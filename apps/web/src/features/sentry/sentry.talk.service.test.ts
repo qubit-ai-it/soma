@@ -7,8 +7,8 @@ import { createSentryTalk } from "./sentry.talk.service.ts";
 
 const NOW = Date.parse("2026-11-16T19:00:00Z");
 const members = [
-  { id: "cm-01", label: "Crew member cm-01" },
-  { id: "cm-02", label: "Crew member cm-02" },
+  { id: "cm-1a2b3c01", label: "Crew member cm-1a2b3c01" },
+  { id: "cm-1a2b3c02", label: "Crew member cm-1a2b3c02" },
 ];
 
 function setup(over: Partial<Parameters<typeof createSentryTalk>[0]> = {}) {
@@ -27,7 +27,7 @@ function setup(over: Partial<Parameters<typeof createSentryTalk>[0]> = {}) {
         return found ? ({ payload: found.payload } as Notification) : null;
       },
     },
-    members,
+    members: async () => members,
     alerts: async () => [],
     latestStatus: async () => "F0",
     earthLink: async () => ({ status: "connected", updatedAt: "2026-11-16T10:00:00.000Z" }),

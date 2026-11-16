@@ -15,7 +15,7 @@ import {
 
 type Deps = {
   notifications: NotificationsRepository;
-  members: readonly Member[];
+  members: () => Promise<readonly Member[]>;
   alerts: () => Promise<Alert[]>;
   latestStatus: (memberId: string) => Promise<Status | null>;
   earthLink: () => Promise<{ status: "connected" | "disconnected"; updatedAt: string } | null>;
@@ -40,14 +40,15 @@ export function createSentryTalk(deps: Deps) {
     if (!options.force && nowMs - lastRun < (deps.throttleMs ?? 60_000)) return { added: 0, skipped: true };
     lastRun = nowMs;
 
+    const members = await deps.members().catch(() => [] as readonly Member[]);
     const batches = await Promise.all([
       guard(async () =>
-        deps.members.flatMap((member) => checkinNotification(member.id, nowMs) ?? []),
+        members.flatMap((member) => checkinNotification(member.id, nowMs) ?? []),
       ),
       guard(async () => {
         const statuses: Record<string, Status | null> = {};
-        for (const member of deps.members) statuses[member.id] = await deps.latestStatus(member.id);
-        return shiftNotifications(latestShiftBoundary(nowMs), deps.members, await deps.alerts(), statuses);
+        for (const member of members) statuses[member.id] = await deps.latestStatus(member.id);
+        return shiftNotifications(latestShiftBoundary(nowMs), members, await deps.alerts(), statuses);
       }),
       guard(async () => {
         const link = await deps.earthLink();

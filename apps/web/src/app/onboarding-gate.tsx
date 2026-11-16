@@ -15,7 +15,7 @@ import {
 } from "@/features/onboarding/onboarding.logic";
 import { SENTRY_PALETTE } from "@/features/pet/pet.types";
 import { ROLE_LABELS } from "@/features/roles/roles.logic";
-import { setDemoRole, useDemoRole } from "@/features/roles/roles.store";
+import { setDemoRole, useDemoRole, useMemberId } from "@/features/roles/roles.store";
 import { ROLES, type Role } from "@/features/roles/roles.types";
 import { BLUETOOTH_MESSAGES } from "@/features/live/live.display";
 import { connectLive, getLiveState, useLiveState } from "@/features/live/live.store";
@@ -103,6 +103,7 @@ export function OnboardingGate() {
   const [stored, setStored] = useLocalStore<string>(ONBOARDING_KEY, "", parseStored);
   const [settings, setSettings] = useSettings();
   const role = useDemoRole();
+  const memberId = useMemberId();
   const [closed, setClosed] = useState(false);
   const [index, setIndex] = useState(0);
   const [profile, setProfile] = useState<DeviceProfile | null>(null);
@@ -146,7 +147,7 @@ export function OnboardingGate() {
 
   async function pairDevice() {
     setBluetoothMessage(null);
-    const error = await connectLive();
+    const error = await connectLive(memberId ?? undefined);
     if (error) {
       setBluetoothMessage(BLUETOOTH_MESSAGES[error]);
       return;

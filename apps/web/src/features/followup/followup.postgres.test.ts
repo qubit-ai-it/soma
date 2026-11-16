@@ -13,7 +13,7 @@ import { createEarthService } from "../earth/earth.service.ts";
 import { createPostgresNotificationsRepository } from "../notifications/notifications.repository.postgres.ts";
 import { createPostgresObservationsRepository } from "../observation/observation.repository.postgres.ts";
 import { createPostgresPlansRepository } from "../plan/plan.repository.postgres.ts";
-import { syntheticHeartRate } from "../sentry/sentry.simulation.ts";
+import { MODERATE, fixtureHeartRate } from "../sentry/sentry.fixtures.ts";
 import { createFollowUpFlow, type FollowUpFlow } from "./followup.flow.ts";
 import { createPostgresFollowUpsRepository } from "./followup.repository.postgres.ts";
 
@@ -42,12 +42,12 @@ describe("follow-up cycle with Earth on postgres", { skip: !hasDirectDatabase },
       },
     });
     const observations = createPostgresObservationsRepository(pool);
-    await observations.addMany(Array.from({ length: 60 }, (_, k) => syntheticHeartRate("cm-02", sec(k * 5), T0)));
+    await observations.addMany(Array.from({ length: 60 }, (_, k) => fixtureHeartRate(MODERATE, sec(k * 5), T0)));
     const plans = createPostgresPlansRepository(pool);
     const at = new Date(sec(100)).toISOString();
     await plans.add({
       id: "pl-1",
-      subjectId: "cm-02",
+      subjectId: MODERATE,
       evaluationId: "ev-1",
       level: "F2",
       status: "approved",

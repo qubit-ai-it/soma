@@ -1,3 +1,4 @@
+import { GUEST_SCOPE, scopedKey } from "../settings/scope.logic.ts";
 import { restoreSession } from "./procedure.machine.ts";
 import type { Procedure, SessionState } from "./procedure.types.ts";
 
@@ -12,10 +13,11 @@ export type SessionStorageLike = {
 export function loadStoredSession(
   storage: SessionStorageLike | null,
   procedure: Procedure,
+  scope: string = GUEST_SCOPE,
 ): SessionState | null {
   if (storage === null) return null;
   try {
-    const raw = storage.getItem(SESSION_KEY);
+    const raw = storage.getItem(scopedKey(SESSION_KEY, scope));
     if (raw === null) return null;
     const restored = restoreSession(JSON.parse(raw), procedure);
     return restored.ok ? restored.value : null;
@@ -24,17 +26,17 @@ export function loadStoredSession(
   }
 }
 
-export function saveSession(storage: SessionStorageLike | null, state: SessionState): void {
+export function saveSession(storage: SessionStorageLike | null, state: SessionState, scope: string = GUEST_SCOPE): void {
   try {
-    storage?.setItem(SESSION_KEY, JSON.stringify(state));
+    storage?.setItem(scopedKey(SESSION_KEY, scope), JSON.stringify(state));
   } catch {
     // storage may be blocked or full; the session still works in memory
   }
 }
 
-export function clearStoredSession(storage: SessionStorageLike | null): void {
+export function clearStoredSession(storage: SessionStorageLike | null, scope: string = GUEST_SCOPE): void {
   try {
-    storage?.removeItem(SESSION_KEY);
+    storage?.removeItem(scopedKey(SESSION_KEY, scope));
   } catch {
     // nothing to clear
   }

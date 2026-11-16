@@ -6,12 +6,6 @@ import { mergeNotifications } from "./notifications.display";
 import { notificationSchema } from "./notifications.schema";
 import type { Notification, Viewer } from "./notifications.types";
 
-function query(viewer: Viewer): string {
-  const params = new URLSearchParams({ role: viewer.role });
-  if (viewer.memberId) params.set("memberId", viewer.memberId);
-  return params.toString();
-}
-
 export function useNotifications(viewer: Viewer, onAlert: () => void) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const alertRef = useRef(onAlert);
@@ -24,12 +18,10 @@ export function useNotifications(viewer: Viewer, onAlert: () => void) {
   useEffect(() => {
     let closed = false;
     let source: EventSource | null = null;
-    const scope: Viewer = { role, memberId };
-
     async function connect() {
       let after = 0;
       try {
-        const response = await fetch(`/api/notifications?${query(scope)}`, { cache: "no-store" });
+        const response = await fetch("/api/notifications", { cache: "no-store" });
         if (response.ok) {
           const body = (await response.json()) as { notifications?: unknown[] };
           const parsed = (body.notifications ?? []).flatMap((item) => {
@@ -45,7 +37,7 @@ export function useNotifications(viewer: Viewer, onAlert: () => void) {
       }
       if (closed) return;
 
-      source = new EventSource(`/api/notifications/stream?${query(scope)}&after=${after}`);
+      source = new EventSource(`/api/notifications/stream?after=${after}`);
       source.addEventListener("notification", (event) => {
         try {
           const parsed = notificationSchema.safeParse(JSON.parse((event as MessageEvent<string>).data));
@@ -75,12 +67,12 @@ export function useNotifications(viewer: Viewer, onAlert: () => void) {
           fetch("/api/notifications", {
             method: "PATCH",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ id, viewer: { role, memberId } }),
+            body: JSON.stringify({ id }),
           }).catch(() => undefined),
         ),
       );
     },
-    [role, memberId],
+    [],
   );
 
   return { notifications, markRead };

@@ -51,7 +51,7 @@ export function LiveReading({ escalate }: { escalate: Escalate }) {
   }, []);
 
   const evaluated = useMemo(
-    () => evaluateLive(live.readings, live.deviceName ?? "Dispositivo", now),
+    () => evaluateLive(live.readings, live.deviceName ?? "Device", now),
     [live.readings, live.deviceName, now],
   );
   const view = describeLive(evaluated, live.status === "connected");

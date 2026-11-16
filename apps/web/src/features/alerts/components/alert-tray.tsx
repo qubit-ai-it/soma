@@ -11,8 +11,7 @@ import {
   unreadIds,
 } from "@/features/notifications/notifications.display";
 import { useNotifications } from "@/features/notifications/use-notifications";
-import { DEMO_ACTORS } from "@/features/roles/roles.logic";
-import { useDemoRole } from "@/features/roles/roles.store";
+import { useDemoRole, useMemberId } from "@/features/roles/roles.store";
 import { Icon } from "@/shared/ui/icon";
 import { SomaCard } from "@/shared/ui/soma-card";
 
@@ -93,9 +92,10 @@ function useAlerts() {
 
 export function AlertTray({ className }: { className?: string }) {
   const role = useDemoRole();
+  const memberId = useMemberId() ?? undefined;
   const { alerts, refresh } = useAlerts();
   const { notifications, markRead } = useNotifications(
-    { role, memberId: DEMO_ACTORS[role].memberId },
+    { role, memberId },
     refresh,
   );
   const feed = useMemo(() => sentryFeed(notifications), [notifications]);
@@ -104,13 +104,13 @@ export function AlertTray({ className }: { className?: string }) {
   const [filter, setFilter] = useState<TrayFilter>({ status: "all", level: "all" });
 
   const items = useMemo(
-    () => trayItems(alerts, { role, memberId: DEMO_ACTORS[role].memberId }),
+    () => trayItems(alerts, { role, memberId }),
     [alerts, role],
   );
   const visible = useMemo(() => filterTray(items, filter), [items, filter]);
   const unread = unreadCount(items) + unreadIds(notifications).length;
   const raw = selectedId ? alerts.find((alert) => alert.id === selectedId) : undefined;
-  const selected = raw ? projectAlert(raw, { role, memberId: DEMO_ACTORS[role].memberId }) : null;
+  const selected = raw ? projectAlert(raw, { role, memberId }) : null;
 
   return (
     <Dialog.Root

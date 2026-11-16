@@ -5,9 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { AlertTray } from "@/features/alerts/components/alert-tray";
-import { NAV_ITEMS, activeItemId, navItemsFor } from "@/features/navigation/nav.logic";
-import { DEMO_ACTORS, ROLE_LABELS } from "@/features/roles/roles.logic";
-import { useDemoRole } from "@/features/roles/roles.store";
+import { activeItemId, navItemsFor } from "@/features/navigation/nav.logic";
+import { ROLE_LABELS } from "@/features/roles/roles.logic";
+import { useDemoRole, useMemberId } from "@/features/roles/roles.store";
 import { Icon } from "@/shared/ui/icon";
 
 const PILL =
@@ -16,7 +16,8 @@ const PILL =
 export function SiteNav() {
   const active = activeItemId(usePathname());
   const role = useDemoRole();
-  const items = navItemsFor(role, DEMO_ACTORS.astronaut.memberId ?? NAV_ITEMS[0].id);
+  const memberId = useMemberId();
+  const items = navItemsFor(role, memberId);
 
   return (
     <div

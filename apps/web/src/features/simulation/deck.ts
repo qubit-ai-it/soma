@@ -8,7 +8,7 @@ export function randomCrewPositions(count: number): Point[] {
     const swap = Math.floor(Math.random() * (index + 1));
     [choices[index], choices[swap]] = [choices[swap], choices[index]];
   }
-  return choices.slice(0, count).map((room) => {
+  return Array.from({ length: count }, (_, index) => choices[index % choices.length]).map((room) => {
     const center = roomCenter(room);
     return {
       x: Math.round((center.x + (Math.random() - 0.5) * 10) * 10) / 10,

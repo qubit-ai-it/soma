@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getEcosystem } from "@/features/earth/ecosystem.server";
-import { DEMO_ACTORS } from "@/features/roles/roles.logic";
+import { getSessionCaller } from "@/features/roles/roles.session";
+import { getServices } from "@/server/services";
 
 const inputSchema = z.object({ bpm: z.number().finite().min(20).max(260) });
 
@@ -12,12 +13,15 @@ export async function escalateLiveAlert(raw: unknown): Promise<{ ok: boolean; me
   const parsed = inputSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, message: "Invalid reading." };
 
-  const member = DEMO_ACTORS.astronaut;
+  const caller = await getSessionCaller();
+  if (!caller?.memberId) return { ok: false, message: "Sign in to send alerts." };
+  const member = await getServices().crew.get(caller.memberId);
+  if (!member) return { ok: false, message: "Crew member not found." };
   const minute = Math.floor(Date.now() / 60000);
   const result = await getEcosystem().alerts.raise({
     alertId: `live-f3-${minute}`,
-    memberId: member.memberId ?? "cm-02",
-    memberLabel: member.label,
+    memberId: member.id,
+    memberLabel: member.name,
     level: "F3",
     title: "Very high heart rate",
     action: "Follow the approved protocol and notify the onboard physician.",

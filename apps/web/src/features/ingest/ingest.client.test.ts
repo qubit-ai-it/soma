@@ -9,7 +9,7 @@ describe("ingest sender", () => {
   it("sends buffered readings and clears them on success", async () => {
     const sent: number[] = [];
     const sender = createIngestSender({
-      subjectId: "live-astronaut",
+      subjectId: "cm-1a2b3c01",
       device: "Watch",
       post: async (body) => {
         sent.push(body.readings.length);
@@ -26,7 +26,7 @@ describe("ingest sender", () => {
   it("keeps readings when the post fails and retries later", async () => {
     let ok = false;
     const sender = createIngestSender({
-      subjectId: "live-astronaut",
+      subjectId: "cm-1a2b3c01",
       device: "Watch",
       post: async () => ok,
     });
@@ -40,7 +40,7 @@ describe("ingest sender", () => {
 
   it("treats a thrown network error as a failed post", async () => {
     const sender = createIngestSender({
-      subjectId: "live-astronaut",
+      subjectId: "cm-1a2b3c01",
       device: "Watch",
       post: async () => {
         throw new Error("offline");
@@ -54,7 +54,7 @@ describe("ingest sender", () => {
   it("splits large buffers into chunks of at most 500", async () => {
     const sizes: number[] = [];
     const sender = createIngestSender({
-      subjectId: "live-astronaut",
+      subjectId: "cm-1a2b3c01",
       device: "Watch",
       post: async (body) => {
         sizes.push(body.readings.length);

@@ -9,11 +9,11 @@ const nominal = { heartRateBpm: 72, spo2Pct: 98, systolic: 120, diastolic: 78, s
 const critical: Decision = {
   status: "critical",
   equipmentId: "defibrillator",
-  affectedCrewId: "cm-04",
+  affectedCrewId: "cm-d4",
   signals: ["heartRateBpm"],
   instructions: [
-    { crewId: "cm-03", message: "Go to the laboratory.", destination: "laboratory", via: null },
-    { crewId: "cm-02", message: "Bring the equipment.", destination: "laboratory", via: "medical" },
+    { crewId: "cm-c3", message: "Go to the laboratory.", destination: "laboratory", via: null },
+    { crewId: "cm-b2", message: "Bring the equipment.", destination: "laboratory", via: "medical" },
   ],
 };
 const resolved: Decision = { status: "resolved", affectedCrewId: null, signals: [], instructions: [] };
@@ -24,9 +24,9 @@ function scenario({ pulse = 0, secondArrives = true }: { pulse?: number; secondA
     decision: critical,
     incidentOpenedWith: { ...nominal, heartRateBpm: 0 },
     crew: [
-      { id: "cm-04", name: "Lucy", role: "Crew member", telemetry: { ...nominal, heartRateBpm: pulse }, position: lab, updatedAt: null },
-      { id: "cm-03", name: "Yuki", role: "Crew member", telemetry: nominal, position: lab, updatedAt: null },
-      { id: "cm-02", name: "Mateo", role: "Crew member", telemetry: nominal, position: secondArrives ? lab : medical, updatedAt: null },
+      { id: "cm-d4", name: "Ada", role: "Crew member", telemetry: { ...nominal, heartRateBpm: pulse }, position: lab, updatedAt: null },
+      { id: "cm-c3", name: "Grace", role: "Crew member", telemetry: nominal, position: lab, updatedAt: null },
+      { id: "cm-b2", name: "Linus", role: "Crew member", telemetry: nominal, position: secondArrives ? lab : medical, updatedAt: null },
     ],
   };
 }
@@ -85,7 +85,7 @@ test("all zero-pulse readings stay visible and are reviewed when no incident is 
   const state = scenario();
   state.crew[1] = { ...state.crew[1], telemetry: { ...nominal, heartRateBpm: 0 } };
 
-  assert.deepEqual(state.crew.filter(hasCriticalTelemetry).map(({ id }) => id), ["cm-04", "cm-03"]);
+  assert.deepEqual(state.crew.filter(hasCriticalTelemetry).map(({ id }) => id), ["cm-d4", "cm-c3"]);
   assert.equal(needsIncidentReview(state), false);
   assert.equal(needsIncidentReview({ ...state, phase: "pending" }), false);
   assert.equal(needsIncidentReview({ ...state, decision: resolved }), true);

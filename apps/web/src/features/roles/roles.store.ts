@@ -3,7 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { useSyncExternalStore } from "react";
 
-import { isRole, roleFromMetadata } from "./roles.logic.ts";
+import { isRole, memberIdFromMetadata, roleFromMetadata } from "./roles.logic.ts";
 import type { Role } from "./roles.types.ts";
 
 const STORAGE_KEY = "soma.demo-role";
@@ -52,4 +52,14 @@ export function useDemoRole(): Role {
   const stored = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const { user } = useUser();
   return roleFromMetadata(user?.publicMetadata) ?? stored;
+}
+
+export function useMemberId(): string | null {
+  const { user } = useUser();
+  return memberIdFromMetadata(user?.publicMetadata);
+}
+
+export function useUserScope(): string {
+  const { user } = useUser();
+  return user?.id ?? "guest";
 }

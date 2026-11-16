@@ -3,8 +3,8 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { useState, useTransition } from "react";
 
-import { DEMO_ACTORS, ROLE_LABELS, canAccess } from "@/features/roles/roles.logic";
-import { useDemoRole } from "@/features/roles/roles.store";
+import { ROLE_LABELS, canAccess } from "@/features/roles/roles.logic";
+import { useDemoRole, useUserScope } from "@/features/roles/roles.store";
 import { Icon } from "@/shared/ui/icon";
 import { SomaCard, type CardAction, type CardTone } from "@/shared/ui/soma-card";
 
@@ -22,11 +22,12 @@ type Props = {
 
 function Detail({ alert, onChanged }: { alert: Alert; onChanged: () => void }) {
   const role = useDemoRole();
+  const scope = useUserScope();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
   const [note, setNote] = useState("");
-  const caller = { role, actorId: DEMO_ACTORS[role].id };
+  const caller = { role, actorId: scope };
 
   function run(call: () => Promise<{ ok: boolean; error?: string }>) {
     start(async () => {
