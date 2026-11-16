@@ -57,7 +57,9 @@ function build() {
     onFlushed: usePostgres
       ? async (state) => {
           const { getPlanFlow } = await import("../../server/plans.server.ts");
+          const { getFollowUpFlow } = await import("../../server/followup.server.ts");
           await getPlanFlow().reconcile(state);
+          await getFollowUpFlow().reconcile(state);
         }
       : undefined,
   });

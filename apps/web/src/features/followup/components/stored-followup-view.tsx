@@ -77,6 +77,12 @@ export function StoredFollowUpView({ record, nowMs }: { record: FollowUpRecord; 
                   <p>
                     {when(window.start)} a {when(window.end)}
                   </p>
+                  {report.feedback.map((item) => (
+                    <p key={item.responseId} className="rounded-md bg-secondary p-3">
+                      <span className="font-semibold">{item.decision === "ack" ? "Tierra vio el reporte" : "Tierra comentó"}</span>
+                      {item.note ? ` · ${item.note}` : ""}
+                    </p>
+                  ))}
                   {report.reasons.length > 1 && (
                     <ul className="list-disc pl-5">
                       {report.reasons.map((r) => (

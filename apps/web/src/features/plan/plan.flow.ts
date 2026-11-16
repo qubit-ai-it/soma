@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { err, ok, type Result } from "../../shared/result.ts";
 import type { AuditRepository } from "../alerts/alerts.repository.ts";
 import type { NewAuditEntry } from "../alerts/alerts.types.ts";
+import { deliveredKeys } from "../earth/earth.delivery.ts";
 import type { EarthState, NewPacket, Packet } from "../earth/earth.types.ts";
 import { roleKey } from "../notifications/notifications.logic.ts";
 import type { NotificationsRepository } from "../notifications/notifications.repository.ts";
@@ -49,12 +50,6 @@ const VERB: Record<EarthDecision, string> = {
 
 export const requestKey = (plan: Pick<PlanRecord, "id" | "revision">) =>
   `plan-review-request:${plan.id}:${plan.revision}`;
-
-function deliveredKeys(state: EarthState): Set<string> {
-  const keys = new Set(state.inbox.map((receipt) => receipt.idempotencyKey));
-  for (const packet of state.queue) if (packet.status === "acked") keys.add(packet.idempotencyKey);
-  return keys;
-}
 
 export function createPlanFlow(deps: Deps) {
   const now = deps.now ?? (() => new Date().toISOString());

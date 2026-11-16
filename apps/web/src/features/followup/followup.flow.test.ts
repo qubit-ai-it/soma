@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { err, ok } from "../../shared/result.ts";
-import type { NewPacket } from "../earth/earth.types.ts";
+import type { EarthState, NewPacket, Packet } from "../earth/earth.types.ts";
 import type { NewNotification } from "../notifications/notifications.types.ts";
 import type { ObservationsRepository } from "../observation/observation.repository.ts";
 import type { Observation } from "../observation/observation.types.ts";
@@ -55,9 +55,11 @@ function setup(options: { plans?: PlanRecord[]; blocks?: number } = {}) {
       rows.push(record);
       return { record, duplicate: false };
     },
+    get: async (id) => rows.find((r) => r.id === id) ?? null,
     getByPlan: async (id) => rows.find((r) => r.planId === id) ?? null,
     latestForSubject: async (s) => rows.filter((r) => r.subjectId === s).at(-1) ?? null,
     listActive: async () => rows.filter((r) => r.status === "active"),
+    listRecent: async () => [...rows].reverse(),
     update: async (id, fn) => {
       const index = rows.findIndex((r) => r.id === id);
       if (index < 0) return err("no");
@@ -166,5 +168,68 @@ describe("follow-up flow", () => {
     await flow.sync(sec(110));
     assert.equal((await flow.sync(sec(115))).skipped, true);
     assert.equal((await flow.sync(sec(150))).skipped, false);
+  });
+});
+
+describe("follow-up feedback from Earth", () => {
+  const stateOf = (packets: Omit<NewPacket, "id">[], delivered: string[]): EarthState =>
+    ({
+      queue: packets.map((p, i) => ({
+        ...p,
+        id: `pk-${i}`,
+        seq: i + 1,
+        status: delivered.includes(p.idempotencyKey) ? "acked" : "queued",
+      })) as Packet[],
+      inbox: [],
+      proposals: [],
+      nextSeq: packets.length + 1,
+    }) as unknown as EarthState;
+
+  async function withClosedWindow() {
+    const ctx = setup();
+    await ctx.flow.sync(sec(110), { force: true });
+    await ctx.flow.sync(sec(165), { force: true });
+    return { ...ctx, followUpId: ctx.rows[0].id, reportKey: ctx.packets[0].idempotencyKey };
+  }
+
+  it("shows Earth only the reports that were delivered and are still unanswered", async () => {
+    const { flow, packets, reportKey, followUpId } = await withClosedWindow();
+    assert.deepEqual(await flow.awaitingFeedback(stateOf(packets, [])), []);
+    const pending = await flow.awaitingFeedback(stateOf(packets, [reportKey]));
+    assert.deepEqual(pending.map((p) => [p.followUpId, p.report.windowId]), [[followUpId, "w1"]]);
+  });
+
+  it("queues a feedback packet to the station and validates the request", async () => {
+    const { flow, packets, followUpId } = await withClosedWindow();
+    const base = { followUpId, windowId: "w1", reviewerId: "demo-earth-md-01" };
+    assert.equal((await flow.earthFeedback({ ...base, followUpId: "nope", decision: "ack", note: "" })).ok, false);
+    assert.equal((await flow.earthFeedback({ ...base, windowId: "w3", decision: "ack", note: "" })).ok, false);
+    assert.equal((await flow.earthFeedback({ ...base, decision: "comment", note: "  " })).ok, false);
+    const sent = await flow.earthFeedback({ ...base, decision: "comment", note: "Medir de noche" });
+    assert.ok(sent.ok);
+    const packet = packets.at(-1)!;
+    assert.equal(packet.kind, "followup_feedback");
+    assert.equal(packet.direction, "to_station");
+    assert.equal(packet.payload.note, "Medir de noche");
+  });
+
+  it("applies feedback only after delivery, once, and tells the CMO and the commander", async () => {
+    const { flow, rows, packets, notes, reportKey, followUpId } = await withClosedWindow();
+    await flow.earthFeedback({ followUpId, windowId: "w1", decision: "comment", note: "Medir de noche", reviewerId: "demo-earth-md-01" });
+    const feedbackKey = packets.at(-1)!.idempotencyKey;
+
+    assert.equal(await flow.reconcile(stateOf(packets, [reportKey])), 0);
+    assert.equal(rows[0].reports[0].feedback.length, 0);
+
+    const delivered = stateOf(packets, [reportKey, feedbackKey]);
+    assert.equal(await flow.reconcile(delivered), 1);
+    assert.equal(await flow.reconcile(delivered), 0);
+    assert.equal(rows[0].reports[0].feedback.length, 1);
+    assert.equal(rows[0].reports[0].feedback[0].note, "Medir de noche");
+
+    const notice = notes.find((n) => n.title === "Tierra respondió");
+    assert.equal(notice?.body, "Tripulante cm-02: Ventana 1 · comentó");
+    assert.deepEqual(notice?.audience, ["role:cmo", "role:commander"]);
+    assert.deepEqual(await flow.awaitingFeedback(delivered), []);
   });
 });

@@ -68,6 +68,7 @@ describe("postgres follow-ups repository", { skip: !hasDirectDatabase }, () => {
       reasons: ["adherence-missing"],
       escalate: false,
       reportedAt: "2026-11-19T12:00:00.000Z",
+      feedback: [],
     };
     assert.equal((await repo.update("fu-2", () => err("no"))).ok, false);
     assert.equal((await repo.update("zzz", (r) => ok(r))).ok, false);

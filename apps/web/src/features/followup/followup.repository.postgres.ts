@@ -50,6 +50,10 @@ export function createPostgresFollowUpsRepository(pool: Pool): FollowUpsReposito
       const { rows } = await pool.query<Row>("select * from followups where plan_id = $1", [record.planId]);
       return { record: toRecord(rows[0]), duplicate: inserted.rowCount === 0 };
     },
+    get: async (id) => {
+      const { rows } = await pool.query<Row>("select * from followups where id = $1", [id]);
+      return rows[0] ? toRecord(rows[0]) : null;
+    },
     getByPlan: async (planId) => {
       const { rows } = await pool.query<Row>("select * from followups where plan_id = $1", [planId]);
       return rows[0] ? toRecord(rows[0]) : null;
@@ -63,6 +67,12 @@ export function createPostgresFollowUpsRepository(pool: Pool): FollowUpsReposito
     },
     listActive: async () => {
       const { rows } = await pool.query<Row>("select * from followups where status = 'active' order by created_at asc");
+      return rows.map(toRecord);
+    },
+    listRecent: async (limit = 50) => {
+      const { rows } = await pool.query<Row>("select * from followups order by created_at desc limit $1", [
+        Math.min(Math.max(limit, 1), 200),
+      ]);
       return rows.map(toRecord);
     },
     update: async (id, fn): Promise<Result<FollowUpRecord>> => {

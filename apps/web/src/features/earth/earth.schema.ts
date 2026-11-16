@@ -6,6 +6,7 @@ export const PACKET_KINDS = [
   "plan_review_request",
   "plan_review_response",
   "followup_report",
+  "followup_feedback",
   "event",
 ] as const;
 export const DIRECTIONS = ["to_earth", "to_station"] as const;

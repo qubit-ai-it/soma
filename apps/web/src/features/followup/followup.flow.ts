@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 
-import { ok } from "../../shared/result.ts";
-import type { NewPacket } from "../earth/earth.types.ts";
+import { err, ok, type Result } from "../../shared/result.ts";
+import { deliveredKeys } from "../earth/earth.delivery.ts";
+import type { EarthState, NewPacket } from "../earth/earth.types.ts";
 import { roleKey } from "../notifications/notifications.logic.ts";
 import type { NotificationsRepository } from "../notifications/notifications.repository.ts";
 import { isEvaluable } from "../observation/observation.logic.ts";
@@ -13,7 +14,7 @@ import { SENTRY_CALIBRATION } from "../sentry/sentry.logic.ts";
 import { buildFollowUpContract } from "./followup.contract.ts";
 import { describeReason, describeStatus } from "./followup.display.ts";
 import { evaluateFollowUp } from "./followup.logic.ts";
-import type { FollowUpRecord, WindowReport } from "./followup.record.ts";
+import { followUpFeedbackSchema, type FollowUpDecision, type FollowUpRecord, type WindowReport } from "./followup.record.ts";
 import type { FollowUpsRepository } from "./followup.repository.ts";
 import type { FollowUpTarget, NotEvaluableReason } from "./followup.types.ts";
 
@@ -30,6 +31,7 @@ type Deps = {
   targets?: FollowUpTarget[];
   throttleMs?: number;
   makeId?: () => string;
+  now?: () => string;
 };
 
 export type FollowUpFlow = ReturnType<typeof createFollowUpFlow>;
@@ -159,6 +161,7 @@ export function createFollowUpFlow(deps: Deps) {
           reasons: found.reasons,
           escalate: found.status === "worsening" && found.windowId === latest,
           reportedAt: evaluatedAt,
+          feedback: [],
         },
       ];
     });
@@ -210,5 +213,101 @@ export function createFollowUpFlow(deps: Deps) {
     return { created, reported, skipped: false };
   }
 
-  return { sync };
+  const VERB: Record<FollowUpDecision, string> = { ack: "vio el reporte", comment: "comentó" };
+
+  async function earthFeedback(input: {
+    followUpId: string;
+    windowId: string;
+    decision: FollowUpDecision;
+    note: string;
+    reviewerId: string;
+  }): Promise<Result<{ responseId: string }>> {
+    const record = await deps.followups.get(input.followUpId);
+    if (!record) return err("Seguimiento no encontrado.");
+    if (!record.reports.some((r) => r.windowId === input.windowId)) return err("Esa ventana no tiene reporte.");
+    const note = input.note.trim();
+    if (input.decision === "comment" && note.length < 3) return err("Escribe una nota para comentar.");
+
+    const responseId = makeId();
+    await deps.enqueue({
+      idempotencyKey: `followup-feedback:${responseId}`,
+      kind: "followup_feedback",
+      direction: "to_station",
+      payload: {
+        followUpId: record.id,
+        windowId: input.windowId,
+        responseId,
+        decision: input.decision,
+        note,
+        reviewerId: input.reviewerId,
+        decidedAt: (deps.now ?? (() => new Date().toISOString()))(),
+      },
+    });
+    return ok({ responseId });
+  }
+
+  async function reconcile(state: EarthState): Promise<number> {
+    const delivered = deliveredKeys(state);
+    let applied = 0;
+    for (const packet of state.queue) {
+      if (packet.kind !== "followup_feedback" || !delivered.has(packet.idempotencyKey)) continue;
+      const { followUpId, windowId } = packet.payload;
+      const parsed = followUpFeedbackSchema.safeParse({
+        responseId: packet.payload.responseId,
+        decision: packet.payload.decision,
+        note: packet.payload.note,
+        reviewerId: packet.payload.reviewerId,
+        at: packet.payload.decidedAt,
+      });
+      if (typeof followUpId !== "string" || typeof windowId !== "string" || !parsed.success) continue;
+      const feedback = parsed.data;
+
+      let didApply = false;
+      const result = await deps.followups.update(followUpId, (record) => {
+        const target = record.reports.find((r) => r.windowId === windowId);
+        if (!target || target.feedback.some((f) => f.responseId === feedback.responseId)) return ok(record);
+        didApply = true;
+        return ok({
+          ...record,
+          reports: record.reports.map((r) =>
+            r.windowId === windowId ? { ...r, feedback: [...r.feedback, feedback] } : r,
+          ),
+          updatedAt: feedback.at,
+        });
+      });
+      if (!result.ok || !didApply) continue;
+      applied += 1;
+
+      const record = result.value;
+      const label = record.reports.find((r) => r.windowId === windowId)?.label ?? windowId;
+      await deps.notifications.add({
+        dedupeKey: `earth-response:${feedback.responseId}`,
+        kind: "earth_response",
+        priority: "normal",
+        title: "Tierra respondió",
+        body: `${deps.labelFor(record.subjectId)}: ${label} · ${VERB[feedback.decision]}`,
+        memberId: record.subjectId,
+        audience: [roleKey("cmo"), roleKey("commander")],
+        payload: { followUpId, windowId, decision: feedback.decision },
+      });
+    }
+    return applied;
+  }
+
+  async function awaitingFeedback(
+    state: EarthState,
+  ): Promise<{ followUpId: string; subjectId: string; report: WindowReport }[]> {
+    const delivered = deliveredKeys(state);
+    const pending: { followUpId: string; subjectId: string; report: WindowReport }[] = [];
+    for (const record of await deps.followups.listRecent(100)) {
+      for (const report of record.reports) {
+        if (report.feedback.length === 0 && delivered.has(`followup-report:${record.id}:${report.windowId}`)) {
+          pending.push({ followUpId: record.id, subjectId: record.subjectId, report });
+        }
+      }
+    }
+    return pending;
+  }
+
+  return { sync, earthFeedback, reconcile, awaitingFeedback };
 }

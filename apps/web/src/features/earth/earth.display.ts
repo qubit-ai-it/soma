@@ -6,6 +6,7 @@ export const KIND_LABELS: Record<PacketKind, string> = {
   plan_review_request: "Plan para revisión",
   plan_review_response: "Revisión de plan",
   followup_report: "Reporte de seguimiento",
+  followup_feedback: "Respuesta de seguimiento",
   event: "Evento",
 };
 
