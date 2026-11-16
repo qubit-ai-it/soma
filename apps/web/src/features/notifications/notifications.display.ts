@@ -11,6 +11,7 @@ export const KIND_LABEL: Record<NotificationKind, string> = {
   link: "Enlace",
   space_weather: "Clima espacial",
   earth_response: "Tierra",
+  plan: "Plan",
 };
 
 export function toneFor(priority: Notification["priority"]): Tone {

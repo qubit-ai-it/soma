@@ -11,6 +11,7 @@ import {
   getNotificationsRepository,
   getObservationsRepository,
 } from "./repositories";
+import { getPlanFlow } from "./plans.server.ts";
 import { getServices } from "./services.ts";
 
 const cache = globalThis as unknown as { somaSentry?: SentryService; somaSentryTalk?: SentryTalk };
@@ -26,6 +27,7 @@ export function getSentry(): SentryService {
     memberFor: (subjectId) =>
       subjectId === LIVE_SUBJECT ? (DEMO_ACTORS.astronaut.memberId ?? subjectId) : subjectId,
     labelFor,
+    onEvaluationSaved: (evaluation) => getPlanFlow().onEvaluationSaved(evaluation),
   });
   return cache.somaSentry;
 }

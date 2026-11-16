@@ -3,6 +3,8 @@ import type { Direction, Packet, PacketKind } from "./earth.types.ts";
 export const KIND_LABELS: Record<PacketKind, string> = {
   alert_notification: "Notificación de alerta",
   plan_response: "Respuesta de plan",
+  plan_review_request: "Plan para revisión",
+  plan_review_response: "Revisión de plan",
   event: "Evento",
 };
 

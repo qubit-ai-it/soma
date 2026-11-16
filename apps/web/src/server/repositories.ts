@@ -6,13 +6,21 @@ import { createPostgresObservationsRepository } from "../features/observation/ob
 import type { ObservationsRepository } from "../features/observation/observation.repository.ts";
 import { createPostgresEvaluationsRepository } from "../features/sentry/evaluations.repository.postgres.ts";
 import type { EvaluationsRepository } from "../features/sentry/evaluations.repository.ts";
+import { createPostgresPlansRepository } from "../features/plan/plan.repository.postgres.ts";
+import type { PlansRepository } from "../features/plan/plan.repository.ts";
 import { getPool } from "./db";
 
 const cache = globalThis as unknown as {
   somaNotifications?: NotificationsRepository;
   somaObservations?: ObservationsRepository;
   somaEvaluations?: EvaluationsRepository;
+  somaPlans?: PlansRepository;
 };
+
+export function getPlansRepository(): PlansRepository {
+  cache.somaPlans ??= createPostgresPlansRepository(getPool());
+  return cache.somaPlans;
+}
 
 export function getEvaluationsRepository(): EvaluationsRepository {
   cache.somaEvaluations ??= createPostgresEvaluationsRepository(getPool());

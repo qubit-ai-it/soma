@@ -18,14 +18,17 @@ import {
 import { alertsFileSchema, auditFileSchema } from "../alerts/alerts.schema.ts";
 import { createAlertService } from "../alerts/alerts.service.ts";
 import { createJsonEarthRepository } from "./earth.repository.json.ts";
+import { createPostgresEarthRepository, seedEarthState } from "./earth.repository.postgres.ts";
+import { earthStateSchema } from "./earth.schema.ts";
 import { createEarthService } from "./earth.service.ts";
 
-async function seedPostgres(seedDir: string) {
-  const read = async (name: string) => JSON.parse(await readFile(path.join(seedDir, name), "utf-8"));
+async function seedPostgres(seedDir: string, earthSeedDir: string) {
+  const read = async (dir: string, name: string) => JSON.parse(await readFile(path.join(dir, name), "utf-8"));
   await seedAlertsAndAudit(getPool(), {
-    alerts: alertsFileSchema.parse(await read("alerts.json")).alerts,
-    entries: auditFileSchema.parse(await read("audit.json")).entries,
+    alerts: alertsFileSchema.parse(await read(seedDir, "alerts.json")).alerts,
+    entries: auditFileSchema.parse(await read(seedDir, "audit.json")).entries,
   });
+  await seedEarthState(getPool(), earthStateSchema.parse(await read(earthSeedDir, "earth.json")));
 }
 
 function build() {
@@ -39,7 +42,8 @@ function build() {
   });
 
   const usePostgres = Boolean(process.env.DATABASE_URL);
-  const ready = usePostgres ? seedPostgres(path.join(dataDir, "seed")) : Promise.resolve();
+  const earthSeedDir = path.join(process.cwd(), "src", "features", "earth", "seed");
+  const ready = usePostgres ? seedPostgres(path.join(dataDir, "seed"), earthSeedDir) : Promise.resolve();
   ready.catch(() => undefined);
   const audit = usePostgres
     ? createPostgresAuditRepository(getPool(), ready)
@@ -47,7 +51,16 @@ function build() {
   const alertsRepo = usePostgres
     ? createPostgresAlertsRepository(getPool(), ready)
     : createJsonAlertsRepository(dataStore);
-  const earth = createEarthService({ repo: createJsonEarthRepository(earthStore), audit });
+  const earth = createEarthService({
+    repo: usePostgres ? createPostgresEarthRepository(getPool(), ready) : createJsonEarthRepository(earthStore),
+    audit,
+    onFlushed: usePostgres
+      ? async (state) => {
+          const { getPlanFlow } = await import("../../server/plans.server.ts");
+          await getPlanFlow().reconcile(state);
+        }
+      : undefined,
+  });
   const alerts = createAlertService({ alerts: alertsRepo, audit, enqueueToEarth: earth.enqueue });
   return { earth, alerts, alertsRepo, audit };
 }

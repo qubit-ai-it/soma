@@ -19,6 +19,7 @@ type Deps = {
   audit: AuditRepository;
   now?: () => string;
   makeId?: () => string;
+  onFlushed?: (state: EarthState) => Promise<void>;
 };
 
 export type EarthService = ReturnType<typeof createEarthService>;
@@ -28,6 +29,7 @@ export function createEarthService({
   audit,
   now = () => new Date().toISOString(),
   makeId = () => randomUUID(),
+  onFlushed,
 }: Deps) {
   // Effects are idempotent (audit keys), so applying them to duplicate deliveries is safe
   async function applyEffects(deliveries: Delivery[], proposals: Proposal[]): Promise<void> {
@@ -70,14 +72,15 @@ export function createEarthService({
   }
 
   async function flush(options: { force?: boolean } = {}): Promise<Delivery[]> {
-    const { deliveries, proposals } = await repo.mutate((state) => {
+    const { deliveries, proposals, after } = await repo.mutate((state) => {
       const outcome = processQueue(state, now(), options);
       return {
         state: outcome.state,
-        result: { deliveries: outcome.deliveries, proposals: outcome.state.proposals },
+        result: { deliveries: outcome.deliveries, proposals: outcome.state.proposals, after: outcome.state },
       };
     });
     await applyEffects(deliveries, proposals);
+    await onFlushed?.(after);
     return deliveries;
   }
 

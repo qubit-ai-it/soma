@@ -8,6 +8,8 @@ export const AUDIT_ACTIONS = [
   "alert_acknowledged",
   "alert_closed",
   "plan_review",
+  "plan_drafted",
+  "plan_submitted",
 ] as const;
 
 const isoDate = z.iso.datetime();

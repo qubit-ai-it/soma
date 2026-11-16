@@ -7,6 +7,8 @@ export const ACTION_LABELS: Record<AuditEntry["action"], string> = {
   alert_acknowledged: "Alerta reconocida",
   alert_closed: "Alerta cerrada",
   plan_review: "Revisión de propuesta de IA",
+  plan_drafted: "Borrador de plan generado",
+  plan_submitted: "Plan enviado a Tierra",
 };
 
 export const STATUS_LABELS: Record<Alert["status"], { text: string; icon: string }> = {

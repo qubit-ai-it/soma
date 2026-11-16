@@ -1,6 +1,12 @@
 import { z } from "zod";
 
-export const PACKET_KINDS = ["alert_notification", "plan_response", "event"] as const;
+export const PACKET_KINDS = [
+  "alert_notification",
+  "plan_response",
+  "plan_review_request",
+  "plan_review_response",
+  "event",
+] as const;
 export const DIRECTIONS = ["to_earth", "to_station"] as const;
 export const PACKET_STATUSES = ["queued", "acked", "failed"] as const;
 export const DECISIONS = ["approve", "modify", "reject"] as const;

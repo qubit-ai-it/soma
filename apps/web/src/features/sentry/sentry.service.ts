@@ -25,6 +25,7 @@ type Deps = {
   raiseAlert: (input: RaiseAlertInput) => Promise<Result<Alert>>;
   memberFor: (subjectId: string) => string;
   labelFor: (memberId: string) => string;
+  onEvaluationSaved?: (evaluation: StoredEvaluation) => Promise<unknown>;
 };
 
 export type ProcessOutcome =
@@ -54,6 +55,12 @@ export function createSentryService(deps: Deps) {
     const result = await deps.evaluations.saveIfChanged(evaluation);
     if (!result.saved) {
       return { phase: "evaluated", evaluation: result.evaluation, saved: false, raised: false };
+    }
+
+    try {
+      await deps.onEvaluationSaved?.(result.evaluation);
+    } catch {
+      // a failing follow-up never blocks the evaluation or its alert
     }
 
     const nowMs = Date.parse(evaluation.evaluatedAt);

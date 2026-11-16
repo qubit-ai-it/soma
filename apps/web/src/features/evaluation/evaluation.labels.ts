@@ -16,6 +16,9 @@ export const RULE_LABEL: Record<string, string> = {
   "heart-rate-high": "Frecuencia cardíaca por encima de su baseline",
   "heart-rate-critical": "Frecuencia cardíaca en rango crítico",
   "conv-3": "Tres o más señales desviadas a la vez",
+  "hr-high": "Frecuencia cardíaca por encima de su baseline",
+  "hr-high-persistent": "Frecuencia cardíaca alta de forma persistente",
+  "hr-critical": "Frecuencia cardíaca en rango crítico",
 };
 
 export const STATUS_COPY: Record<Status, { name: string; summary: string }> = {
