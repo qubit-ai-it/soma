@@ -11,6 +11,7 @@ import {
   getNotificationsRepository,
   getObservationsRepository,
 } from "./repositories";
+import { getFollowUpFlow } from "./followup.server.ts";
 import { getPlanFlow } from "./plans.server.ts";
 import { getServices } from "./services.ts";
 
@@ -50,5 +51,7 @@ export function getSentryTalk(): SentryTalk {
 export async function runSentryClock(nowMs: number) {
   const crew = await getSentry().tick(nowMs);
   const talk = await getSentryTalk().run(nowMs);
-  return { crew, talk };
+  const followup = await getFollowUpFlow().sync(nowMs);
+  if (followup.reported > 0) await getEcosystem().earth.flush();
+  return { crew, talk, followup };
 }

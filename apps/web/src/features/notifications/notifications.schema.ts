@@ -11,6 +11,7 @@ export const NOTIFICATION_KINDS = [
   "space_weather",
   "earth_response",
   "plan",
+  "followup",
 ] as const;
 
 export const PRIORITIES = ["low", "normal", "high", "critical"] as const;

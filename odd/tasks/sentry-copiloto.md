@@ -35,7 +35,7 @@ Supuestos (marcados): roles reales son astronaut/cmo/commander/earth (no "doctor
 | T8a | S2,S6 | inline | hecho | migración 0004 (earth_state, plans), repo Postgres de Tierra (estado completo en jsonb, seed al primer uso), paquetes plan_review_request/response, gancho onFlushed |
 | T8b | S4,S6,S12 | inline | hecho | planes con estado en Postgres, flujo (borrador F2 con IA, F3 con protocolos aprobados, enviar, aprobar a bordo sin enlace, respuesta de Tierra idempotente, aviso "Tierra respondió"), disparo desde Sentry al guardar la evaluación |
 | T8c | S4,S6,S10 | inline | hecho | pestaña Plan con "Generado por Sentry · hace X min" y acciones del cmo, sección "Planes por revisar" en /tierra (aprobar, pedir cambios, comentar); se quitó el botón de generar |
-| T9 | S4,S6 | inline | pendiente | (paso 5) seguimiento automático |
+| T9 | S3,S4,S6 | inline | parcial | (paso 5, versión mínima) tabla `followups` (migración 0005), contrato creado solo al aprobarse el plan (el reloj de Sentry lo detecta), cierre de ventanas por reloj con reporte a Tierra (`followup_report`) y aviso al CMO. Fuera de alcance por tiempo: `followup_feedback` y feedback de Tierra, pestaña Seguimiento leyendo lo guardado, aviso "sin datos hace X minutos", datos de adherencia |
 
 Ruta declarada: todo inline; sin Writer trigger (unidades secuenciales, mismas superficies).
 

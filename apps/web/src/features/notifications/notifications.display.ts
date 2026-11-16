@@ -12,6 +12,7 @@ export const KIND_LABEL: Record<NotificationKind, string> = {
   space_weather: "Clima espacial",
   earth_response: "Tierra",
   plan: "Plan",
+  followup: "Seguimiento",
 };
 
 export function toneFor(priority: Notification["priority"]): Tone {
