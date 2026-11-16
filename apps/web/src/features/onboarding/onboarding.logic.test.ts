@@ -18,8 +18,7 @@ describe("onboarding steps", () => {
   it("presents setup in English", () => {
     assert.equal(ONBOARDING_STEPS[0].title, "I'm Sentry");
     assert.equal(ONBOARDING_STEPS.find((step) => step.id === "role")?.title, "What is your role?");
-    assert.equal(ONBOARDING_STEPS.find((step) => step.id === "rules")?.title, "Rules decide");
-    assert.equal(ONBOARDING_STEPS.find((step) => step.id === "rules")?.line, "I explain. A person always makes the final decision.");
+    assert.equal(ONBOARDING_STEPS[0].line, "Your intelligent health assistant in space.");
   });
   it("has unique ids and a valid Sentry mode on every step", () => {
     assert.equal(new Set(ONBOARDING_STEPS.map((s) => s.id)).size, ONBOARDING_STEPS.length);
@@ -57,6 +56,14 @@ describe("onboarding steps", () => {
   it("walks backward without passing the first step", () => {
     assert.equal(prevStepIndex(3), 2);
     assert.equal(prevStepIndex(0), 0);
+  });
+});
+
+describe("onboarding length", () => {
+  it("keeps the intro to three short screens before the setup", () => {
+    const intro = ONBOARDING_STEPS.filter((step) => step.kind === "info");
+    assert.equal(intro.length, 3);
+    assert.ok(ONBOARDING_STEPS.length <= 8);
   });
 });
 

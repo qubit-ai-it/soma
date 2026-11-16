@@ -126,6 +126,7 @@ export function AlertTray({ className }: { className?: string }) {
       <Dialog.Trigger
         aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
         title="Notifications"
+        data-tour="notifications"
         className={`relative ${className ?? ""}`}
       >
         <Icon name={unread > 0 ? "notifications_active" : "notifications"} />

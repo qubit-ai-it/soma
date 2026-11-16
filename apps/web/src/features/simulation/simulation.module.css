@@ -215,32 +215,6 @@
 .error { margin-top: 5px; color: var(--danger); font-size: 13px; }
 .analysis .error { color: var(--danger); }
 
-.guideBackdrop { position: fixed; inset: 0; z-index: 70; background: color-mix(in oklch, var(--background) 75%, transparent); }
-.guidePopup {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  z-index: 71;
-  width: min(420px, calc(100vw - 32px));
-  max-height: calc(100dvh - 32px);
-  overflow: auto;
-  transform: translate(-50%, -50%);
-  padding: 24px;
-  border: 1px solid var(--secondary);
-  border-radius: var(--radius-lg);
-  background: var(--card);
-  box-shadow: var(--shadow-product);
-  outline: none;
-}
-.guideCount { color: var(--signal); font-size: 12px; font-weight: 700; }
-.guideTitle { margin-top: 12px; font-size: 24px; line-height: 1.15; }
-.guideText { margin-top: 10px; color: var(--muted-foreground); font-size: 15px; line-height: 1.5; }
-.guideProgress { display: flex; gap: 6px; margin-top: 22px; }
-.guideProgress span { width: 28px; height: 5px; border-radius: 999px; background: var(--secondary); }
-.guideProgress span[data-active="true"] { background: var(--signal); }
-.guideActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
-.guideActions button:last-child { margin-left: auto; }
-
 .details {
   position: absolute;
   z-index: 5;

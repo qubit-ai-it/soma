@@ -7,7 +7,8 @@ import { Button } from "@/shared/ui/button";
 import { Icon } from "@/shared/ui/icon";
 import { ZONE_REGION_IDS } from "@/features/crew/crew.body";
 import { AssignmentRoutes } from "./assignment-routes";
-import { SimulationGuide } from "./simulation-guide";
+import { SimulationTour } from "./simulation-tour";
+import type { TourContext } from "./tour.logic";
 import { assessTelemetry, canEditTelemetry, incidentProgress, isCrewInDanger } from "./incident";
 import { constrainToDeck, corridorFloors, isCorridor, locationAt, locationNames, roomFloor, type DeckFloor } from "./deck";
 import {
@@ -15,7 +16,7 @@ import {
   telemetryLabels, telemetrySchema,
   type Point, type SimCrew, type SimulationState, type SimulationUpdate, type Telemetry,
 } from "./simulation";
-import { CPR_EXPERIENCE, cardiacArrestIncident } from "./simulation.experience";
+import { CARDIAC_ARREST_MAX_BPM, CPR_EXPERIENCE, cardiacArrestIncident } from "./simulation.experience";
 import { providerLabel } from "./simulation.provider";
 import styles from "./simulation.module.css";
 
@@ -53,7 +54,7 @@ function TelemetryInput({ name, value, reference, disabled, onChange }: {
   const label = telemetryLabels[name];
   const range = telemetrySchema.shape[name];
   return (
-    <label className={styles.field}>
+    <label className={styles.field} data-tour={name === "heartRateBpm" ? "pulse" : undefined}>
       {label}
       <input
         type="number"
@@ -270,12 +271,19 @@ export function SimulationConsole() {
   const alerts = state?.crew.filter(({ id }) => criticalReadings.get(id)?.length) ?? [];
   const otherAlerts = alerts.filter(({ id }) => incidentStatus !== "critical" || affected?.id !== id);
 
+  const tourContext: TourContext = {
+    crewCount: state?.crew.length ?? 0,
+    profileOpen: selected !== null,
+    lowPulse: state?.crew.some(({ telemetry }) => telemetry.heartRateBpm <= CARDIAC_ARREST_MAX_BPM) ?? false,
+    emergency: state ? cardiacArrestIncident(state) !== null : false,
+  };
+
   return (
     <main className={`container-soma ${styles.console}`}>
       <header className={styles.top}>
         <Link href="/mission" className={styles.home}><Icon name="arrow_back" /> Mission dashboard</Link>
         <h1 className="text-display">Crew simulation</h1>
-        <SimulationGuide />
+        <SimulationTour context={tourContext} ready={state !== null} />
       </header>
 
       {connectionError && <p role="alert" className={styles.error}>Lost connection to the simulator. Reconnecting…</p>}
@@ -300,7 +308,7 @@ export function SimulationConsole() {
                 <p>Click to see readings; drag to move.</p>
               </header>
               {state.crew.length === 0 && <p className={styles.empty} role="status">{emptyCrewMessage}</p>}
-              <div ref={map} className={styles.map} aria-label="Ship layout">
+              <div ref={map} className={styles.map} aria-label="Ship layout" data-tour="map">
                 <div className={styles.rooms} aria-hidden="true">
                   {corridorFloors.map((floor) => (
                     <div className={styles.corridor} key={floor.id} style={floorStyle(floor)} title={locationNames[floor.id]}>
@@ -330,7 +338,7 @@ export function SimulationConsole() {
                   const location = locationAt(position);
                   const critical = isCrewInDanger(state, crewMember);
                   return (
-                    <button key={id} type="button"
+                    <button key={id} type="button" data-tour={index === 0 ? "crew-dot" : undefined}
                       className={styles.marker} data-critical={critical} data-locked={critical} data-corridor={isCorridor(location)} data-selected={selected === id}
                       style={{ "--marker-color": crewColor(state.crew, id), color: crewColor(state.crew, id), left: `${position.x}%`, top: `${position.y}%` } as CSSProperties}
                       aria-label={`${name}, ${locationNames[location]}${critical ? ", in danger: cannot be moved until they improve" : ""}`} aria-expanded={selected === id}
@@ -362,7 +370,7 @@ export function SimulationConsole() {
             </section>
 
             <aside className={styles.overview}>
-              <div className={styles.analysis} aria-live="polite">
+              <div className={styles.analysis} aria-live="polite" data-tour="evaluation">
                 <header className={styles.analysisHeader}>
                   <h2 className="text-headline">Evaluation</h2>
                   <span className={styles.model}><Dot color="var(--signal)" /> {providerLabel(state.decision?.provider)}</span>
@@ -423,7 +431,7 @@ export function SimulationConsole() {
                   </div>
                 )}
                 {cardiacArrestIncident(state) && (
-                  <div className={styles.decision} data-status="critical">
+                  <div className={styles.decision} data-status="critical" data-tour="experience">
                     <strong>{CPR_EXPERIENCE.title}</strong>
                     <p>{cardiacArrestIncident(state)?.name} has no reliable pulse. Start the guided experience.</p>
                     <Link href={CPR_EXPERIENCE.href}>Start the experience</Link>

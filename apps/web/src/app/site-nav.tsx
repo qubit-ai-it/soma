@@ -37,6 +37,7 @@ export function SiteNav() {
             <Link
               key={item.id}
               href={item.href}
+              data-tour={item.id === "report" ? "report" : undefined}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
               title={item.label}
