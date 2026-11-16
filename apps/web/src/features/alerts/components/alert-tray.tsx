@@ -52,7 +52,7 @@ function FilterChips<T extends string>({
   onChange: (next: T) => void;
 }) {
   return (
-    <div role="group" aria-label={label} className="flex gap-2 overflow-x-auto pb-1">
+    <div role="group" aria-label={label} className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {options.map((option) => (
         <button
           key={option.value}
@@ -165,7 +165,7 @@ export function AlertTray({ className }: { className?: string }) {
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 pb-5">
+          <div className="flex-1 overflow-y-auto px-5 pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {visible.length === 0 && feed.primary.length + feed.digest.length === 0 ? (
               <p className="py-6 text-base text-muted-foreground">
                 {items.length === 0 ? "Sin notificaciones." : "Ninguna notificación coincide con el filtro."}
