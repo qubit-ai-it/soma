@@ -15,6 +15,12 @@ import {
 const words = (text: string) => text.trim().split(/\s+/).length;
 
 describe("onboarding steps", () => {
+  it("presents setup in English", () => {
+    assert.equal(ONBOARDING_STEPS[0].title, "I'm Sentry");
+    assert.equal(ONBOARDING_STEPS.find((step) => step.id === "role")?.title, "What is your role?");
+    assert.equal(ONBOARDING_STEPS.find((step) => step.id === "rules")?.title, "Rules decide");
+    assert.equal(ONBOARDING_STEPS.find((step) => step.id === "rules")?.line, "I explain. A person always makes the final decision.");
+  });
   it("has unique ids and a valid Sentry mode on every step", () => {
     assert.equal(new Set(ONBOARDING_STEPS.map((s) => s.id)).size, ONBOARDING_STEPS.length);
     for (const step of ONBOARDING_STEPS) {
