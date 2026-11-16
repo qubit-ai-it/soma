@@ -43,11 +43,11 @@ function memoryObservations(): ObservationsRepository & { all: Observation[] } {
 function memoryEvaluations(): EvaluationsRepository {
   const rows: StoredEvaluation[] = [];
   return {
-    latest: async () => rows[0] ?? null,
-    history: async () => [...rows],
+    latest: async (subjectId) => rows.find((r) => r.subjectId === subjectId) ?? null,
+    history: async (subjectId) => rows.filter((r) => r.subjectId === subjectId),
     saveIfChanged: async (evaluation: Evaluation) => {
-      const previous = rows[0] ?? null;
-      const history = [...rows];
+      const history = rows.filter((r) => r.subjectId === evaluation.subjectId);
+      const previous = history[0] ?? null;
       if (previous && previous.status === evaluation.status) {
         return { evaluation: previous, saved: false, previous, history };
       }
@@ -146,5 +146,46 @@ describe("sentry service", () => {
     assert.ok(first.every((s) => s.emitted > 0));
     const second = await service.tick(now);
     assert.ok(second.every((s) => s.emitted === 0));
+  });
+});
+
+describe("sentry stale data", () => {
+  const gapEnd = T0 + 100_000;
+  const later = gapEnd + 12 * 60_000;
+
+  it("flags a data gap once as no evaluable, for the CMO only", async () => {
+    const { service, feed, raised, notified } = setup();
+    await feed("cm-01", 0, 20);
+    await service.process("cm-01");
+
+    const flagged = await service.checkStale(later, ["cm-01"], { force: true });
+    assert.deepEqual(flagged, [{ subject: "cm-01", staleMinutes: 12 }]);
+    assert.equal(raised.length, 1);
+    assert.equal(raised[0].level, "NOT_EVALUABLE");
+    assert.equal(raised[0].actorId, "sentry");
+    assert.equal(notified[0].body, "Tripulante cm-01: sin datos hace 12 min");
+    assert.deepEqual(notified[0].audience, ["role:cmo"]);
+
+    assert.deepEqual(await service.checkStale(later + 60_000, ["cm-01"], { force: true }), []);
+    assert.equal(raised.length, 1);
+  });
+
+  it("ignores fresh data and subjects that were never evaluated", async () => {
+    const { service, feed, raised } = setup();
+    await feed("cm-01", 0, 20);
+    await service.process("cm-01");
+    assert.deepEqual(await service.checkStale(gapEnd + 5 * 60_000, ["cm-01", "cm-04"], { force: true }), []);
+    assert.equal(raised.length, 0);
+  });
+
+  it("throttles repeated checks unless forced", async () => {
+    const { service, feed } = setup();
+    await feed("cm-01", 0, 20);
+    await feed("cm-02", 0, 20);
+    await service.process("cm-01");
+    await service.process("cm-02");
+    assert.equal((await service.checkStale(later, ["cm-01"])).length, 1);
+    assert.deepEqual(await service.checkStale(later + 1000, ["cm-02"]), []);
+    assert.equal((await service.checkStale(later + 1000, ["cm-02"], { force: true })).length, 1);
   });
 });

@@ -107,6 +107,9 @@ export function translateLimitation(
       text: `${name}: el baseline no tiene variabilidad, así que no se puede normalizar la desviación.`,
     };
   }
+  if (kind === "stale-data" && signal) {
+    return { code, signal, text: `${name}: sin datos recientes.` };
+  }
   if (kind === "no-recent-observations" && signal) {
     return {
       code,

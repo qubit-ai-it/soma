@@ -1,7 +1,7 @@
 import { LIVE_CALIBRATION_BINS, LIVE_RULESET } from "../live/live.logic.ts";
 import { isEvaluable } from "../observation/observation.logic.ts";
 import type { Observation } from "../observation/observation.types.ts";
-import { evaluate } from "../rules/rules.engine.ts";
+import { ENGINE_VERSION, evaluate } from "../rules/rules.engine.ts";
 import type { Evaluation, RuleSet, Status } from "../rules/rules.types.ts";
 import type { Alert } from "../alerts/alerts.types.ts";
 
@@ -10,6 +10,7 @@ export const SENTRY_RULESET: RuleSet = LIVE_RULESET;
 export const SENTRY_CALIBRATION = LIVE_CALIBRATION_BINS;
 export const DEBOUNCE_WINDOW_MS = 10 * 60_000;
 export const HYSTERESIS_MS = 30 * 60_000;
+export const STALE_AFTER_MS = 10 * 60_000;
 
 const ALERTABLE: readonly Status[] = ["F2", "F3", "NOT_EVALUABLE"];
 const RANK: Record<Status, number> = { F0: 0, F1: 1, F2: 2, NOT_EVALUABLE: 2, F3: 3 };
@@ -81,4 +82,21 @@ export function clinicalDetailFor(evaluation: Evaluation): string | undefined {
   return delta === undefined
     ? `Línea base de ${center} bpm.`
     : `Desviación de ${delta.toFixed(1)} sobre su línea base de ${center} bpm.`;
+}
+
+export function staleMinutes(lastObservedAt: string, nowMs: number): number {
+  return Math.floor((nowMs - Date.parse(lastObservedAt)) / 60_000);
+}
+
+export function staleEvaluation(subjectId: string, nowMs: number): Evaluation {
+  return {
+    status: "NOT_EVALUABLE",
+    subjectId,
+    evaluatedAt: new Date(nowMs).toISOString(),
+    ruleSetVersion: SENTRY_RULESET.version,
+    engineVersion: ENGINE_VERSION,
+    triggeredRules: [],
+    evidence: [],
+    limitations: ["stale-data:heartRate"],
+  };
 }

@@ -15,6 +15,9 @@ import {
   SENTRY_ACTOR,
   SENTRY_CALIBRATION,
   shouldRaise,
+  STALE_AFTER_MS,
+  staleEvaluation,
+  staleMinutes,
 } from "./sentry.logic.ts";
 import { blockStartsToEmit, SIM_SUBJECTS, syntheticHeartRate } from "./sentry.simulation.ts";
 
@@ -38,6 +41,8 @@ const LEVEL_NAME = { F3: "F3", F2: "F2", NOT_EVALUABLE: "No evaluable" } as cons
 export type SentryService = ReturnType<typeof createSentryService>;
 
 export function createSentryService(deps: Deps) {
+  let lastStaleRun = 0;
+
   async function load(subjectId: string): Promise<Observation[]> {
     const options = { signal: "heartRate" } as const;
     const [oldest, newest] = await Promise.all([
@@ -116,5 +121,52 @@ export function createSentryService(deps: Deps) {
     return summary;
   }
 
-  return { process, tick };
+  async function checkStale(
+    nowMs: number,
+    subjects: readonly string[],
+    options: { force?: boolean } = {},
+  ): Promise<{ subject: string; staleMinutes: number }[]> {
+    if (!options.force && nowMs - lastStaleRun < 60_000) return [];
+    lastStaleRun = nowMs;
+
+    const flagged: { subject: string; staleMinutes: number }[] = [];
+    for (const subject of subjects) {
+      const latest = await deps.evaluations.latest(subject);
+      if (!latest || latest.status === "NOT_EVALUABLE") continue;
+      const [last] = await deps.observations.listBySubject(subject, { signal: "heartRate", limit: 1, newest: true });
+      if (!last || nowMs - Date.parse(last.observedAt) < STALE_AFTER_MS) continue;
+
+      await deps.evaluations.saveIfChanged(staleEvaluation(subject, nowMs));
+      const minutes = staleMinutes(last.observedAt, nowMs);
+      const memberId = deps.memberFor(subject);
+      const label = deps.labelFor(memberId);
+      const gap = Date.parse(last.observedAt);
+      const copy = alertCopy("NOT_EVALUABLE");
+      const raised = await deps.raiseAlert({
+        alertId: `sentry-${memberId}-NOT_EVALUABLE-stale-${gap}`,
+        memberId,
+        memberLabel: label,
+        level: "NOT_EVALUABLE",
+        title: copy.title,
+        action: copy.action,
+        actorId: SENTRY_ACTOR,
+      });
+      if (raised.ok) {
+        await deps.notifications.add({
+          dedupeKey: `nodata:${memberId}:${gap}`,
+          kind: "alert",
+          priority: "normal",
+          title: `No evaluable · ${label}`,
+          body: `${label}: sin datos hace ${minutes} min`,
+          memberId,
+          audience: audienceForLevel("NOT_EVALUABLE", memberId),
+          payload: { alertId: raised.value.id, level: "NOT_EVALUABLE", memberId },
+        });
+      }
+      flagged.push({ subject, staleMinutes: minutes });
+    }
+    return flagged;
+  }
+
+  return { process, tick, checkStale };
 }

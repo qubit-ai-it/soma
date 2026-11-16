@@ -3,7 +3,8 @@ import { describe, it } from "node:test";
 
 import { BIN_MS } from "../live/live.logic.ts";
 import type { Observation } from "../observation/observation.types.ts";
-import { deriveEvaluation, shouldRaise } from "./sentry.logic.ts";
+import { translateLimitation } from "../evaluation/evaluation.labels.ts";
+import { deriveEvaluation, shouldRaise, staleEvaluation, staleMinutes } from "./sentry.logic.ts";
 import { blockStartsToEmit, SIM_SUBJECTS, syntheticHeartRate } from "./sentry.simulation.ts";
 
 const T0 = 1_800_000_000_000 - (1_800_000_000_000 % BIN_MS);
@@ -90,5 +91,21 @@ describe("simulator blocks", () => {
 
   it("covers every crew member with a profile", () => {
     assert.deepEqual(SIM_SUBJECTS, ["cm-01", "cm-02", "cm-03", "cm-04"]);
+  });
+});
+
+describe("stale evaluation", () => {
+  it("is not evaluable with a readable limitation, never F0", () => {
+    const evaluation = staleEvaluation("cm-02", T0);
+    assert.equal(evaluation.status, "NOT_EVALUABLE");
+    assert.deepEqual(evaluation.limitations, ["stale-data:heartRate"]);
+    assert.equal(
+      translateLimitation("stale-data:heartRate", 6).text,
+      "Frecuencia cardíaca: sin datos recientes.",
+    );
+  });
+
+  it("counts whole minutes since the last observation", () => {
+    assert.equal(staleMinutes(new Date(T0).toISOString(), T0 + 12 * 60_000 + 59_000), 12);
   });
 });

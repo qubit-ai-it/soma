@@ -50,8 +50,9 @@ export function getSentryTalk(): SentryTalk {
 
 export async function runSentryClock(nowMs: number) {
   const crew = await getSentry().tick(nowMs);
+  const stale = await getSentry().checkStale(nowMs, [...SIM_SUBJECTS, LIVE_SUBJECT]);
   const talk = await getSentryTalk().run(nowMs);
   const followup = await getFollowUpFlow().sync(nowMs);
   if (followup.reported > 0) await getEcosystem().earth.flush();
-  return { crew, talk, followup };
+  return { crew, stale, talk, followup };
 }

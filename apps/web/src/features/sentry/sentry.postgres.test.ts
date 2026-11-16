@@ -14,6 +14,7 @@ import { createPostgresNotificationsRepository } from "../notifications/notifica
 import { createPostgresObservationsRepository } from "../observation/observation.repository.postgres.ts";
 import { createPostgresEvaluationsRepository } from "./evaluations.repository.postgres.ts";
 import { createSentryService } from "./sentry.service.ts";
+import { SIM_SUBJECTS } from "./sentry.simulation.ts";
 
 const START = 1_800_000_000_000 - (1_800_000_000_000 % 5000);
 
@@ -91,5 +92,26 @@ describe("sentry end to end on postgres", { skip: !hasDirectDatabase }, () => {
       await sentry.tick(START + second * 1000);
     }
     assert.deepEqual([(await alertsRepo.list()).length, (await audit.list()).length], before);
+  });
+
+  it("flags every crew member as no evaluable after a long data gap, once", { timeout: 120_000 }, async () => {
+    const { alertsRepo, evaluations, notifications, sentry } = build();
+    const before = (await alertsRepo.list()).length;
+    const gap = START + 40 * 60_000;
+    const flagged = await sentry.checkStale(gap, SIM_SUBJECTS, { force: true });
+    assert.equal(flagged.length, 4);
+    assert.equal((await alertsRepo.list()).length, before + 4);
+    for (const subject of SIM_SUBJECTS) {
+      const latest = await evaluations.latest(subject);
+      assert.equal(latest?.status, "NOT_EVALUABLE");
+      assert.deepEqual(latest?.limitations, ["stale-data:heartRate"]);
+    }
+    const cmo = await notifications.listFor({ role: "cmo" }, { limit: 200 });
+    assert.equal(cmo.filter((n) => n.body?.includes("sin datos hace")).length, 4);
+    const person = await notifications.listFor({ role: "astronaut", memberId: "cm-01" }, { limit: 200 });
+    assert.ok(!person.some((n) => n.body?.includes("sin datos hace")));
+
+    assert.deepEqual(await sentry.checkStale(gap + 120_000, SIM_SUBJECTS, { force: true }), []);
+    assert.equal((await alertsRepo.list()).length, before + 4);
   });
 });
