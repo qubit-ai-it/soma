@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { BodyMap, type BodyMapSeverity } from "@/shared/ui/body-map";
@@ -184,9 +185,11 @@ export function SimulationConsole() {
   const map = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
   const writes = useRef(Promise.resolve());
+  const { isSignedIn } = useAuth();
   const accept = (next: SimulationState) => setState((current) => !current || next.version > current.version ? next : current);
 
   useEffect(() => {
+    if (!isSignedIn) return;
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
     async function refresh() {
@@ -205,7 +208,7 @@ export function SimulationConsole() {
     }
     void refresh();
     return () => { controller.abort(); clearTimeout(timer); };
-  }, []);
+  }, [isSignedIn]);
 
   function save(update: SimulationUpdate) {
     writes.current = writes.current.then(async () => {
