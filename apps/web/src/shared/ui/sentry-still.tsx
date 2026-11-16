@@ -1,6 +1,6 @@
 import { cn } from "cn";
 
-export const SENTRY_STILL_SRC = "/mascot/sentry.png?v=1";
+export const SENTRY_STILL_SRC = "/mascot/sentry.png?v=2";
 
 export function SentryStill({
   label = "Sentry",
